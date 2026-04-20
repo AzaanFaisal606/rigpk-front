@@ -165,7 +165,9 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
               style={{
                 padding: "10px 22px",
                 borderBottom: "2px solid #111112",
-                display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap",
+                display: "flex", gap: "8px", alignItems: "center",
+                overflowX: "auto", flexShrink: 0,
+                scrollbarWidth: "none",
               }}
             >
               {relevantFilterKeys.map((key) => {

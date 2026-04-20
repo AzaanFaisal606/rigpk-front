@@ -39,12 +39,16 @@ export default function BuildPage() {
     setActiveSlot(null);
   }
 
+  function removePart(slot: SlotKey) {
+    setBuild((prev) => ({ ...prev, [slot]: null }));
+  }
+
   return (
     <div className="flex flex-col min-h-screen" style={{ background: "var(--bg)" }}>
       <Navbar />
       <main className="flex flex-col flex-1">
         <BuildWireframe build={build} onSlotClick={setActiveSlot} />
-        <section className="max-w-[1200px] mx-auto w-full px-12 py-16">
+        <section className="max-w-[1200px] mx-auto w-full px-8 py-16">
           <p className="section-label mb-1">Your Build</p>
           <h2
             className="font-black mb-2"
@@ -56,7 +60,7 @@ export default function BuildPage() {
             Click any slot to browse and select parts from the marketplace.
           </p>
           <div className="flex gap-7 items-start">
-            <BuildCards build={build} onSlotClick={setActiveSlot} />
+            <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} />
             <BuildSummary build={build} />
           </div>
         </section>
