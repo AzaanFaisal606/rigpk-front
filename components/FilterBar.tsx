@@ -111,6 +111,141 @@ function bucketValues(key: string, rawValues: string[]): Bucket[] | null {
 }
 
 // Resolve a bucket label back to a raw value match for display
+// Price range popover
+function PriceRangeFilter({
+  minPrice,
+  maxPrice,
+  onMin,
+  onMax,
+  onClear,
+}: {
+  minPrice: string;
+  maxPrice: string;
+  onMin: (v: string) => void;
+  onMax: (v: string) => void;
+  onClear: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const isActive = !!minPrice || !!maxPrice;
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const label = isActive
+    ? `${minPrice || "0"} – ${maxPrice || "∞"}`
+    : "Price";
+
+  return (
+    <div ref={ref} style={{ position: "relative", flexShrink: 0 }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          padding: "5px 10px",
+          border: isActive ? "2px solid #7c3aed" : "2px solid #111112",
+          background: isActive ? "#7c3aed" : "white",
+          color: isActive ? "white" : "#111112",
+          boxShadow: isActive ? "2px 2px 0 #7c3aed" : "2px 2px 0 #111112",
+          transform: "skewX(-8deg)",
+          fontFamily: monoFont,
+          fontSize: "10px",
+          fontWeight: 800,
+          letterSpacing: "0.8px",
+          textTransform: "uppercase",
+          cursor: "pointer",
+          whiteSpace: "nowrap",
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+        }}
+      >
+        <span>{label}</span>
+        <span style={{ opacity: 0.6, fontSize: "8px" }}>{open ? "▲" : "▼"}</span>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(100% + 6px)",
+            left: 0,
+            background: "white",
+            border: "2px solid #111112",
+            boxShadow: "4px 4px 0 #111112",
+            zIndex: 100,
+            padding: "12px 14px",
+            minWidth: "200px",
+          }}
+        >
+          <div style={{ marginBottom: "8px" }}>
+            <div className="section-label" style={{ marginBottom: "4px" }}>Min (PKR)</div>
+            <input
+              type="number"
+              placeholder="0"
+              value={minPrice}
+              onChange={e => onMin(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "6px 8px",
+                border: "1.5px solid #111112",
+                background: "white",
+                fontFamily: monoFont,
+                fontSize: "11px",
+                outline: "none",
+                color: "var(--text)",
+              }}
+            />
+          </div>
+          <div style={{ marginBottom: "10px" }}>
+            <div className="section-label" style={{ marginBottom: "4px" }}>Max (PKR)</div>
+            <input
+              type="number"
+              placeholder="Any"
+              value={maxPrice}
+              onChange={e => onMax(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "6px 8px",
+                border: "1.5px solid #111112",
+                background: "white",
+                fontFamily: monoFont,
+                fontSize: "11px",
+                outline: "none",
+                color: "var(--text)",
+              }}
+            />
+          </div>
+          {isActive && (
+            <button
+              onClick={() => { onClear(); setOpen(false); }}
+              style={{
+                width: "100%",
+                padding: "5px 8px",
+                background: "rgba(124,58,237,0.06)",
+                border: "1.5px solid #7c3aed",
+                fontFamily: monoFont,
+                fontSize: "10px",
+                fontWeight: 700,
+                color: "#7c3aed",
+                cursor: "pointer",
+                letterSpacing: "0.5px",
+                textTransform: "uppercase",
+              }}
+            >
+              ✕ Clear
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Comic dropdown component
 function ComicDropdown({
   label,
@@ -342,34 +477,11 @@ export default function FilterBar({ total }: { total: number }) {
     { value: "price_desc", label: "Price ↓" },
   ];
 
-  // Price range options for dropdown
-  const priceRanges = [
-    { value: "", label: "Any Price" },
-    { value: "0-10000", label: "Under 10K" },
-    { value: "10000-25000", label: "10K–25K" },
-    { value: "25000-50000", label: "25K–50K" },
-    { value: "50000-100000", label: "50K–100K" },
-    { value: "100000-999999999", label: "100K+" },
-  ];
-  const currentPriceRange = minPrice && maxPrice
-    ? `${minPrice}-${maxPrice}`
-    : minPrice
-    ? `${minPrice}-999999999`
-    : maxPrice
-    ? `0-${maxPrice}`
-    : "";
-  const activePriceLabel = priceRanges.find(r => r.value === currentPriceRange)?.label ?? "";
-
-  function setPriceRange(value: string) {
+  function clearPrice() {
     const next = new URLSearchParams(params.toString());
     next.delete("min_price");
     next.delete("max_price");
     next.delete("offset");
-    if (value) {
-      const [min, max] = value.split("-");
-      if (min !== "0") next.set("min_price", min);
-      if (max !== "999999999") next.set("max_price", max);
-    }
     router.push(`${pathname}?${next.toString()}`);
   }
 
@@ -439,12 +551,12 @@ export default function FilterBar({ total }: { total: number }) {
           ))}
 
           {/* Price range */}
-          <ComicDropdown
-            label="Price"
-            active={currentPriceRange}
-            options={priceRanges.filter(r => r.value !== "")}
-            onSelect={setPriceRange}
-            onClear={() => setPriceRange("")}
+          <PriceRangeFilter
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onMin={v => push("min_price", v)}
+            onMax={v => push("max_price", v)}
+            onClear={clearPrice}
           />
 
           {/* Retailer */}
