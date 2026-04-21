@@ -3,6 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useState } from "react";
 import { type Stats } from "@/lib/api";
 import DiagLines from "./DiagLines";
 
@@ -19,32 +20,32 @@ export default function Hero({ stats }: HeroProps) {
     <section
       className="relative overflow-hidden"
       style={{
-        background: "linear-gradient(148deg, #f4f4f5 0%, #ececee 45%, #e6e4ef 100%)",
+        background: "var(--bg)",
         minHeight: "88vh",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
+        borderBottom: "2px solid #111112",
       }}
     >
-      {/* Subtle grid lines — horizontal rule accent */}
+      {/* Subtle grid lines */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage:
-            "linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px)",
+          backgroundImage: "linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px)",
           backgroundSize: "100% 80px",
         }}
       />
 
-      {/* Diagonal animated lines — bottom right */}
       <DiagLines />
 
       {/* Left accent bar */}
       <div
-        className="absolute left-0 top-0 bottom-0 w-1 pointer-events-none"
+        className="absolute left-0 top-0 bottom-0 pointer-events-none"
         style={{
-          background: "linear-gradient(to bottom, transparent, #7c3aed 40%, #a855f7 60%, transparent)",
-          opacity: 0.5,
+          width: "4px",
+          background: "#7c3aed",
+          borderRight: "1px solid #111112",
         }}
       />
 
@@ -56,7 +57,7 @@ export default function Hero({ stats }: HeroProps) {
           transition={{ duration: 0.5 }}
           className="flex items-center gap-3 mb-8"
         >
-          <div className="h-px w-8" style={{ background: "#7c3aed" }} />
+          <div style={{ width: "8px", height: "2px", background: "#7c3aed" }} />
           <span className="mono" style={{ color: "#7c3aed" }}>
             PAKPC // PC PART PICKER
           </span>
@@ -67,9 +68,11 @@ export default function Hero({ stats }: HeroProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="font-bold leading-[1.04] tracking-tight"
           style={{
             fontSize: "clamp(2.8rem, 7vw, 5.5rem)",
+            fontWeight: 900,
+            lineHeight: 1.04,
+            letterSpacing: "-0.02em",
             color: "#111112",
             maxWidth: "720px",
           }}
@@ -78,14 +81,7 @@ export default function Hero({ stats }: HeroProps) {
           <br />
           Dream PC
           <br />
-          <span
-            style={{
-              color: "#7c3aed",
-              fontStyle: "italic",
-            }}
-          >
-            In Pakistan.
-          </span>
+          <span style={{ color: "#7c3aed", fontStyle: "italic" }}>In Pakistan.</span>
         </motion.h1>
 
         {/* Subtext */}
@@ -107,12 +103,12 @@ export default function Hero({ stats }: HeroProps) {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-10 flex flex-wrap items-center gap-4"
         >
-          <Link
-            href="/market"
-            className="btn-primary flex items-center gap-2 px-7 py-3.5 text-sm font-semibold rounded-lg"
-          >
+          <CTAButton href="/market" primary>
             Browse Market <ArrowRight size={14} />
-          </Link>
+          </CTAButton>
+          <CTAButton href="/build" primary={false}>
+            Build PC →
+          </CTAButton>
         </motion.div>
 
         {/* Stats row */}
@@ -121,14 +117,40 @@ export default function Hero({ stats }: HeroProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-14 flex flex-wrap items-center gap-0 border-t pt-8"
-            style={{ borderColor: "rgba(0,0,0,0.08)", maxWidth: "560px" }}
+            style={{ marginTop: "56px", display: "flex", maxWidth: "480px" }}
           >
-            <StatPill value={totalParts.toLocaleString()} label="Parts Tracked" />
-            <div className="w-px h-10 mx-6" style={{ background: "var(--border)" }} />
-            <StatPill value={String(totalSources)} label="Retailers" />
-            <div className="w-px h-10 mx-6" style={{ background: "var(--border)" }} />
-            <StatPill value={String(categories)} label="Categories" />
+            {[
+              { value: totalParts.toLocaleString(), label: "Parts Tracked" },
+              { value: String(totalSources), label: "Retailers" },
+              { value: String(categories), label: "Categories" },
+            ].map((stat, i) => (
+              <div
+                key={stat.label}
+                style={{
+                  flex: 1,
+                  padding: "16px 20px",
+                  border: "2px solid #111112",
+                  borderLeft: i === 0 ? "2px solid #111112" : "none",
+                  background: "var(--bg-card)",
+                  boxShadow: i === 2 ? "4px 4px 0 #111112" : "none",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "1.8rem",
+                    fontWeight: 900,
+                    color: "#111112",
+                    lineHeight: 1,
+                    fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                  }}
+                >
+                  {stat.value}
+                </div>
+                <div className="section-label" style={{ marginTop: "4px" }}>
+                  {stat.label}
+                </div>
+              </div>
+            ))}
           </motion.div>
         )}
       </div>
@@ -136,18 +158,43 @@ export default function Hero({ stats }: HeroProps) {
   );
 }
 
-function StatPill({ value, label }: { value: string; label: string }) {
+function CTAButton({
+  href,
+  primary,
+  children,
+}: {
+  href: string;
+  primary: boolean;
+  children: React.ReactNode;
+}) {
+  const [hovered, setHovered] = useState(false);
   return (
-    <div className="flex flex-col gap-0.5">
-      <span
-        className="font-bold tabular-nums"
-        style={{ fontSize: "1.6rem", color: "#111112", lineHeight: 1 }}
-      >
-        {value}
-      </span>
-      <span className="mono" style={{ color: "#a1a1aa" }}>
-        {label}
-      </span>
-    </div>
+    <Link
+      href={href}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        padding: "12px 28px",
+        background: primary
+          ? hovered ? "#6d28d9" : "#7c3aed"
+          : hovered ? "rgba(124,58,237,0.06)" : "transparent",
+        color: primary ? "white" : "#111112",
+        border: "2px solid #111112",
+        boxShadow: hovered ? "5px 5px 0 #111112" : "4px 4px 0 #111112",
+        transform: "skewX(-8deg)",
+        fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+        fontSize: "0.78rem",
+        fontWeight: 800,
+        letterSpacing: "1.5px",
+        textTransform: "uppercase",
+        textDecoration: "none",
+        transition: "background 0.1s, box-shadow 0.1s",
+      }}
+    >
+      {children}
+    </Link>
   );
 }

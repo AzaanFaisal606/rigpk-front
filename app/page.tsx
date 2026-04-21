@@ -8,7 +8,7 @@ export default async function Home() {
   const stats = await getStats();
 
   return (
-    <div className="flex flex-col flex-1" style={{ background: "#ffffff" }}>
+    <div className="flex flex-col flex-1">
       <Navbar />
       <main className="flex flex-col flex-1">
         <Hero stats={stats} />
@@ -16,11 +16,16 @@ export default async function Home() {
         <Features />
       </main>
       <footer
-        className="border-t px-6 py-6 text-center text-xs"
+        className="px-6 py-5 text-center"
         style={{
-          background: "#ffffff",
-          borderColor: "#e5e7eb",
-          color: "#9ca3af",
+          background: "var(--bg)",
+          borderTop: "2px solid #111112",
+          color: "var(--text-dim)",
+          fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+          fontSize: "0.65rem",
+          fontWeight: 600,
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
         }}
       >
         PakPC — prices updated regularly from Pakistani retailers

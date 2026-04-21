@@ -2,89 +2,97 @@
 
 import Link from "next/link";
 import { Cpu } from "lucide-react";
+import { useState } from "react";
 
 export default function Navbar() {
   return (
     <header
-      className="sticky top-0 z-50 border-b"
+      className="sticky top-0 z-50"
       style={{
-        background: "rgba(244,244,245,0.88)",
-        borderColor: "#d4d4d8",
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
+        background: "var(--bg)",
+        borderBottom: "2px solid #111112",
       }}
     >
-      <div className="max-w-6xl mx-auto px-6 h-13 flex items-center justify-between" style={{ height: "52px" }}>
+      <div className="max-w-6xl mx-auto px-6 flex items-center justify-between" style={{ height: "52px" }}>
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 group">
+        <Link href="/" className="flex items-center gap-2.5 no-underline">
           <div
-            className="flex items-center justify-center w-7 h-7 rounded"
-            style={{ background: "#7c3aed" }}
+            className="flex items-center justify-center w-7 h-7"
+            style={{
+              background: "#7c3aed",
+              border: "2px solid #111112",
+              boxShadow: "2px 2px 0 #111112",
+            }}
           >
             <Cpu size={14} color="#fff" />
           </div>
           <span
-            className="font-bold tracking-tight"
+            className="font-bold"
             style={{ color: "#111112", fontSize: "0.95rem", letterSpacing: "-0.01em" }}
           >
             Pak<span style={{ color: "#7c3aed" }}>PC</span>
           </span>
-          <span className="mono hidden sm:inline" style={{ color: "#a1a1aa" }}>
+          <span
+            className="hidden sm:inline"
+            style={{
+              fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+              fontSize: "0.68rem",
+              color: "#a1a1aa",
+              letterSpacing: "0.04em",
+            }}
+          >
             / price tracker
           </span>
         </Link>
 
         {/* Nav */}
-        <nav className="flex items-center gap-1">
-          <NavLink href="/market">Market</NavLink>
-          <NavLink href="/build">Build PC</NavLink>
+        <nav className="flex items-center gap-2">
+          <Link
+            href="/market"
+            style={{
+              color: "#71717a",
+              fontSize: "0.82rem",
+              fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+              letterSpacing: "0.04em",
+              padding: "6px 12px",
+              textDecoration: "none",
+            }}
+            className="hover:text-[#111112] transition-colors"
+          >
+            Market
+          </Link>
+          <BuildPCButton />
         </nav>
       </div>
     </header>
   );
 }
 
-function NavLink({
-  href,
-  children,
-  disabled,
-}: {
-  href: string;
-  children: React.ReactNode;
-  disabled?: boolean;
-}) {
-  const base: React.CSSProperties = {
-    color: "#71717a",
-    fontSize: "0.82rem",
-    fontFamily: '"JetBrains Mono", "Fira Code", monospace',
-    letterSpacing: "0.04em",
-  };
-
-  if (disabled) {
-    return (
-      <span
-        className="relative px-3 py-1.5 rounded cursor-default group"
-        style={base}
-      >
-        {children}
-        <span
-          className="absolute -top-0.5 -right-0.5 text-[9px] px-1 py-px rounded opacity-0 group-hover:opacity-100 transition-opacity"
-          style={{
-            background: "rgba(124,58,237,0.1)",
-            color: "#7c3aed",
-            border: "1px solid rgba(124,58,237,0.22)",
-            fontFamily: "monospace",
-            letterSpacing: "0.06em",
-          }}
-        >
-          SOON
-        </span>
-      </span>
-    );
-  }
+function BuildPCButton() {
+  const [hovered, setHovered] = useState(false);
   return (
-    <Link href={href} className="px-3 py-1.5 rounded transition-colors hover:text-[#111112]" style={base}>
-      {children}
+    <Link
+      href="/build"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: "inline-block",
+        padding: "6px 14px",
+        background: hovered ? "#6d28d9" : "#7c3aed",
+        color: "white",
+        border: "2px solid #111112",
+        boxShadow: "2px 2px 0 #111112",
+        transform: "skewX(-8deg)",
+        fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+        fontSize: "0.72rem",
+        fontWeight: 800,
+        letterSpacing: "1.5px",
+        textTransform: "uppercase",
+        textDecoration: "none",
+        transition: "background 0.1s",
+      }}
+    >
+      Build PC
     </Link>
   );
 }

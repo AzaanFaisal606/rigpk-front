@@ -30,6 +30,7 @@ async function PartsList({
   const minPrice = str(searchParams.min_price);
   const maxPrice = str(searchParams.max_price);
   const offset   = str(searchParams.offset);
+  const q        = str(searchParams.q);
 
   const specParams: Record<string, string> = {};
   for (const key of SPEC_KEYS) {
@@ -45,12 +46,13 @@ async function PartsList({
     sort,
     limit: 50,
     offset: offset ? Number(offset) : 0,
+    q,
     ...specParams,
   });
 
   const heading = category
-    ? category.charAt(0).toUpperCase() + category.slice(1).toUpperCase() + "s"
-    : "All Parts";
+    ? category.toUpperCase() + "S"
+    : "ALL PARTS";
 
   return (
     <>
@@ -60,57 +62,89 @@ async function PartsList({
 
       <div className="max-w-6xl mx-auto px-6 py-6 w-full">
         {/* Section header */}
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-end justify-between mb-5">
           <div>
             <p className="section-label mb-1">Browse Parts</p>
             <h1
-              className="font-bold"
               style={{
+                fontFamily: '"JetBrains Mono", "Fira Code", monospace',
                 fontSize: "clamp(1.2rem, 2.5vw, 1.6rem)",
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
                 color: "var(--text)",
+                lineHeight: 1,
               }}
             >
               {heading}
             </h1>
           </div>
-          {total > 0 && (
-            <span
-              className="mono hidden sm:block"
-              style={{ color: "var(--text-dim)", fontSize: "0.7rem" }}
-            >
-              {total.toLocaleString()} results
-            </span>
-          )}
         </div>
 
         {/* Parts list card */}
         <div
-          className="rounded-xl overflow-hidden"
-          style={{ border: "1px solid var(--border)" }}
+          style={{
+            border: "2px solid #111112",
+            boxShadow: "6px 6px 0 #111112",
+            overflow: "hidden",
+          }}
         >
-          {/* Purple top accent stripe */}
+          {/* Black header bar */}
           <div
-            className="h-px w-full"
             style={{
-              background: "linear-gradient(90deg, #7c3aed, transparent 60%)",
+              background: "#111112",
+              color: "white",
+              padding: "12px 20px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
             }}
-          />
+          >
+            <span
+              style={{
+                fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                fontSize: "11px",
+                fontWeight: 800,
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+              }}
+            >
+              {heading} — Parts List
+            </span>
+            <span
+              style={{
+                fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                fontSize: "10px",
+                color: "rgba(255,255,255,0.45)",
+                fontWeight: 600,
+              }}
+            >
+              {total.toLocaleString()} results
+            </span>
+          </div>
 
           {items.length === 0 ? (
             <div
-              className="py-20 text-center"
-              style={{ background: "var(--bg-card)" }}
+              style={{
+                padding: "64px 24px",
+                textAlign: "center",
+                background: "var(--bg-card)",
+                borderTop: "1px solid #111112",
+              }}
             >
               <p
-                className="mono"
-                style={{ fontSize: "0.8rem", color: "var(--text-dim)" }}
+                style={{
+                  fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                  fontSize: "0.9rem",
+                  fontWeight: 900,
+                  color: "var(--text-dim)",
+                  letterSpacing: "3px",
+                  textTransform: "uppercase",
+                }}
               >
-                NO PARTS FOUND
+                // NO PARTS FOUND
               </p>
-              <p
-                className="text-sm mt-1"
-                style={{ color: "var(--text-muted)" }}
-              >
+              <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "8px" }}>
                 Try adjusting your filters
               </p>
             </div>
@@ -121,13 +155,22 @@ async function PartsList({
 
         {/* Pagination hint */}
         {total > 50 && (
-          <p
-            className="mono mt-4 text-center"
-            style={{ color: "var(--text-dim)", fontSize: "0.7rem" }}
-          >
-            Showing 50 of {total.toLocaleString()} parts — pagination coming
-            soon
-          </p>
+          <div style={{ marginTop: "16px", display: "flex", justifyContent: "center" }}>
+            <span
+              style={{
+                fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                fontSize: "0.68rem",
+                color: "var(--text-dim)",
+                border: "1px solid var(--border)",
+                padding: "4px 12px",
+                transform: "skewX(-6deg)",
+                display: "inline-block",
+                letterSpacing: "0.1em",
+              }}
+            >
+              Showing 50 of {total.toLocaleString()} — pagination coming soon
+            </span>
+          </div>
         )}
       </div>
     </>
@@ -155,11 +198,16 @@ export default async function MarketPage({ searchParams }: PageProps) {
         </Suspense>
       </main>
       <footer
-        className="border-t px-6 py-6 text-center text-xs"
+        className="px-6 py-5 text-center"
         style={{
           background: "var(--bg)",
-          borderColor: "var(--border)",
+          borderTop: "2px solid #111112",
           color: "var(--text-dim)",
+          fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+          fontSize: "0.65rem",
+          fontWeight: 600,
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
         }}
       >
         PakPC — prices updated regularly from Pakistani retailers

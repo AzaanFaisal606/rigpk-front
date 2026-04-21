@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import { Cpu, HardDrive, MemoryStick, MonitorPlay, Zap, Box, CircuitBoard, Wind, Database, Monitor } from "lucide-react";
+import { useState } from "react";
 import type { Part } from "@/lib/api";
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
@@ -30,34 +33,30 @@ function formatPrice(p: number | null): string {
 
 export default function PartRow({ part }: { part: Part }) {
   const Icon = CATEGORY_ICONS[part.category] ?? Cpu;
+  const [hovered, setHovered] = useState(false);
 
   return (
     <a
       href={part.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative flex items-center gap-4 px-4 py-3 no-underline transition-colors"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="flex items-center gap-4 px-4 py-3 no-underline"
       style={{
-        borderBottom: "1px solid var(--border)",
-        background: "var(--bg-card)",
+        borderBottom: "1px solid #111112",
+        borderLeft: hovered ? "4px solid #7c3aed" : "4px solid transparent",
+        background: hovered ? "#ede9fe" : "var(--bg-card)",
+        transition: "background 0.1s, border-left-color 0.1s",
       }}
     >
-      {/* Purple left accent stripe — visible on hover */}
-      <div
-        className="absolute left-0 top-0 bottom-0 w-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-        style={{ background: "var(--purple)" }}
-      />
-
-      {/* Hover background tint */}
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-        style={{ background: "var(--bg-card-2)" }}
-      />
-
       {/* Thumbnail */}
       <div
-        className="relative z-10 flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden"
-        style={{ background: "var(--bg-section)", border: "1px solid var(--border)" }}
+        className="flex-shrink-0 w-12 h-12 flex items-center justify-center overflow-hidden"
+        style={{
+          background: "var(--bg-section)",
+          border: "1.5px solid #111112",
+        }}
       >
         {part.thumbnail_url ? (
           <Image
@@ -74,28 +73,29 @@ export default function PartRow({ part }: { part: Part }) {
       </div>
 
       {/* Name + badges */}
-      <div className="relative z-10 flex-1 min-w-0">
+      <div className="flex-1 min-w-0">
         <p
-          className="font-medium text-sm truncate group-hover:text-[#7c3aed] transition-colors"
-          style={{ color: "var(--text)" }}
+          className="font-medium text-sm truncate"
+          style={{ color: hovered ? "#7c3aed" : "var(--text)", transition: "color 0.1s" }}
         >
           {part.name}
         </p>
         <div className="flex items-center gap-2 mt-1">
           <span
-            className="mono px-1.5 py-px rounded-sm"
+            className="mono px-1.5 py-px"
             style={{
               fontSize: "0.6rem",
+              fontWeight: 800,
               color: "#7c3aed",
               background: "rgba(124,58,237,0.08)",
-              border: "1px solid rgba(124,58,237,0.16)",
+              border: "1px solid rgba(124,58,237,0.22)",
             }}
           >
             {part.category.toUpperCase()}
           </span>
           <span
             className="mono"
-            style={{ fontSize: "0.65rem", color: "var(--text-dim)" }}
+            style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text-muted)" }}
           >
             {SOURCE_SHORT[part.source] ?? part.source}
           </span>
@@ -103,12 +103,13 @@ export default function PartRow({ part }: { part: Part }) {
       </div>
 
       {/* Price */}
-      <div className="relative z-10 flex-shrink-0 text-right">
+      <div className="flex-shrink-0 text-right">
         <span
-          className="font-bold mono"
+          className="mono"
           style={{
-            fontSize: "0.95rem",
-            color: part.price_pkr ? "var(--text)" : "var(--text-dim)",
+            fontSize: "1rem",
+            fontWeight: 900,
+            color: part.price_pkr ? "#111112" : "var(--text-dim)",
           }}
         >
           {formatPrice(part.price_pkr)}

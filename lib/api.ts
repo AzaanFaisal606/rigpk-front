@@ -75,6 +75,7 @@ export interface PartsParams {
   sort?: "price_asc" | "price_desc";
   limit?: number;
   offset?: number;
+  q?: string;
   brand?: string;
   socket?: string;
   vram?: string;
@@ -94,7 +95,7 @@ export interface PartsParams {
 export async function getParts(params: PartsParams = {}): Promise<PartsResult> {
   const query = new URLSearchParams();
   const keys: (keyof PartsParams)[] = [
-    "category", "source", "min_price", "max_price", "sort", "limit", "offset",
+    "category", "source", "min_price", "max_price", "sort", "limit", "offset", "q",
     "brand", "socket", "vram", "ddr_type", "speed", "chipset", "wattage",
     "rating", "form_factor", "type", "aio_size", "fan_size", "interface", "capacity",
   ];
