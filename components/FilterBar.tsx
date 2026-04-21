@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FilterOptions } from "@/lib/api";
 import { getFilterOptions } from "@/lib/api";
 
@@ -43,43 +43,222 @@ const SPEC_LABELS: Record<string, string> = {
 
 const monoFont = '"JetBrains Mono", "Fira Code", monospace';
 
-function Chip({
+// Bucketing: group raw spec values into labelled options
+// Returns { label, values[] } where values are the raw strings that match
+type Bucket = { label: string; values: string[] };
+
+function bucketValues(key: string, rawValues: string[]): Bucket[] | null {
+  const parse = (s: string) => parseFloat(s.replace(/[^\d.]/g, "")) || 0;
+
+  if (key === "capacity") {
+    // Group by TB/GB tiers
+    const gb: string[] = [], sml: string[] = [], mid: string[] = [], big: string[] = [], huge: string[] = [];
+    for (const v of rawValues) {
+      const n = parse(v);
+      const isTB = v.toUpperCase().includes("TB");
+      const numGB = isTB ? n * 1000 : n;
+      if (numGB <= 256) sml.push(v);
+      else if (numGB <= 1000) gb.push(v);
+      else if (numGB <= 4000) mid.push(v);
+      else if (numGB <= 8000) big.push(v);
+      else huge.push(v);
+    }
+    const out: Bucket[] = [];
+    if (sml.length) out.push({ label: "≤256GB", values: sml });
+    if (gb.length) out.push({ label: "512GB–1TB", values: gb });
+    if (mid.length) out.push({ label: "2TB–4TB", values: mid });
+    if (big.length) out.push({ label: "5TB–8TB", values: big });
+    if (huge.length) out.push({ label: "10TB+", values: huge });
+    return out.length > 1 ? out : null;
+  }
+
+  if (key === "speed") {
+    // RAM speeds in MHz
+    const ddr4slow: string[] = [], ddr4fast: string[] = [], ddr5base: string[] = [], ddr5fast: string[] = [];
+    for (const v of rawValues) {
+      const n = parse(v);
+      if (n <= 2666) ddr4slow.push(v);
+      else if (n <= 4000) ddr4fast.push(v);
+      else if (n <= 5600) ddr5base.push(v);
+      else ddr5fast.push(v);
+    }
+    const out: Bucket[] = [];
+    if (ddr4slow.length) out.push({ label: "≤2666MHz", values: ddr4slow });
+    if (ddr4fast.length) out.push({ label: "3000–4000MHz", values: ddr4fast });
+    if (ddr5base.length) out.push({ label: "4800–5600MHz", values: ddr5base });
+    if (ddr5fast.length) out.push({ label: "6000MHz+", values: ddr5fast });
+    return out.length > 1 ? out : null;
+  }
+
+  if (key === "wattage") {
+    const low: string[] = [], mid: string[] = [], high: string[] = [], ultra: string[] = [];
+    for (const v of rawValues) {
+      const n = parse(v);
+      if (n <= 500) low.push(v);
+      else if (n <= 750) mid.push(v);
+      else if (n <= 1000) high.push(v);
+      else ultra.push(v);
+    }
+    const out: Bucket[] = [];
+    if (low.length) out.push({ label: "≤500W", values: low });
+    if (mid.length) out.push({ label: "550–750W", values: mid });
+    if (high.length) out.push({ label: "800–1000W", values: high });
+    if (ultra.length) out.push({ label: "1050W+", values: ultra });
+    return out.length > 1 ? out : null;
+  }
+
+  return null;
+}
+
+// Resolve a bucket label back to a raw value match for display
+// Comic dropdown component
+function ComicDropdown({
+  label,
   active,
-  onClick,
-  children,
+  options,
+  onSelect,
+  onClear,
 }: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
+  label: string;
+  active: string;
+  options: { value: string; label: string; separator?: boolean }[];
+  onSelect: (value: string) => void;
+  onClear: () => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const isActive = !!active && !active.startsWith("__sep__");
+  const displayLabel = active
+    ? options.find(o => !o.separator && o.value === active)?.label ?? active
+    : label;
+
   return (
-    <button
-      onClick={onClick}
-      style={{
-        padding: "4px 12px",
-        border: active ? "1.5px solid #7c3aed" : "1.5px solid var(--border)",
-        background: active ? "#f0ebff" : "white",
-        boxShadow: active ? "2px 2px 0 #7c3aed" : "none",
-        transform: "skewX(-8deg)",
-        fontSize: "10px",
-        fontWeight: 700,
-        letterSpacing: "0.5px",
-        color: active ? "#7c3aed" : "var(--text-muted)",
-        cursor: "pointer",
-        fontFamily: monoFont,
-        whiteSpace: "nowrap" as const,
-        textTransform: "uppercase" as const,
-        flexShrink: 0,
-        transition: "background 0.1s, border-color 0.1s, box-shadow 0.1s",
-      }}
-    >
-      {children}
-    </button>
+    <div ref={ref} style={{ position: "relative", flexShrink: 0 }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          padding: "5px 10px",
+          border: isActive ? "2px solid #7c3aed" : "2px solid #111112",
+          background: isActive ? "#7c3aed" : "white",
+          color: isActive ? "white" : "#111112",
+          boxShadow: isActive ? "2px 2px 0 #7c3aed" : "2px 2px 0 #111112",
+          transform: "skewX(-8deg)",
+          fontFamily: monoFont,
+          fontSize: "10px",
+          fontWeight: 800,
+          letterSpacing: "0.8px",
+          textTransform: "uppercase",
+          cursor: "pointer",
+          whiteSpace: "nowrap",
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          transition: "background 0.1s, border-color 0.1s",
+        }}
+      >
+        <span>{displayLabel}</span>
+        <span style={{ opacity: 0.6, fontSize: "8px" }}>{open ? "▲" : "▼"}</span>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(100% + 6px)",
+            left: 0,
+            background: "white",
+            border: "2px solid #111112",
+            boxShadow: "4px 4px 0 #111112",
+            zIndex: 100,
+            minWidth: "140px",
+            maxHeight: "280px",
+            overflowY: "auto",
+          }}
+        >
+          {isActive && (
+            <button
+              onClick={() => { onClear(); setOpen(false); }}
+              style={{
+                display: "block",
+                width: "100%",
+                padding: "7px 12px",
+                textAlign: "left",
+                background: "rgba(124,58,237,0.06)",
+                border: "none",
+                borderBottom: "1px solid #111112",
+                fontFamily: monoFont,
+                fontSize: "10px",
+                fontWeight: 700,
+                color: "#7c3aed",
+                cursor: "pointer",
+                letterSpacing: "0.5px",
+                textTransform: "uppercase",
+              }}
+            >
+              ✕ Clear
+            </button>
+          )}
+          {options.map(opt =>
+            opt.separator ? (
+              <div
+                key={opt.value}
+                style={{
+                  padding: "4px 12px 2px",
+                  fontFamily: monoFont,
+                  fontSize: "9px",
+                  fontWeight: 800,
+                  color: "#7c3aed",
+                  letterSpacing: "1px",
+                  textTransform: "uppercase",
+                  background: "rgba(124,58,237,0.05)",
+                  borderTop: "1px solid #e4e4e7",
+                  borderBottom: "none",
+                }}
+              >
+                {opt.label}
+              </div>
+            ) : (
+              <button
+                key={opt.value}
+                onClick={() => { onSelect(opt.value); setOpen(false); }}
+                style={{
+                  display: "block",
+                  width: "100%",
+                  padding: "6px 12px 6px 18px",
+                  textAlign: "left",
+                  background: active === opt.value ? "#f0ebff" : "white",
+                  border: "none",
+                  borderBottom: "1px solid #e4e4e7",
+                  fontFamily: monoFont,
+                  fontSize: "10px",
+                  fontWeight: active === opt.value ? 800 : 600,
+                  color: active === opt.value ? "#7c3aed" : "#111112",
+                  cursor: "pointer",
+                  letterSpacing: "0.3px",
+                }}
+              >
+                {opt.label}
+              </button>
+            )
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
 export default function FilterBar({ total }: { total: number }) {
   const router = useRouter();
+  const pathname = usePathname();
   const params = useSearchParams();
 
   const category = params.get("category") ?? "";
@@ -105,6 +284,8 @@ export default function FilterBar({ total }: { total: number }) {
       const next = new URLSearchParams(params.toString());
       if (key === "category") {
         SPEC_KEYS.forEach(k => next.delete(k));
+        next.delete("min_price");
+        next.delete("max_price");
       }
       if (value) {
         next.set(key, value);
@@ -112,28 +293,85 @@ export default function FilterBar({ total }: { total: number }) {
         next.delete(key);
       }
       next.delete("offset");
-      router.push(`/market?${next.toString()}`);
+      router.push(`${pathname}?${next.toString()}`);
     },
-    [params, router]
+    [params, router, pathname]
   );
 
   const specEntries = Object.entries(filterOptions).filter(
     ([, values]) => values && values.length > 0
   );
-  const hasSpecs = specEntries.length > 0;
+  // Build spec dropdown options — bucketed specs get group headers + representative values
+  const specDropdowns = specEntries.map(([key, rawValues]) => {
+    const vals = rawValues as string[];
+    const buckets = bucketValues(key, vals);
+    if (buckets) {
+      // Flatten buckets: group header (disabled separator) + one representative per bucket
+      // Representative = first value in each bucket (exact API match)
+      const options: { value: string; label: string; separator?: boolean }[] = [];
+      for (const b of buckets) {
+        options.push({ value: `__sep__${b.label}`, label: b.label, separator: true });
+        for (const v of b.values) {
+          options.push({ value: v, label: v });
+        }
+      }
+      return { key, label: SPEC_LABELS[key] ?? key, options };
+    }
+    return {
+      key,
+      label: SPEC_LABELS[key] ?? key,
+      options: vals.map(v => ({ value: v, label: v })),
+    };
+  });
 
-  const styledSelect: React.CSSProperties = {
-    background: "var(--bg-card)",
-    border: "1.5px solid var(--border)",
-    color: "var(--text)",
-    padding: "5px 8px",
-    fontSize: "0.72rem",
-    fontFamily: monoFont,
-    letterSpacing: "0.02em",
-    cursor: "pointer",
-    outline: "none",
-    appearance: "auto" as React.CSSProperties["appearance"],
-  };
+  // Category options
+  const categoryOptions = [
+    { value: "", label: "All Categories" },
+    ...CATEGORIES.map(c => ({ value: c, label: c.toUpperCase() })),
+  ];
+
+  // Source options
+  const sourceOptions = [
+    { value: "", label: "All Retailers" },
+    ...SOURCES.map(s => ({ value: s.key, label: s.label })),
+  ];
+
+  // Sort options
+  const sortOptions = [
+    { value: "price_asc", label: "Price ↑" },
+    { value: "price_desc", label: "Price ↓" },
+  ];
+
+  // Price range options for dropdown
+  const priceRanges = [
+    { value: "", label: "Any Price" },
+    { value: "0-10000", label: "Under 10K" },
+    { value: "10000-25000", label: "10K–25K" },
+    { value: "25000-50000", label: "25K–50K" },
+    { value: "50000-100000", label: "50K–100K" },
+    { value: "100000-999999999", label: "100K+" },
+  ];
+  const currentPriceRange = minPrice && maxPrice
+    ? `${minPrice}-${maxPrice}`
+    : minPrice
+    ? `${minPrice}-999999999`
+    : maxPrice
+    ? `0-${maxPrice}`
+    : "";
+  const activePriceLabel = priceRanges.find(r => r.value === currentPriceRange)?.label ?? "";
+
+  function setPriceRange(value: string) {
+    const next = new URLSearchParams(params.toString());
+    next.delete("min_price");
+    next.delete("max_price");
+    next.delete("offset");
+    if (value) {
+      const [min, max] = value.split("-");
+      if (min !== "0") next.set("min_price", min);
+      if (max !== "999999999") next.set("max_price", max);
+    }
+    router.push(`${pathname}?${next.toString()}`);
+  }
 
   return (
     <div
@@ -144,191 +382,91 @@ export default function FilterBar({ total }: { total: number }) {
         borderBottom: "2px solid #111112",
       }}
     >
-      <div className="max-w-6xl mx-auto px-6 py-3 space-y-2.5">
+      <div className="max-w-6xl mx-auto px-6 py-3">
+        <div className="flex items-center gap-2 flex-wrap">
 
-        {/* Row 1: count · search · source · sort */}
-        <div className="flex items-center gap-3">
+          {/* Parts count */}
           <span
             className="mono hidden sm:block"
-            style={{ color: "var(--text-dim)", fontSize: "0.68rem", whiteSpace: "nowrap", flexShrink: 0 }}
+            style={{ color: "var(--text-dim)", fontSize: "0.65rem", whiteSpace: "nowrap", flexShrink: 0, marginRight: "4px" }}
           >
             {total.toLocaleString()} parts
           </span>
 
+          {/* Search */}
           <input
             type="text"
-            placeholder="Search parts..."
+            placeholder="Search..."
             value={q}
             onChange={e => push("q", e.target.value)}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
             style={{
-              flex: 1,
-              padding: "7px 12px",
+              flex: "1 1 140px",
+              minWidth: "120px",
+              maxWidth: "220px",
+              padding: "6px 10px",
               border: searchFocused ? "2px solid #7c3aed" : "2px solid #111112",
               background: "white",
               outline: "none",
               boxShadow: searchFocused ? "2px 2px 0 #7c3aed" : "2px 2px 0 #111112",
               fontFamily: monoFont,
-              fontSize: "12px",
+              fontSize: "11px",
               color: "var(--text)",
               transition: "border-color 0.1s, box-shadow 0.1s",
             }}
           />
 
-          <select
-            value={source}
-            onChange={e => push("source", e.target.value)}
-            style={{ ...styledSelect, flexShrink: 0 }}
-          >
-            <option value="">All Retailers</option>
-            {SOURCES.map(s => (
-              <option key={s.key} value={s.key}>{s.label}</option>
-            ))}
-          </select>
+          {/* Category */}
+          <ComicDropdown
+            label="Category"
+            active={category}
+            options={categoryOptions}
+            onSelect={v => push("category", v)}
+            onClear={() => push("category", "")}
+          />
 
-          <select
-            value={sort}
-            onChange={e => push("sort", e.target.value)}
-            style={{ ...styledSelect, flexShrink: 0 }}
-          >
-            <option value="price_asc">Price ↑</option>
-            <option value="price_desc">Price ↓</option>
-          </select>
-        </div>
-
-        {/* Row 2: category chips */}
-        <div
-          className="flex items-center gap-1.5 overflow-x-auto"
-          style={{ scrollbarWidth: "none", paddingBottom: "2px" }}
-        >
-          <Chip active={category === ""} onClick={() => push("category", "")}>
-            All
-          </Chip>
-          {CATEGORIES.map(c => (
-            <Chip
-              key={c}
-              active={category === c}
-              onClick={() => push("category", category === c ? "" : c)}
-            >
-              {c}
-            </Chip>
+          {/* Spec dropdowns — only when category selected and options loaded */}
+          {specDropdowns.map(({ key, label, options }) => (
+            <ComicDropdown
+              key={key}
+              label={label}
+              active={params.get(key) ?? ""}
+              options={options}
+              onSelect={v => push(key, v)}
+              onClear={() => push(key, "")}
+            />
           ))}
+
+          {/* Price range */}
+          <ComicDropdown
+            label="Price"
+            active={currentPriceRange}
+            options={priceRanges.filter(r => r.value !== "")}
+            onSelect={setPriceRange}
+            onClear={() => setPriceRange("")}
+          />
+
+          {/* Retailer */}
+          <ComicDropdown
+            label="Retailer"
+            active={source}
+            options={sourceOptions.filter(o => o.value !== "")}
+            onSelect={v => push("source", v)}
+            onClear={() => push("source", "")}
+          />
+
+          {/* Sort — pushed to far right */}
+          <div style={{ marginLeft: "auto" }}>
+            <ComicDropdown
+              label={sort === "price_asc" ? "Price ↑" : "Price ↓"}
+              active={sort}
+              options={sortOptions}
+              onSelect={v => push("sort", v)}
+              onClear={() => push("sort", "price_asc")}
+            />
+          </div>
         </div>
-
-        {/* Row 3: spec chips + price range (when category selected and options loaded) */}
-        {hasSpecs && (
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            {specEntries.map(([key, values]) => (
-              <div key={key} className="flex items-center gap-1.5 flex-wrap">
-                <span
-                  className="mono"
-                  style={{
-                    fontSize: "9px",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    color: "var(--text-muted)",
-                    whiteSpace: "nowrap",
-                    flexShrink: 0,
-                  }}
-                >
-                  {SPEC_LABELS[key] ?? key}:
-                </span>
-                {(values as string[]).map((v: string) => {
-                  const active = params.get(key) === v;
-                  return (
-                    <Chip
-                      key={v}
-                      active={active}
-                      onClick={() => push(key, active ? "" : v)}
-                    >
-                      {v}
-                    </Chip>
-                  );
-                })}
-              </div>
-            ))}
-
-            {/* Price range */}
-            <div className="flex items-center gap-1.5 ml-auto">
-              <input
-                type="number"
-                placeholder="Min"
-                value={minPrice}
-                onChange={e => push("min_price", e.target.value)}
-                style={{
-                  width: "90px",
-                  padding: "5px 8px",
-                  border: "1.5px solid #111112",
-                  background: "white",
-                  fontFamily: monoFont,
-                  fontSize: "11px",
-                  outline: "none",
-                  color: "var(--text)",
-                }}
-              />
-              <span className="mono" style={{ color: "var(--text-dim)", fontSize: "0.7rem" }}>–</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={maxPrice}
-                onChange={e => push("max_price", e.target.value)}
-                style={{
-                  width: "90px",
-                  padding: "5px 8px",
-                  border: "1.5px solid #111112",
-                  background: "white",
-                  fontFamily: monoFont,
-                  fontSize: "11px",
-                  outline: "none",
-                  color: "var(--text)",
-                }}
-              />
-              <span className="mono" style={{ color: "var(--text-dim)", fontSize: "0.65rem" }}>PKR</span>
-            </div>
-          </div>
-        )}
-
-        {/* Price range for no-spec categories */}
-        {!hasSpecs && category && (
-          <div className="flex items-center gap-1.5">
-            <input
-              type="number"
-              placeholder="Min price"
-              value={minPrice}
-              onChange={e => push("min_price", e.target.value)}
-              style={{
-                width: "100px",
-                padding: "5px 8px",
-                border: "1.5px solid #111112",
-                background: "white",
-                fontFamily: monoFont,
-                fontSize: "11px",
-                outline: "none",
-                color: "var(--text)",
-              }}
-            />
-            <span className="mono" style={{ color: "var(--text-dim)", fontSize: "0.7rem" }}>–</span>
-            <input
-              type="number"
-              placeholder="Max price"
-              value={maxPrice}
-              onChange={e => push("max_price", e.target.value)}
-              style={{
-                width: "100px",
-                padding: "5px 8px",
-                border: "1.5px solid #111112",
-                background: "white",
-                fontFamily: monoFont,
-                fontSize: "11px",
-                outline: "none",
-                color: "var(--text)",
-              }}
-            />
-            <span className="mono" style={{ color: "var(--text-dim)", fontSize: "0.65rem" }}>PKR</span>
-          </div>
-        )}
       </div>
     </div>
   );

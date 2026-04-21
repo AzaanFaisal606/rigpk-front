@@ -132,7 +132,7 @@ export default function Hero({ stats }: HeroProps) {
                   border: "2px solid #111112",
                   borderLeft: i === 0 ? "2px solid #111112" : "none",
                   background: "var(--bg-card)",
-                  boxShadow: i === 2 ? "4px 4px 0 #111112" : "none",
+                  boxShadow: "4px 4px 0 #111112",
                 }}
               >
                 <div

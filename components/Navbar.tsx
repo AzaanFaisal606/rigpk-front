@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { Cpu } from "lucide-react";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
+  const pathname = usePathname();
+
   return (
     <header
       className="sticky top-0 z-50"
@@ -47,41 +50,45 @@ export default function Navbar() {
 
         {/* Nav */}
         <nav className="flex items-center gap-2">
-          <Link
-            href="/market"
-            style={{
-              color: "#71717a",
-              fontSize: "0.82rem",
-              fontFamily: '"JetBrains Mono", "Fira Code", monospace',
-              letterSpacing: "0.04em",
-              padding: "6px 12px",
-              textDecoration: "none",
-            }}
-            className="hover:text-[#111112] transition-colors"
-          >
-            Market
-          </Link>
-          <BuildPCButton />
+          <NavButton href="/market" active={pathname === "/market"}>Market</NavButton>
+          <NavButton href="/build" active={pathname === "/build"}>Build PC</NavButton>
         </nav>
       </div>
     </header>
   );
 }
 
-function BuildPCButton() {
+function NavButton({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
   const [hovered, setHovered] = useState(false);
+
+  const bg = active
+    ? hovered ? "#6d28d9" : "#7c3aed"
+    : hovered ? "rgba(124,58,237,0.06)" : "white";
+
+  const color = active ? "white" : "#111112";
+  const border = "2px solid #111112";
+  const shadow = "2px 2px 0 #111112";
+
   return (
     <Link
-      href="/build"
+      href={href}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         display: "inline-block",
         padding: "6px 14px",
-        background: hovered ? "#6d28d9" : "#7c3aed",
-        color: "white",
-        border: "2px solid #111112",
-        boxShadow: "2px 2px 0 #111112",
+        background: bg,
+        color,
+        border,
+        boxShadow: shadow,
         transform: "skewX(-8deg)",
         fontFamily: '"JetBrains Mono", "Fira Code", monospace',
         fontSize: "0.72rem",
@@ -92,7 +99,7 @@ function BuildPCButton() {
         transition: "background 0.1s",
       }}
     >
-      Build PC
+      {children}
     </Link>
   );
 }
