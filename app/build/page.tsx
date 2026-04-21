@@ -1,16 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import BuildWireframe from "@/components/BuildWireframe";
 import BuildCards from "@/components/BuildCards";
 import BuildSummary from "@/components/BuildSummary";
 import PartPickerModal from "@/components/PartPickerModal";
+import CompatibilityBanner from "@/components/CompatibilityBanner";
+import { checkCompatibility } from "@/lib/compatibility";
 import type { Part } from "@/lib/api";
+import { getSharedBuild } from "@/lib/api";
 
-export type SlotKey =
-  | "cpu" | "gpu" | "ram" | "motherboard"
-  | "psu" | "case" | "ssd" | "cooling";
+
+export type { SlotKey } from "@/lib/types";
+import type { SlotKey } from "@/lib/types";
 
 export type BuildState = Record<SlotKey, Part | null>;
 
@@ -29,9 +33,19 @@ export const SLOT_CATEGORY: Record<SlotKey, string> = {
   psu: "psu", case: "case", ssd: "ssd", cooling: "cooling",
 };
 
-export default function BuildPage() {
+function BuildPage() {
+  const searchParams = useSearchParams();
   const [build, setBuild] = useState<BuildState>(EMPTY_BUILD);
   const [activeSlot, setActiveSlot] = useState<SlotKey | null>(null);
+
+  useEffect(() => {
+    const code = searchParams.get("share");
+    if (!code) return;
+    getSharedBuild(code).then((sharedBuild) => {
+      if (!sharedBuild) return;
+      setBuild((prev) => ({ ...prev, ...sharedBuild }));
+    });
+  }, []);
 
   function selectPart(part: Part) {
     if (!activeSlot) return;
@@ -42,6 +56,8 @@ export default function BuildPage() {
   function removePart(slot: SlotKey) {
     setBuild((prev) => ({ ...prev, [slot]: null }));
   }
+
+  const issues = checkCompatibility(build);
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: "var(--bg)" }}>
@@ -63,6 +79,7 @@ export default function BuildPage() {
             <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} />
             <BuildSummary build={build} />
           </div>
+          <CompatibilityBanner issues={issues} />
         </section>
       </main>
 
@@ -75,5 +92,13 @@ export default function BuildPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function BuildPageShell() {
+  return (
+    <Suspense fallback={null}>
+      <BuildPage />
+    </Suspense>
   );
 }

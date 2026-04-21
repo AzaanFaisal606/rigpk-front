@@ -1,3 +1,6 @@
+import type { SlotKey } from "@/lib/types";
+export type { SlotKey };
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export interface Stats {
@@ -126,5 +129,33 @@ export async function getFilterOptions(category: string): Promise<FilterOptions>
     return res.json();
   } catch {
     return {};
+  }
+}
+
+export async function shareBuild(
+  build: Partial<Record<SlotKey, number>>
+): Promise<{ code: string } | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/builds/share`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(build),
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function getSharedBuild(
+  code: string
+): Promise<Partial<Record<SlotKey, Part>> | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/builds/share/${code}`);
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
   }
 }

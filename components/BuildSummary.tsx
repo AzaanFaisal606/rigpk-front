@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import type { BuildState, SlotKey } from "@/app/build/page";
 import { SLOT_LABELS } from "@/app/build/page";
+import { shareBuild } from "@/lib/api";
 
 const ALL_SLOTS: SlotKey[] = [
   "cpu", "gpu", "ram", "motherboard",
@@ -13,6 +15,8 @@ interface Props {
 }
 
 export default function BuildSummary({ build }: Props) {
+  const [shareStatus, setShareStatus] = useState<"idle" | "loading" | "copied" | "error">("idle");
+
   const total = ALL_SLOTS.reduce((sum, slot) => {
     return sum + (build[slot]?.price_pkr ?? 0);
   }, 0);
@@ -27,6 +31,27 @@ export default function BuildSummary({ build }: Props) {
     });
     lines.push(`\nTotal: Rs ${total.toLocaleString("en-PK")}`);
     navigator.clipboard.writeText(lines.join("\n"));
+  }
+
+  async function handleShare() {
+    setShareStatus("loading");
+    const ids: Partial<Record<SlotKey, number>> = {};
+    for (const slot of ALL_SLOTS) {
+      if (build[slot] !== null) {
+        ids[slot] = build[slot]!.id;
+      }
+    }
+    const result = await shareBuild(ids);
+    if (!result) {
+      setShareStatus("error");
+      setTimeout(() => setShareStatus("idle"), 3000);
+      return;
+    }
+    await navigator.clipboard.writeText(
+      `${window.location.origin}/build?share=${result.code}`
+    );
+    setShareStatus("copied");
+    setTimeout(() => setShareStatus("idle"), 3000);
   }
 
   return (
@@ -89,7 +114,7 @@ export default function BuildSummary({ build }: Props) {
                 }}
               >
                 {part?.price_pkr != null
-                  ? "Rs\u00a0" + part.price_pkr.toLocaleString("en-PK")
+                  ? "Rs " + part.price_pkr.toLocaleString("en-PK")
                   : "—"}
               </span>
             </div>
@@ -144,6 +169,40 @@ export default function BuildSummary({ build }: Props) {
           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#7c3aed"; }}
         >
           Copy Build List
+        </button>
+
+        {/* Share button */}
+        <button
+          onClick={handleShare}
+          disabled={shareStatus === "loading"}
+          style={{
+            width: "100%",
+            marginTop: "10px",
+            padding: "10px",
+            background: shareStatus === "copied" ? "#16a34a" : shareStatus === "error" ? "#dc2626" : "white",
+            color: shareStatus === "idle" ? "#111112" : "white",
+            border: "2px solid #111112",
+            boxShadow: "3px 3px 0 #111112",
+            fontSize: "10px",
+            fontWeight: 800,
+            letterSpacing: "1px",
+            textTransform: "uppercase",
+            cursor: shareStatus === "loading" ? "not-allowed" : "pointer",
+            transform: "skewX(-6deg)",
+            fontFamily: "var(--mono)",
+            opacity: shareStatus === "loading" ? 0.7 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (shareStatus === "idle") (e.currentTarget as HTMLButtonElement).style.background = "rgba(124,58,237,0.06)";
+          }}
+          onMouseLeave={(e) => {
+            if (shareStatus === "idle") (e.currentTarget as HTMLButtonElement).style.background = "white";
+          }}
+        >
+          {shareStatus === "idle" && "Share Build"}
+          {shareStatus === "loading" && "Sharing…"}
+          {shareStatus === "copied" && "Link Copied!"}
+          {shareStatus === "error" && "Error — Retry"}
         </button>
       </div>
     </div>
