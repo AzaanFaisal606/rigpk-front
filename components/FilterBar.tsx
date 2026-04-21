@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FilterOptions } from "@/lib/api";
+import { getFilterOptions } from "@/lib/api";
 
 const CATEGORIES = [
   "gpu", "cpu", "ram", "ssd", "hdd",
@@ -15,6 +16,12 @@ const SOURCES = [
   { key: "amdhouse.pk",      label: "AMD House" },
   { key: "rbtechngames.com", label: "RB Tech" },
   { key: "junaidtech.pk",    label: "Junaid Tech" },
+];
+
+const SPEC_KEYS = [
+  "brand","socket","vram","ddr_type","speed","chipset",
+  "wattage","rating","form_factor","type","aio_size",
+  "fan_size","interface","capacity",
 ];
 
 const SPEC_LABELS: Record<string, string> = {
@@ -34,7 +41,7 @@ const SPEC_LABELS: Record<string, string> = {
   capacity:    "Capacity",
 };
 
-const selectStyle: React.CSSProperties = {
+const sel: React.CSSProperties = {
   background: "var(--bg-card)",
   border: "1px solid var(--border)",
   color: "var(--text)",
@@ -49,19 +56,38 @@ const selectStyle: React.CSSProperties = {
   appearance: "auto" as React.CSSProperties["appearance"],
 };
 
-export default function FilterBar({
-  total,
-  filterOptions,
-}: {
-  total: number;
-  filterOptions?: FilterOptions;
-}) {
+const priceInput: React.CSSProperties = {
+  ...sel,
+  minWidth: "100px",
+  width: "100px",
+};
+
+export default function FilterBar({ total }: { total: number }) {
   const router = useRouter();
   const params = useSearchParams();
+
+  const category = params.get("category") ?? "";
+  const source   = params.get("source")   ?? "";
+  const sort     = params.get("sort")     ?? "price_asc";
+  const minPrice = params.get("min_price") ?? "";
+  const maxPrice = params.get("max_price") ?? "";
+
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
+
+  useEffect(() => {
+    if (!category) {
+      setFilterOptions({});
+      return;
+    }
+    getFilterOptions(category).then(setFilterOptions);
+  }, [category]);
 
   const push = useCallback(
     (key: string, value: string) => {
       const next = new URLSearchParams(params.toString());
+      if (key === "category") {
+        SPEC_KEYS.forEach(k => next.delete(k));
+      }
       if (value) {
         next.set(key, value);
       } else {
@@ -73,11 +99,31 @@ export default function FilterBar({
     [params, router]
   );
 
-  const category = params.get("category") ?? "";
-  const source   = params.get("source")   ?? "";
-  const sort     = params.get("sort")     ?? "price_asc";
-  const minPrice = params.get("min_price") ?? "";
-  const maxPrice = params.get("max_price") ?? "";
+  const specEntries = Object.entries(filterOptions).filter(
+    ([, values]) => values && values.length > 0
+  );
+  const hasSpecs = specEntries.length > 0;
+
+  const priceRange = (
+    <div className="flex items-center gap-1.5">
+      <input
+        type="number"
+        placeholder="Min"
+        value={minPrice}
+        onChange={e => push("min_price", e.target.value)}
+        style={priceInput}
+      />
+      <span className="mono" style={{ color: "var(--text-dim)", fontSize: "0.7rem" }}>–</span>
+      <input
+        type="number"
+        placeholder="Max"
+        value={maxPrice}
+        onChange={e => push("max_price", e.target.value)}
+        style={priceInput}
+      />
+      <span className="mono" style={{ color: "var(--text-dim)", fontSize: "0.65rem" }}>PKR</span>
+    </div>
+  );
 
   return (
     <div
@@ -89,84 +135,58 @@ export default function FilterBar({
         WebkitBackdropFilter: "blur(12px)",
       }}
     >
-      <div className="max-w-6xl mx-auto px-6 py-3 flex flex-wrap items-center gap-3">
-        {/* Part count */}
-        <span className="mono mr-1" style={{ color: "var(--text-dim)", fontSize: "0.7rem" }}>
-          {total.toLocaleString()} parts
-        </span>
+      <div className="max-w-6xl mx-auto px-6 py-3 space-y-2">
+        {/* Row 1: count · category · source · [price when no specs] · sort */}
+        <div className="flex items-center gap-3">
+          <span className="mono" style={{ color: "var(--text-dim)", fontSize: "0.7rem", whiteSpace: "nowrap" }}>
+            {total.toLocaleString()} parts
+          </span>
 
-        {/* Category */}
-        <select
-          value={category}
-          onChange={e => push("category", e.target.value)}
-          style={selectStyle}
-        >
-          <option value="">All Categories</option>
-          {CATEGORIES.map(c => (
-            <option key={c} value={c}>{c.toUpperCase()}</option>
-          ))}
-        </select>
+          <select value={category} onChange={e => push("category", e.target.value)} style={sel}>
+            <option value="">All Categories</option>
+            {CATEGORIES.map(c => (
+              <option key={c} value={c}>{c.toUpperCase()}</option>
+            ))}
+          </select>
 
-        {/* Source */}
-        <select
-          value={source}
-          onChange={e => push("source", e.target.value)}
-          style={selectStyle}
-        >
-          <option value="">All Retailers</option>
-          {SOURCES.map(s => (
-            <option key={s.key} value={s.key}>{s.label}</option>
-          ))}
-        </select>
+          <select value={source} onChange={e => push("source", e.target.value)} style={sel}>
+            <option value="">All Retailers</option>
+            {SOURCES.map(s => (
+              <option key={s.key} value={s.key}>{s.label}</option>
+            ))}
+          </select>
 
-        {/* Dynamic spec filters — only shown when a category is selected */}
-        {filterOptions &&
-          Object.entries(filterOptions).map(([key, values]) =>
-            values && values.length > 0 ? (
+          {!hasSpecs && priceRange}
+
+          <select
+            value={sort}
+            onChange={e => push("sort", e.target.value)}
+            style={{ ...sel, marginLeft: "auto" }}
+          >
+            <option value="price_asc">Price: Low → High</option>
+            <option value="price_desc">Price: High → Low</option>
+          </select>
+        </div>
+
+        {/* Row 2: spec dropdowns + price range (only when category has specs) */}
+        {hasSpecs && (
+          <div className="flex flex-wrap items-center gap-2">
+            {specEntries.map(([key, values]) => (
               <select
                 key={key}
                 value={params.get(key) ?? ""}
                 onChange={e => push(key, e.target.value)}
-                style={selectStyle}
+                style={{ ...sel, minWidth: "120px" }}
               >
-                <option value="">
-                  All {SPEC_LABELS[key] ?? key.replace(/_/g, " ")}
-                </option>
-                {values.map((v: string) => (
+                <option value="">{SPEC_LABELS[key] ?? key.replace(/_/g, " ")}</option>
+                {(values as string[]).map((v: string) => (
                   <option key={v} value={v}>{v}</option>
                 ))}
               </select>
-            ) : null
-          )}
-
-        {/* Price range */}
-        <div className="flex items-center gap-1.5">
-          <input
-            type="number"
-            placeholder="Min PKR"
-            value={minPrice}
-            onChange={e => push("min_price", e.target.value)}
-            style={{ ...selectStyle, minWidth: "90px", width: "90px" }}
-          />
-          <span className="mono" style={{ color: "var(--text-dim)", fontSize: "0.7rem" }}>—</span>
-          <input
-            type="number"
-            placeholder="Max PKR"
-            value={maxPrice}
-            onChange={e => push("max_price", e.target.value)}
-            style={{ ...selectStyle, minWidth: "90px", width: "90px" }}
-          />
-        </div>
-
-        {/* Sort — pushed to right */}
-        <select
-          value={sort}
-          onChange={e => push("sort", e.target.value)}
-          style={{ ...selectStyle, marginLeft: "auto" }}
-        >
-          <option value="price_asc">Price: Low → High</option>
-          <option value="price_desc">Price: High → Low</option>
-        </select>
+            ))}
+            {priceRange}
+          </div>
+        )}
       </div>
     </div>
   );

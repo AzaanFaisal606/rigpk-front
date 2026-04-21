@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import FilterBar from "@/components/FilterBar";
 import PartRow from "@/components/PartRow";
-import { getParts, getFilterOptions, type FilterOptions } from "@/lib/api";
+import { getParts } from "@/lib/api";
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -37,19 +37,16 @@ async function PartsList({
     if (val) specParams[key] = val;
   }
 
-  const [{ items, total }, filterOptions] = await Promise.all([
-    getParts({
-      category,
-      source,
-      min_price: minPrice ? Number(minPrice) : undefined,
-      max_price: maxPrice ? Number(maxPrice) : undefined,
-      sort,
-      limit: 50,
-      offset: offset ? Number(offset) : 0,
-      ...specParams,
-    }),
-    category ? getFilterOptions(category) : Promise.resolve<FilterOptions>({}),
-  ]);
+  const { items, total } = await getParts({
+    category,
+    source,
+    min_price: minPrice ? Number(minPrice) : undefined,
+    max_price: maxPrice ? Number(maxPrice) : undefined,
+    sort,
+    limit: 50,
+    offset: offset ? Number(offset) : 0,
+    ...specParams,
+  });
 
   const heading = category
     ? category.charAt(0).toUpperCase() + category.slice(1).toUpperCase() + "s"
@@ -58,7 +55,7 @@ async function PartsList({
   return (
     <>
       <Suspense>
-        <FilterBar total={total} filterOptions={category ? filterOptions : undefined} />
+        <FilterBar total={total} />
       </Suspense>
 
       <div className="max-w-6xl mx-auto px-6 py-6 w-full">
