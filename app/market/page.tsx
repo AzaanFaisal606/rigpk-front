@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import FilterBar from "@/components/FilterBar";
 import PartRow from "@/components/PartRow";
@@ -19,6 +20,9 @@ const SPEC_KEYS = [
   "fan_size", "interface", "capacity",
 ] as const;
 
+const LIMIT = 50;
+const monoFont = '"JetBrains Mono", "Fira Code", monospace';
+
 async function PartsList({
   searchParams,
 }: {
@@ -29,7 +33,7 @@ async function PartsList({
   const sort     = (str(searchParams.sort) as "price_asc" | "price_desc") ?? "price_asc";
   const minPrice = str(searchParams.min_price);
   const maxPrice = str(searchParams.max_price);
-  const offset   = str(searchParams.offset);
+  const offset   = Number(str(searchParams.offset) ?? "0");
   const q        = str(searchParams.q);
 
   const specParams: Record<string, string> = {};
@@ -44,15 +48,33 @@ async function PartsList({
     min_price: minPrice ? Number(minPrice) : undefined,
     max_price: maxPrice ? Number(maxPrice) : undefined,
     sort,
-    limit: 50,
-    offset: offset ? Number(offset) : 0,
+    limit: LIMIT,
+    offset,
     q,
     ...specParams,
   });
 
-  const heading = category
-    ? category.toUpperCase() + "S"
-    : "ALL PARTS";
+  const heading = category ? category.toUpperCase() + "S" : "ALL PARTS";
+  const totalPages = Math.ceil(total / LIMIT);
+  const currentPage = Math.floor(offset / LIMIT) + 1;
+
+  // Build a URL with updated offset, preserving all other params
+  function pageUrl(newOffset: number) {
+    const p = new URLSearchParams();
+    if (category) p.set("category", category);
+    if (source) p.set("source", source);
+    if (sort !== "price_asc") p.set("sort", sort);
+    if (minPrice) p.set("min_price", minPrice);
+    if (maxPrice) p.set("max_price", maxPrice);
+    if (q) p.set("q", q);
+    for (const [k, v] of Object.entries(specParams)) p.set(k, v);
+    if (newOffset > 0) p.set("offset", String(newOffset));
+    const qs = p.toString();
+    return `/market${qs ? "?" + qs : ""}`;
+  }
+
+  const hasPrev = offset > 0;
+  const hasNext = offset + LIMIT < total;
 
   return (
     <>
@@ -67,7 +89,7 @@ async function PartsList({
             <p className="section-label mb-1">Browse Parts</p>
             <h1
               style={{
-                fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                fontFamily: monoFont,
                 fontSize: "clamp(1.2rem, 2.5vw, 1.6rem)",
                 fontWeight: 900,
                 textTransform: "uppercase",
@@ -79,13 +101,18 @@ async function PartsList({
               {heading}
             </h1>
           </div>
+          {total > 0 && (
+            <span style={{ fontFamily: monoFont, fontSize: "0.65rem", color: "var(--text-dim)" }}>
+              {offset + 1}–{Math.min(offset + LIMIT, total)} of {total.toLocaleString()}
+            </span>
+          )}
         </div>
 
-        {/* Parts list card */}
+        {/* Parts list card — bigger shadow like PartPickerModal */}
         <div
           style={{
             border: "2px solid #111112",
-            boxShadow: "6px 6px 0 #111112",
+            boxShadow: "10px 10px 0 #111112",
             overflow: "hidden",
           }}
         >
@@ -102,7 +129,7 @@ async function PartsList({
           >
             <span
               style={{
-                fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                fontFamily: monoFont,
                 fontSize: "11px",
                 fontWeight: 800,
                 letterSpacing: "2px",
@@ -113,7 +140,7 @@ async function PartsList({
             </span>
             <span
               style={{
-                fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                fontFamily: monoFont,
                 fontSize: "10px",
                 color: "rgba(255,255,255,0.45)",
                 fontWeight: 600,
@@ -134,7 +161,7 @@ async function PartsList({
             >
               <p
                 style={{
-                  fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                  fontFamily: monoFont,
                   fontSize: "0.9rem",
                   fontWeight: 900,
                   color: "var(--text-dim)",
@@ -153,23 +180,84 @@ async function PartsList({
           )}
         </div>
 
-        {/* Pagination hint */}
-        {total > 50 && (
-          <div style={{ marginTop: "16px", display: "flex", justifyContent: "center" }}>
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div
+            style={{
+              marginTop: "20px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            {/* Prev */}
+            {hasPrev ? (
+              <Link
+                href={pageUrl(offset - LIMIT)}
+                style={{
+                  padding: "7px 18px",
+                  border: "2px solid #111112",
+                  boxShadow: "3px 3px 0 #111112",
+                  background: "white",
+                  color: "#111112",
+                  fontFamily: monoFont,
+                  fontSize: "10px",
+                  fontWeight: 800,
+                  letterSpacing: "1px",
+                  textTransform: "uppercase",
+                  textDecoration: "none",
+                  transform: "skewX(-8deg)",
+                  display: "inline-block",
+                }}
+              >
+                ← Prev
+              </Link>
+            ) : (
+              <span style={{ width: 80 }} />
+            )}
+
+            {/* Page indicator */}
             <span
               style={{
-                fontFamily: '"JetBrains Mono", "Fira Code", monospace',
-                fontSize: "0.68rem",
+                fontFamily: monoFont,
+                fontSize: "10px",
+                fontWeight: 700,
                 color: "var(--text-dim)",
-                border: "1px solid var(--border)",
-                padding: "4px 12px",
+                letterSpacing: "1px",
+                border: "1.5px solid var(--border)",
+                padding: "5px 14px",
                 transform: "skewX(-6deg)",
                 display: "inline-block",
-                letterSpacing: "0.1em",
               }}
             >
-              Showing 50 of {total.toLocaleString()} — pagination coming soon
+              {currentPage} / {totalPages}
             </span>
+
+            {/* Next */}
+            {hasNext ? (
+              <Link
+                href={pageUrl(offset + LIMIT)}
+                style={{
+                  padding: "7px 18px",
+                  border: "2px solid #111112",
+                  boxShadow: "3px 3px 0 #111112",
+                  background: "#7c3aed",
+                  color: "white",
+                  fontFamily: monoFont,
+                  fontSize: "10px",
+                  fontWeight: 800,
+                  letterSpacing: "1px",
+                  textTransform: "uppercase",
+                  textDecoration: "none",
+                  transform: "skewX(-8deg)",
+                  display: "inline-block",
+                }}
+              >
+                Next →
+              </Link>
+            ) : (
+              <span style={{ width: 80 }} />
+            )}
           </div>
         )}
       </div>
@@ -186,10 +274,7 @@ export default async function MarketPage({ searchParams }: PageProps) {
       <main className="flex flex-col flex-1">
         <Suspense
           fallback={
-            <div
-              className="py-20 text-center mono"
-              style={{ color: "var(--text-dim)" }}
-            >
+            <div className="py-20 text-center mono" style={{ color: "var(--text-dim)" }}>
               Loading…
             </div>
           }
@@ -203,7 +288,7 @@ export default async function MarketPage({ searchParams }: PageProps) {
           background: "var(--bg)",
           borderTop: "2px solid #111112",
           color: "var(--text-dim)",
-          fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+          fontFamily: monoFont,
           fontSize: "0.65rem",
           fontWeight: 600,
           letterSpacing: "0.1em",
