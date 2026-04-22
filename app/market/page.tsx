@@ -1,9 +1,16 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import FilterBar from "@/components/FilterBar";
 import PartRow from "@/components/PartRow";
 import { getParts } from "@/lib/api";
+
+export const metadata: Metadata = {
+  title: "PC Parts Market — RigPK",
+  description:
+    "Browse all PC parts with live prices from Pakistani retailers. Filter by category, brand, price, and specs.",
+};
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
