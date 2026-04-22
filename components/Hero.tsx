@@ -117,7 +117,7 @@ export default function Hero({ stats }: HeroProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            style={{ marginTop: "56px", display: "flex", maxWidth: "480px" }}
+            style={{ marginTop: "56px", display: "flex", maxWidth: "480px", flexWrap: "wrap" }}
           >
             {[
               { value: totalParts.toLocaleString(), label: "Parts Tracked" },
@@ -128,6 +128,7 @@ export default function Hero({ stats }: HeroProps) {
                 key={stat.label}
                 style={{
                   flex: 1,
+                  minWidth: "120px",
                   padding: "16px 20px",
                   border: "2px solid #111112",
                   borderLeft: i === 0 ? "2px solid #111112" : "none",
