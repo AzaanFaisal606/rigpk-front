@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Cpu, HardDrive, MemoryStick, MonitorPlay, Zap, Box, CircuitBoard, Wind, Database, Monitor } from "lucide-react";
 import { useState } from "react";
 import type { Part } from "@/lib/api";
@@ -59,13 +58,14 @@ export default function PartRow({ part }: { part: Part }) {
         }}
       >
         {part.thumbnail_url ? (
-          <Image
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={part.thumbnail_url}
             alt={part.name}
             width={48}
             height={48}
             className="object-contain"
-            unoptimized
+            referrerPolicy="no-referrer"
           />
         ) : (
           <Icon size={20} style={{ color: "var(--text-dim)" }} />
