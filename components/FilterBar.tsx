@@ -126,9 +126,7 @@ function PriceRangeFilter({
   onClear: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [dropPos, setDropPos] = useState({ top: 0, left: 0 });
   const ref = useRef<HTMLDivElement>(null);
-  const btnRef = useRef<HTMLButtonElement>(null);
   const isActive = !!minPrice || !!maxPrice;
 
   useEffect(() => {
@@ -139,14 +137,6 @@ function PriceRangeFilter({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  function handleOpen() {
-    if (btnRef.current) {
-      const r = btnRef.current.getBoundingClientRect();
-      setDropPos({ top: r.bottom + 6, left: r.left });
-    }
-    setOpen(o => !o);
-  }
-
   const label = isActive
     ? `${minPrice || "0"} – ${maxPrice || "∞"}`
     : "Price";
@@ -154,8 +144,7 @@ function PriceRangeFilter({
   return (
     <div ref={ref} style={{ position: "relative", flexShrink: 0 }}>
       <button
-        ref={btnRef}
-        onClick={handleOpen}
+        onClick={() => setOpen(o => !o)}
         style={{
           padding: "5px 10px",
           border: isActive ? "2px solid #7c3aed" : "2px solid #111112",
@@ -182,13 +171,13 @@ function PriceRangeFilter({
       {open && (
         <div
           style={{
-            position: "fixed",
-            top: dropPos.top,
-            left: dropPos.left,
+            position: "absolute",
+            top: "calc(100% + 6px)",
+            left: 0,
             background: "white",
             border: "2px solid #111112",
             boxShadow: "4px 4px 0 #111112",
-            zIndex: 1000,
+            zIndex: 100,
             padding: "12px 14px",
             minWidth: "200px",
           }}
@@ -272,9 +261,7 @@ function ComicDropdown({
   onClear: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [dropPos, setDropPos] = useState({ top: 0, left: 0 });
   const ref = useRef<HTMLDivElement>(null);
-  const btnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -284,14 +271,6 @@ function ComicDropdown({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  function handleOpen() {
-    if (btnRef.current) {
-      const r = btnRef.current.getBoundingClientRect();
-      setDropPos({ top: r.bottom + 6, left: r.left });
-    }
-    setOpen(o => !o);
-  }
-
   const isActive = !!active && !active.startsWith("__sep__");
   const displayLabel = active
     ? options.find(o => !o.separator && o.value === active)?.label ?? active
@@ -300,8 +279,7 @@ function ComicDropdown({
   return (
     <div ref={ref} style={{ position: "relative", flexShrink: 0 }}>
       <button
-        ref={btnRef}
-        onClick={handleOpen}
+        onClick={() => setOpen(o => !o)}
         style={{
           padding: "5px 10px",
           border: isActive ? "2px solid #7c3aed" : "2px solid #111112",
@@ -329,13 +307,13 @@ function ComicDropdown({
       {open && (
         <div
           style={{
-            position: "fixed",
-            top: dropPos.top,
-            left: dropPos.left,
+            position: "absolute",
+            top: "calc(100% + 6px)",
+            left: 0,
             background: "white",
             border: "2px solid #111112",
             boxShadow: "4px 4px 0 #111112",
-            zIndex: 1000,
+            zIndex: 100,
             minWidth: "140px",
             maxHeight: "280px",
             overflowY: "auto",
@@ -427,6 +405,7 @@ export default function FilterBar({ total }: { total: number }) {
 
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
   const [searchFocused, setSearchFocused] = useState(false);
+  const [searchInput, setSearchInput] = useState(q);
   const [barHidden, setBarHidden] = useState(false);
   const lastScrollY = useRef(0);
 
@@ -451,6 +430,16 @@ export default function FilterBar({ total }: { total: number }) {
     }
     getFilterOptions(category).then(setFilterOptions);
   }, [category]);
+
+  // Sync searchInput when URL param changes externally (e.g. clear)
+  useEffect(() => { setSearchInput(q); }, [q]);
+
+  // Debounce search: wait 350ms after user stops typing before pushing to URL
+  useEffect(() => {
+    const t = setTimeout(() => { push("q", searchInput); }, 350);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
 
   const push = useCallback(
     (key: string, value: string) => {
@@ -539,8 +528,11 @@ export default function FilterBar({ total }: { total: number }) {
           className="filter-inner-scroll"
           style={{
             overflowX: "auto",
+            overflowY: "visible",
             WebkitOverflowScrolling: "touch",
             scrollbarWidth: "none",
+            paddingBottom: "300px",
+            marginBottom: "-300px",
           }}
         >
         <div className="flex items-center gap-2" style={{ minWidth: "max-content" }}>
@@ -557,8 +549,8 @@ export default function FilterBar({ total }: { total: number }) {
           <input
             type="text"
             placeholder="Search..."
-            value={q}
-            onChange={e => push("q", e.target.value)}
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
             style={{

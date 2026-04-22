@@ -42,19 +42,27 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
     getFilterOptions(category).then(setFilterOptions);
   }, [category]);
 
-  // Load parts whenever filters/sort change
+  // Debounced search value sent to API
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 350);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  // Load parts whenever filters/sort/search change
   const loadParts = useCallback(async () => {
     setLoading(true);
     const result = await getParts({
       category,
       sort,
       limit: 50,
+      q: debouncedSearch || undefined,
       ...activeFilters,
     });
     setParts(result.items);
     setTotal(result.total);
     setLoading(false);
-  }, [category, sort, activeFilters]);
+  }, [category, sort, activeFilters, debouncedSearch]);
 
   useEffect(() => { loadParts(); }, [loadParts]);
 
@@ -76,9 +84,7 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
     });
   }
 
-  const filteredParts = search.trim()
-    ? parts.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
-    : parts;
+  const filteredParts = parts;
 
   const relevantFilterKeys = CATEGORY_FILTERS[category] ?? [];
 
