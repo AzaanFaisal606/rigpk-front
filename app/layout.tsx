@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://rigpk.vercel.app"),
+  verification: { google: "m6z967mmdOlQekmoR1OXUv2-SVPDBJax2g6SUn1lZXA" },
   title: "RigPK — PC Part Picker for Pakistan",
   description:
     "Compare PC part prices from Pakistani retailers. Build your dream rig and track price history.",
