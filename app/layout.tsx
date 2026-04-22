@@ -16,12 +16,6 @@ export const metadata: Metadata = {
   title: "RigPK — PC Part Picker for Pakistan",
   description:
     "Compare PC part prices from Pakistani retailers. Build your dream rig and track price history.",
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
-  },
 };
 
 export default function RootLayout({
