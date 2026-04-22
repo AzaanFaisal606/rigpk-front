@@ -405,6 +405,22 @@ export default function FilterBar({ total }: { total: number }) {
 
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
   const [searchFocused, setSearchFocused] = useState(false);
+  const [barHidden, setBarHidden] = useState(false);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY > lastScrollY.current && currentY > 80) {
+        setBarHidden(true);
+      } else if (currentY < lastScrollY.current) {
+        setBarHidden(false);
+      }
+      lastScrollY.current = currentY;
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (!category) {
@@ -492,6 +508,8 @@ export default function FilterBar({ total }: { total: number }) {
         top: "52px",
         background: "var(--bg)",
         borderBottom: "2px solid #111112",
+        transform: barHidden ? "translateY(-100%)" : "translateY(0)",
+        transition: "transform 0.25s ease",
       }}
     >
       <div className="max-w-6xl mx-auto px-6 py-3">
