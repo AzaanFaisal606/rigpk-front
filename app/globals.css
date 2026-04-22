@@ -117,3 +117,11 @@ body {
 .filter-inner-scroll::-webkit-scrollbar {
   display: none;
 }
+
+/* ── Hero CTA buttons: smaller padding on mobile ─────────── */
+@media (max-width: 640px) {
+  .hero-cta {
+    padding: 9px 18px !important;
+    font-size: 0.68rem !important;
+  }
+}

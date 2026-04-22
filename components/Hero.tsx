@@ -69,7 +69,7 @@ export default function Hero({ stats }: HeroProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
           style={{
-            fontSize: "clamp(2.8rem, 7vw, 5.5rem)",
+            fontSize: "clamp(2.3rem, 7vw, 5.5rem)",
             fontWeight: 900,
             lineHeight: 1.04,
             letterSpacing: "-0.02em",
@@ -90,7 +90,7 @@ export default function Hero({ stats }: HeroProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mt-6 max-w-lg leading-relaxed"
-          style={{ color: "#71717a", fontSize: "1.05rem" }}
+          style={{ color: "#71717a", fontSize: "clamp(0.88rem, 3vw, 1.05rem)" }}
         >
           Real-time prices scraped from Pakistan&apos;s top PC retailers.
           Compare, build, and track — all in one place.
@@ -172,6 +172,7 @@ function CTAButton({
   return (
     <Link
       href={href}
+      className="hero-cta"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
