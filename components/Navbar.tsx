@@ -35,17 +35,6 @@ export default function Navbar() {
           >
             Rig<span style={{ color: "#7c3aed" }}>PK</span>
           </span>
-          <span
-            className="hidden sm:inline"
-            style={{
-              fontFamily: '"JetBrains Mono", "Fira Code", monospace',
-              fontSize: "0.68rem",
-              color: "#a1a1aa",
-              letterSpacing: "0.04em",
-            }}
-          >
-            / price tracker
-          </span>
         </Link>
 
         {/* Nav */}

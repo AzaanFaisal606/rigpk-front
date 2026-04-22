@@ -59,7 +59,7 @@ export default function Hero({ stats }: HeroProps) {
         >
           <div style={{ width: "8px", height: "2px", background: "#7c3aed" }} />
           <span className="mono" style={{ color: "#7c3aed" }}>
-            RIGPK // PC PART PICKER
+            RIGPK // PC PARTS IN PAKISTAN
           </span>
         </motion.div>
 
