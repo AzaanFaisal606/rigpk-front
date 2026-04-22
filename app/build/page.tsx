@@ -75,7 +75,7 @@ function BuildPage() {
           <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
             Click any slot to browse and select parts from the marketplace.
           </p>
-          <div className="flex gap-7 items-start">
+          <div className="flex gap-7 items-start" style={{ flexWrap: "wrap" }}>
             <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} />
             <BuildSummary build={build} />
           </div>
