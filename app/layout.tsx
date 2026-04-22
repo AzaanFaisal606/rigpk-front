@@ -13,9 +13,29 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://rigpk.vercel.app"),
   title: "RigPK — PC Part Picker for Pakistan",
   description:
     "Compare PC part prices from Pakistani retailers. Build your dream rig and track price history.",
+  keywords: [
+    "PC parts Pakistan",
+    "GPU price Pakistan",
+    "CPU price Pakistan",
+    "buy PC parts online Pakistan",
+    "PC builder Pakistan",
+  ],
+  openGraph: {
+    type: "website",
+    siteName: "RigPK",
+    title: "RigPK — PC Part Picker for Pakistan",
+    description: "Compare PC part prices from Pakistani retailers. Build your dream rig.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "RigPK — PC Part Picker for Pakistan",
+    description: "Compare PC part prices from Pakistani retailers.",
+  },
 };
 
 export default function RootLayout({
