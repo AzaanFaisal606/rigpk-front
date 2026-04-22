@@ -17,7 +17,10 @@ export const metadata: Metadata = {
   description:
     "Compare PC part prices from Pakistani retailers. Build your dream rig and track price history.",
   icons: {
-    icon: "/favicon.svg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
   },
 };
 
