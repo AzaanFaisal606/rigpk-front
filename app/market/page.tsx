@@ -295,7 +295,7 @@ export default async function MarketPage({ searchParams }: PageProps) {
           textTransform: "uppercase",
         }}
       >
-        PakPC — prices updated regularly from Pakistani retailers
+        RigPK — prices updated regularly from Pakistani retailers
       </footer>
     </div>
   );

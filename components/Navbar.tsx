@@ -33,7 +33,7 @@ export default function Navbar() {
             className="font-bold"
             style={{ color: "#111112", fontSize: "0.95rem", letterSpacing: "-0.01em" }}
           >
-            Pak<span style={{ color: "#7c3aed" }}>PC</span>
+            Rig<span style={{ color: "#7c3aed" }}>PK</span>
           </span>
           <span
             className="hidden sm:inline"

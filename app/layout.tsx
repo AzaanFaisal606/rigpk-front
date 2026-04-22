@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PakPC — PC Part Picker for Pakistan",
+  title: "RigPK — PC Part Picker for Pakistan",
   description:
-    "Compare PC part prices from Pakistani retailers. Build your dream PC and track price history.",
+    "Compare PC part prices from Pakistani retailers. Build your dream rig and track price history.",
 };
 
 export default function RootLayout({

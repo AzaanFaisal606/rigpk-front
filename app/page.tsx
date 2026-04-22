@@ -28,7 +28,7 @@ export default async function Home() {
           textTransform: "uppercase",
         }}
       >
-        PakPC — prices updated regularly from Pakistani retailers
+        RigPK — prices updated regularly from Pakistani retailers
       </footer>
     </div>
   );
