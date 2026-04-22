@@ -391,12 +391,12 @@ function ComicDropdown({
   );
 }
 
-export default function FilterBar({ total }: { total: number }) {
+export default function FilterBar({ total, activeCategory }: { total: number; activeCategory?: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
 
-  const category = params.get("category") ?? "";
+  const category = activeCategory ?? params.get("category") ?? "";
   const source   = params.get("source")   ?? "";
   const sort     = params.get("sort")     ?? "price_asc";
   const minPrice = params.get("min_price") ?? "";
@@ -443,12 +443,15 @@ export default function FilterBar({ total }: { total: number }) {
 
   const push = useCallback(
     (key: string, value: string) => {
-      const next = new URLSearchParams(params.toString());
       if (key === "category") {
-        SPEC_KEYS.forEach(k => next.delete(k));
-        next.delete("min_price");
-        next.delete("max_price");
+        if (value) {
+          router.push(`/market/${value}`);
+        } else {
+          router.push("/market");
+        }
+        return;
       }
+      const next = new URLSearchParams(params.toString());
       if (value) {
         next.set(key, value);
       } else {
