@@ -3,6 +3,7 @@
 import { Search, Cpu, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import Link from "next/link";
 
 const FEATURES = [
   {
@@ -13,6 +14,8 @@ const FEATURES = [
       "Search and filter thousands of PC parts from multiple Pakistani retailers. Sort by price, source, or category.",
     accent: "#7c3aed",
     dark: false,
+    href: "/market",
+    cta: "BROWSE MARKET →",
   },
   {
     icon: Cpu,
@@ -22,6 +25,8 @@ const FEATURES = [
       "Pick parts, check compatibility, and calculate your total build cost in real time.",
     accent: "#9333ea",
     dark: true,
+    href: "/build",
+    cta: "BUILD NOW →",
   },
   {
     icon: TrendingUp,
@@ -31,6 +36,8 @@ const FEATURES = [
       "View full price history graphs for any part. Know the best time to buy.",
     accent: "#a855f7",
     dark: false,
+    href: null,
+    cta: "COMING SOON →",
   },
 ];
 
@@ -151,9 +158,19 @@ function FeatureCard({
           className="mt-6 pt-4"
           style={{ borderTop: `1px solid ${f.dark ? "#3f3f46" : "#111112"}` }}
         >
-          <span className="mono" style={{ color: f.accent, fontSize: "0.65rem" }}>
-            COMING SOON →
-          </span>
+          {f.href ? (
+            <Link
+              href={f.href}
+              className="mono"
+              style={{ color: f.accent, fontSize: "0.65rem", textDecoration: "none" }}
+            >
+              {f.cta}
+            </Link>
+          ) : (
+            <span className="mono" style={{ color: f.accent, fontSize: "0.65rem" }}>
+              {f.cta}
+            </span>
+          )}
         </div>
       </div>
     </motion.div>
