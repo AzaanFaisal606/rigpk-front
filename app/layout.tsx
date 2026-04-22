@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   title: "RigPK — PC Part Picker for Pakistan",
   description:
     "Compare PC part prices from Pakistani retailers. Build your dream rig and track price history.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
