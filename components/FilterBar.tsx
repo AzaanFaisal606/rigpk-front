@@ -126,7 +126,9 @@ function PriceRangeFilter({
   onClear: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [dropPos, setDropPos] = useState({ top: 0, left: 0 });
   const ref = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
   const isActive = !!minPrice || !!maxPrice;
 
   useEffect(() => {
@@ -137,6 +139,14 @@ function PriceRangeFilter({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  function handleOpen() {
+    if (btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setDropPos({ top: r.bottom + 6, left: r.left });
+    }
+    setOpen(o => !o);
+  }
+
   const label = isActive
     ? `${minPrice || "0"} – ${maxPrice || "∞"}`
     : "Price";
@@ -144,7 +154,8 @@ function PriceRangeFilter({
   return (
     <div ref={ref} style={{ position: "relative", flexShrink: 0 }}>
       <button
-        onClick={() => setOpen(o => !o)}
+        ref={btnRef}
+        onClick={handleOpen}
         style={{
           padding: "5px 10px",
           border: isActive ? "2px solid #7c3aed" : "2px solid #111112",
@@ -171,13 +182,13 @@ function PriceRangeFilter({
       {open && (
         <div
           style={{
-            position: "absolute",
-            top: "calc(100% + 6px)",
-            left: 0,
+            position: "fixed",
+            top: dropPos.top,
+            left: dropPos.left,
             background: "white",
             border: "2px solid #111112",
             boxShadow: "4px 4px 0 #111112",
-            zIndex: 100,
+            zIndex: 1000,
             padding: "12px 14px",
             minWidth: "200px",
           }}
@@ -261,7 +272,9 @@ function ComicDropdown({
   onClear: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [dropPos, setDropPos] = useState({ top: 0, left: 0 });
   const ref = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -271,6 +284,14 @@ function ComicDropdown({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  function handleOpen() {
+    if (btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setDropPos({ top: r.bottom + 6, left: r.left });
+    }
+    setOpen(o => !o);
+  }
+
   const isActive = !!active && !active.startsWith("__sep__");
   const displayLabel = active
     ? options.find(o => !o.separator && o.value === active)?.label ?? active
@@ -279,7 +300,8 @@ function ComicDropdown({
   return (
     <div ref={ref} style={{ position: "relative", flexShrink: 0 }}>
       <button
-        onClick={() => setOpen(o => !o)}
+        ref={btnRef}
+        onClick={handleOpen}
         style={{
           padding: "5px 10px",
           border: isActive ? "2px solid #7c3aed" : "2px solid #111112",
@@ -307,13 +329,13 @@ function ComicDropdown({
       {open && (
         <div
           style={{
-            position: "absolute",
-            top: "calc(100% + 6px)",
-            left: 0,
+            position: "fixed",
+            top: dropPos.top,
+            left: dropPos.left,
             background: "white",
             border: "2px solid #111112",
             boxShadow: "4px 4px 0 #111112",
-            zIndex: 100,
+            zIndex: 1000,
             minWidth: "140px",
             maxHeight: "280px",
             overflowY: "auto",
