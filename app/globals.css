@@ -112,3 +112,8 @@ body {
 .rule-top {
   border-top: 1px solid var(--border);
 }
+
+/* ── Hide scrollbar for filter bar horizontal scroll ─────── */
+.filter-inner-scroll::-webkit-scrollbar {
+  display: none;
+}

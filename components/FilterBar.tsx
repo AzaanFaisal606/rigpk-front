@@ -495,7 +495,15 @@ export default function FilterBar({ total }: { total: number }) {
       }}
     >
       <div className="max-w-6xl mx-auto px-6 py-3">
-        <div className="flex items-center gap-2 flex-wrap">
+        <div
+          className="filter-inner-scroll"
+          style={{
+            overflowX: "auto",
+            WebkitOverflowScrolling: "touch",
+            scrollbarWidth: "none",
+          }}
+        >
+        <div className="flex items-center gap-2" style={{ minWidth: "max-content" }}>
 
           {/* Parts count */}
           <span
@@ -578,6 +586,7 @@ export default function FilterBar({ total }: { total: number }) {
               onClear={() => push("sort", "price_asc")}
             />
           </div>
+        </div>
         </div>
       </div>
     </div>
