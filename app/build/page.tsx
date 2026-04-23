@@ -113,7 +113,7 @@ function BuildPage() {
             style={{
               position: "sticky",
               top: "72px",
-              width: "320px",
+              width: "375px",
               flexShrink: 0,
               marginTop: "127px",
             }}
