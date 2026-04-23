@@ -83,7 +83,7 @@ function BuildPage() {
           flex: 1,
           alignItems: "flex-start",
           gap: isMobile ? 0 : "24px",
-          padding: isMobile ? "0" : "0 24px 0 0",
+          padding: isMobile ? "0" : "0 16px 0 0",
         }}
       >
         {/* Left column — wireframe + cards + banner */}

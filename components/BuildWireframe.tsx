@@ -25,8 +25,10 @@ type SlotAnchor = {
 
 // CARD_LEFT_END and CARD_RIGHT_START must match elbowX/railEndX in CalloutLines.
 // Cards are placed using percentages derived from these SVG coords so lines always connect.
-const CARD_LEFT_END = 200;   // SVG x where left-side cards' right edge sits
-const CARD_RIGHT_START = 760; // SVG x where right-side cards' left edge sits
+// Leave 8px gap at left wall (left cards start at 8) and 8px at right wall (right cards end at 952).
+const CARD_LEFT_END = 200;    // SVG x where left-side cards' right edge (= line endpoint) sits
+const CARD_RIGHT_START = 760; // SVG x where right-side cards' left edge (= line endpoint) sits
+const CARD_GAP = 8;           // gap in SVG units between card and section wall
 
 const SLOT_ANCHORS: SlotAnchor[] = [
   { slot: "cpu",         side: "left",  caseX: 320, caseY: 110, railY: 70  },
@@ -238,9 +240,13 @@ function LabelCard({
   const color = selected ? PURPLE : INK;
 
   const topPct = (railY / 540) * 100;
-  // Cards align with rail ends — left cards span 0..CARD_LEFT_END, right cards span CARD_RIGHT_START..960
-  const widthPct = (CARD_LEFT_END / 960) * 100; // same width both sides
-  const leftPct = side === "left" ? 0 : (CARD_RIGHT_START / 960) * 100;
+  // Left cards: span CARD_GAP..CARD_LEFT_END (inset from left wall by CARD_GAP)
+  // Right cards: span CARD_RIGHT_START..(960-CARD_GAP) (inset from right wall by CARD_GAP)
+  const cardWidth = CARD_LEFT_END - CARD_GAP; // 192 SVG units, same both sides
+  const leftPct = side === "left"
+    ? (CARD_GAP / 960) * 100
+    : (CARD_RIGHT_START / 960) * 100;
+  const widthPct = (cardWidth / 960) * 100;
 
   return (
     <div
@@ -250,10 +256,16 @@ function LabelCard({
         top: `calc(${topPct}% - 30px)`,
         left: `${leftPct}%`,
         width: `${widthPct}%`,
+        // Inner padding: left cards inset from left wall; right cards inset from right wall
+        // Box sizing accounts for the percentage-based width
+        boxSizing: "border-box" as const,
+        paddingTop: 8,
+        paddingBottom: 8,
+        paddingLeft: side === "left" ? 10 : 12,
+        paddingRight: side === "left" ? 12 : 10,
         background: selected ? "var(--bg-card)" : "var(--bg)",
         border: `2px solid ${color}`,
         boxShadow: `3px 3px 0 ${color}`,
-        padding: "8px 12px",
         cursor: "pointer",
         transition: "transform 0.12s",
         zIndex: 3,
@@ -343,10 +355,10 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
         Build a PC
       </motion.h1>
 
-      {/* Framed container — ~80% of left column width */}
+      {/* Framed container — ~85% of left column width */}
       <div style={{
         position: "relative",
-        width: "80%",
+        width: "85%",
         background: CARD,
         border: `2px solid ${INK}`,
         boxShadow: `6px 6px 0 ${INK}`,
@@ -386,8 +398,8 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
         </div>
       </div>
 
-      {/* Legend */}
-      <div style={{ marginTop: 14, display: "flex", gap: 16, alignItems: "center", position: "relative", width: "100%" }}>
+      {/* Legend — same width as framed container so "scroll for parts" aligns with right edge */}
+      <div style={{ marginTop: 14, display: "flex", gap: 16, alignItems: "center", position: "relative", width: "85%" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 10, color: TEXT2 }}>
           <svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke={INK} strokeWidth="1.5" strokeDasharray="4 3" /></svg>
           empty slot
