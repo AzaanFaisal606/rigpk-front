@@ -101,7 +101,7 @@ function BuildPage() {
               <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
                 Click any slot to browse and select parts from the marketplace.
               </p>
-              <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} />
+              <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} isMobile={isMobile} />
               <CompatibilityBanner issues={issues} />
             </div>
           </section>
