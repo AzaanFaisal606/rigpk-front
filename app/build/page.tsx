@@ -90,18 +90,20 @@ function BuildPage() {
         <div style={{ flex: 1, minWidth: 0, width: isMobile ? "100%" : "auto" }}>
           <BuildWireframe build={build} onSlotClick={setActiveSlot} />
           <section style={{ padding: isMobile ? "32px 24px 48px" : "32px 32px 64px" }}>
-            <p className="section-label mb-1">Your Build</p>
-            <h2
-              className="font-black mb-2"
-              style={{ fontSize: "clamp(1.2rem, 2.5vw, 1.5rem)", color: "var(--text)" }}
-            >
-              Component List
-            </h2>
-            <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
-              Click any slot to browse and select parts from the marketplace.
-            </p>
-            <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} />
-            <CompatibilityBanner issues={issues} />
+            <div style={{ width: isMobile ? "100%" : "85%" }}>
+              <p className="section-label mb-1">Your Build</p>
+              <h2
+                className="font-black mb-2"
+                style={{ fontSize: "clamp(1.2rem, 2.5vw, 1.5rem)", color: "var(--text)" }}
+              >
+                Component List
+              </h2>
+              <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
+                Click any slot to browse and select parts from the marketplace.
+              </p>
+              <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} />
+              <CompatibilityBanner issues={issues} />
+            </div>
           </section>
         </div>
 
@@ -113,7 +115,7 @@ function BuildPage() {
               top: "72px",
               width: "320px",
               flexShrink: 0,
-              marginTop: "32px",
+              marginTop: "127px",
             }}
           >
             <BuildSummary build={build} />
