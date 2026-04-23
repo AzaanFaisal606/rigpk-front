@@ -39,7 +39,7 @@ export default function BuildCards({ build, onSlotClick, onRemove }: Props) {
               onClick={() => onSlotClick(slot)}
               style={{
                 width: "100%",
-                padding: "18px 20px",
+                padding: "20px 24px",
                 textAlign: "left",
                 cursor: "pointer",
                 background: "transparent",
