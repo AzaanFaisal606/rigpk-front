@@ -213,6 +213,79 @@ function CalloutLines({ build }: { build: BuildState }) {
   );
 }
 
+function LabelCard({
+  anchor,
+  build,
+  onSlotClick,
+}: {
+  anchor: SlotAnchor;
+  build: BuildState;
+  onSlotClick: (slot: SlotKey) => void;
+}) {
+  const { slot, side, railY } = anchor;
+  const part = build[slot];
+  const selected = part !== null;
+  const color = selected ? PURPLE : INK;
+
+  const topPct = (railY / 512) * 100;
+  const widthPct = (220 / 720) * 100;
+
+  return (
+    <div
+      onClick={() => onSlotClick(slot)}
+      style={{
+        position: "absolute",
+        top: `calc(${topPct}% - 30px)`,
+        ...(side === "left" ? { left: 0 } : { right: 0 }),
+        width: `${widthPct}%`,
+        background: selected ? "var(--bg-card)" : "var(--bg)",
+        border: `2px solid ${color}`,
+        boxShadow: `3px 3px 0 ${color}`,
+        padding: "8px 12px",
+        cursor: "pointer",
+        transition: "transform 0.12s",
+        zIndex: 3,
+      }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translate(-2px, -2px)"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translate(0, 0)"; }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+        <span style={{
+          fontFamily: MONO, fontSize: 9, fontWeight: 800,
+          color: selected ? PURPLE : DIM,
+          letterSpacing: 1.5, textTransform: "uppercase",
+        }}>
+          {SLOT_LABELS[slot]}
+        </span>
+        {selected && <span style={{ color: PURPLE, fontSize: 11, fontWeight: 900 }}>✓</span>}
+      </div>
+
+      {part ? (
+        <>
+          <div style={{
+            fontFamily: SANS, fontSize: 11, fontWeight: 700, color: INK,
+            lineHeight: 1.25, marginBottom: 2,
+            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          }}>
+            {part.name}
+          </div>
+          <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, color: TEXT2 }}>
+            Rs {part.price_pkr != null ? part.price_pkr.toLocaleString("en-PK") : "—"}
+            <span style={{ color: DIM, marginLeft: 6 }}>· {part.source}</span>
+          </div>
+        </>
+      ) : (
+        <div style={{
+          fontFamily: MONO, fontSize: 10, fontWeight: 700,
+          color: DIM, fontStyle: "italic",
+        }}>
+          + click to select {SLOT_SUB[slot].toLowerCase()}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function BuildWireframe({ build, onSlotClick }: Props) {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -292,7 +365,14 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
         }}>
           <PCChassisSVG />
           <CalloutLines build={build} />
-          {/* LabelCards go here in the next task */}
+          {SLOT_ANCHORS.map((anchor) => (
+            <LabelCard
+              key={anchor.slot}
+              anchor={anchor}
+              build={build}
+              onSlotClick={onSlotClick}
+            />
+          ))}
         </div>
       </div>
 
