@@ -25,7 +25,13 @@ const EMPTY_BUILD: BuildState = {
 
 export const SLOT_LABELS: Record<SlotKey, string> = {
   cpu: "CPU", gpu: "GPU", ram: "RAM", motherboard: "Mobo",
-  psu: "PSU", case: "Case", ssd: "SSD", cooling: "Cooling",
+  psu: "PSU", case: "Case", ssd: "Storage", cooling: "Cooling",
+};
+
+export const SLOT_SUB: Record<SlotKey, string> = {
+  cpu: "Processor", gpu: "Graphics Card", ram: "Memory",
+  motherboard: "Mainboard", ssd: "SSD / NVMe", psu: "Power Supply",
+  case: "Chassis", cooling: "CPU Cooler",
 };
 
 export const SLOT_CATEGORY: Record<SlotKey, string> = {
@@ -75,7 +81,7 @@ function BuildPage() {
           <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
             Click any slot to browse and select parts from the marketplace.
           </p>
-          <div className="flex gap-7 items-start" style={{ flexWrap: "wrap" }}>
+          <div className="flex gap-7 items-start">
             <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} />
             <BuildSummary build={build} />
           </div>
