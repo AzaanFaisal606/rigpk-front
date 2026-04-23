@@ -13,6 +13,8 @@ const TEXT2 = "#3f3f46";
 const MONO = "var(--mono)";
 const SANS = "-apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif";
 
+// Coordinate space 960 × 540 (aspect ~16:9 — less vertical stretch than before).
+// Chassis occupies x=320–620 (width 300), y=30–510 (height 480). Wider, shorter look.
 type SlotAnchor = {
   slot: SlotKey;
   side: "left" | "right";
@@ -22,14 +24,14 @@ type SlotAnchor = {
 };
 
 const SLOT_ANCHORS: SlotAnchor[] = [
-  { slot: "cpu",         side: "left",  caseX: 260, caseY: 110, railY: 60  },
-  { slot: "gpu",         side: "left",  caseX: 260, caseY: 240, railY: 180 },
-  { slot: "ssd",         side: "left",  caseX: 260, caseY: 295, railY: 300 },
-  { slot: "psu",         side: "left",  caseX: 260, caseY: 410, railY: 420 },
-  { slot: "ram",         side: "right", caseX: 480, caseY: 120, railY: 60  },
-  { slot: "motherboard", side: "right", caseX: 480, caseY: 340, railY: 180 },
-  { slot: "cooling",     side: "right", caseX: 480, caseY: 160, railY: 300 },
-  { slot: "case",        side: "right", caseX: 480, caseY: 460, railY: 420 },
+  { slot: "cpu",         side: "left",  caseX: 320, caseY: 110, railY: 70  },
+  { slot: "gpu",         side: "left",  caseX: 320, caseY: 260, railY: 200 },
+  { slot: "ssd",         side: "left",  caseX: 320, caseY: 320, railY: 330 },
+  { slot: "psu",         side: "left",  caseX: 320, caseY: 450, railY: 460 },
+  { slot: "ram",         side: "right", caseX: 620, caseY: 120, railY: 70  },
+  { slot: "motherboard", side: "right", caseX: 620, caseY: 370, railY: 200 },
+  { slot: "cooling",     side: "right", caseX: 620, caseY: 240, railY: 330 },
+  { slot: "case",        side: "right", caseX: 620, caseY: 500, railY: 460 },
 ];
 
 interface Props {
@@ -61,45 +63,47 @@ function DiagLines() {
 }
 
 function PCChassisSVG() {
-  // Chassis occupies x=260, y=20, width=220, height=480 within 720×512 space
+  // ViewBox 960×540. Chassis x=320..620 (width 300), y=30..510 (height 480).
+  // Motherboard tray x=335..605, y=70..420.
   return (
     <svg
-      viewBox="0 0 720 512"
+      viewBox="0 0 960 540"
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }}
     >
       {/* Vertical rail guide lines */}
-      <line x1="240" y1="40" x2="240" y2="472" stroke={INK} strokeWidth="0.8" strokeDasharray="2 3" opacity="0.3" />
-      <line x1="480" y1="40" x2="480" y2="472" stroke={INK} strokeWidth="0.8" strokeDasharray="2 3" opacity="0.3" />
+      <line x1="300" y1="50" x2="300" y2="490" stroke={INK} strokeWidth="0.8" strokeDasharray="2 3" opacity="0.3" />
+      <line x1="640" y1="50" x2="640" y2="490" stroke={INK} strokeWidth="0.8" strokeDasharray="2 3" opacity="0.3" />
 
       {/* ── Chassis outer walls ── */}
-      <rect x="260" y="20" width="220" height="472" fill="none" stroke={INK} strokeWidth="2.5" />
+      <rect x="320" y="30" width="300" height="480" fill="none" stroke={INK} strokeWidth="2.5" />
       {/* Inner dashed inset */}
-      <rect x="268" y="28" width="204" height="456" fill="none" stroke={INK} strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
+      <rect x="328" y="38" width="284" height="464" fill="none" stroke={INK} strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
 
       {/* Top I/O strip */}
-      <line x1="300" y1="28" x2="360" y2="28" stroke={INK} strokeWidth="3" />
-      <circle cx="290" cy="34" r="3" fill="none" stroke={INK} strokeWidth="1.5" />
-      <rect x="370" y="30" width="30" height="5" fill="none" stroke={INK} strokeWidth="1" />
+      <line x1="360" y1="38" x2="450" y2="38" stroke={INK} strokeWidth="3" />
+      <circle cx="350" cy="44" r="3" fill="none" stroke={INK} strokeWidth="1.5" />
+      <rect x="460" y="40" width="34" height="5" fill="none" stroke={INK} strokeWidth="1" />
+      <rect x="500" y="40" width="34" height="5" fill="none" stroke={INK} strokeWidth="1" />
 
-      {/* Motherboard outline — dashed rect behind everything */}
-      <rect x="275" y="60" width="180" height="320" fill="none" stroke={INK} strokeWidth="1.5" strokeDasharray="5 3" opacity="0.35" />
+      {/* Motherboard tray outline */}
+      <rect x="335" y="70" width="270" height="340" fill="none" stroke={INK} strokeWidth="1.5" strokeDasharray="5 3" opacity="0.35" />
 
       {/* CPU zone — top-left of board */}
       <g>
-        <rect x="280" y="75" width="80" height="80" fill={CARD} stroke={INK} strokeWidth="2" />
-        <circle cx="320" cy="115" r="26" fill="none" stroke={INK} strokeWidth="2" />
-        <circle cx="320" cy="115" r="16" fill="none" stroke={INK} strokeWidth="1" />
-        <text x="320" y="119" textAnchor="middle" fontFamily={MONO} fontSize="9" fontWeight="700" fill={INK}>CPU</text>
+        <rect x="355" y="85" width="90" height="90" fill={CARD} stroke={INK} strokeWidth="2" />
+        <circle cx="400" cy="130" r="30" fill="none" stroke={INK} strokeWidth="2" />
+        <circle cx="400" cy="130" r="18" fill="none" stroke={INK} strokeWidth="1" />
+        <text x="400" y="134" textAnchor="middle" fontFamily={MONO} fontSize="10" fontWeight="700" fill={INK}>CPU</text>
       </g>
 
-      {/* RAM zone — right of CPU (4 sticks, 2 solid + 2 faded) */}
+      {/* RAM zone — right of CPU, fully inside board (4 sticks) */}
       <g>
-        <rect x="370" y="75" width="80" height="80" fill="none" stroke={INK} strokeWidth="1" strokeDasharray="2 2" opacity="0.5" />
+        <rect x="465" y="85" width="115" height="90" fill="none" stroke={INK} strokeWidth="1" strokeDasharray="2 2" opacity="0.5" />
         {[0, 1, 2, 3].map((i) => (
           <rect
             key={i}
-            x={378 + i * 17} y="83"
-            width="12" height="64"
+            x={475 + i * 25} y="95"
+            width="15" height="72"
             fill={i < 2 ? CARD : "none"}
             stroke={INK}
             strokeWidth={i < 2 ? 2 : 1}
@@ -109,70 +113,72 @@ function PCChassisSVG() {
         ))}
       </g>
 
+      {/* Cooling fans — moved BELOW RAM, near right edge so no overlap.
+          Two fans stacked vertically on right side, at y=210 and y=290. */}
+      <g>
+        <circle cx="580" cy="210" r="22" fill="none" stroke={INK} strokeWidth="2" />
+        {[0, 60, 120, 180, 240, 300].map((a) => (
+          <line
+            key={a}
+            x1="580" y1="210"
+            x2={580 + Math.cos((a * Math.PI) / 180) * 18}
+            y2={210 + Math.sin((a * Math.PI) / 180) * 18}
+            stroke={INK} strokeWidth="1.2" opacity="0.6"
+          />
+        ))}
+        <circle cx="580" cy="210" r="5" fill={INK} />
+
+        <circle cx="580" cy="290" r="22" fill="none" stroke={INK} strokeWidth="2" />
+        {[0, 60, 120, 180, 240, 300].map((a) => (
+          <line
+            key={a}
+            x1="580" y1="290"
+            x2={580 + Math.cos((a * Math.PI) / 180) * 18}
+            y2={290 + Math.sin((a * Math.PI) / 180) * 18}
+            stroke={INK} strokeWidth="1.2" opacity="0.6"
+          />
+        ))}
+        <circle cx="580" cy="290" r="5" fill={INK} />
+      </g>
+
       {/* GPU — long horizontal card, mid */}
       <g>
-        <rect x="270" y="195" width="190" height="55" fill={CARD} stroke={INK} strokeWidth="2" />
-        <circle cx="300" cy="222" r="18" fill="none" stroke={INK} strokeWidth="1.5" />
-        <circle cx="300" cy="222" r="6" fill={INK} opacity="0.8" />
-        <circle cx="360" cy="222" r="18" fill="none" stroke={INK} strokeWidth="1.5" />
-        <circle cx="360" cy="222" r="6" fill={INK} opacity="0.8" />
-        <circle cx="420" cy="222" r="18" fill="none" stroke={INK} strokeWidth="1.5" />
-        <circle cx="420" cy="222" r="6" fill={INK} opacity="0.8" />
+        <rect x="340" y="235" width="215" height="55" fill={CARD} stroke={INK} strokeWidth="2" />
+        <circle cx="378" cy="262" r="20" fill="none" stroke={INK} strokeWidth="1.5" />
+        <circle cx="378" cy="262" r="7" fill={INK} opacity="0.8" />
+        <circle cx="448" cy="262" r="20" fill="none" stroke={INK} strokeWidth="1.5" />
+        <circle cx="448" cy="262" r="7" fill={INK} opacity="0.8" />
+        <circle cx="518" cy="262" r="20" fill="none" stroke={INK} strokeWidth="1.5" />
+        <circle cx="518" cy="262" r="7" fill={INK} opacity="0.8" />
       </g>
 
       {/* SSD — narrow horizontal rect below GPU */}
       <g>
-        <rect x="275" y="268" width="140" height="20" fill={CARD} stroke={INK} strokeWidth="2" />
-        <rect x="281" y="273" width="6" height="10" fill={INK} opacity="0.6" />
-        <line x1="295" y1="278" x2="407" y2="278" stroke={INK} strokeWidth="0.8" opacity="0.5" />
+        <rect x="345" y="308" width="190" height="22" fill={CARD} stroke={INK} strokeWidth="2" />
+        <rect x="353" y="314" width="8" height="10" fill={INK} opacity="0.6" />
+        <line x1="368" y1="319" x2="528" y2="319" stroke={INK} strokeWidth="0.8" opacity="0.5" />
       </g>
 
-      {/* Mobo marker — small rect + purple dot (lower-center of board) */}
+      {/* Chipset + mobo anchor marker */}
       <g>
-        <rect x="395" y="305" width="50" height="40" fill="none" stroke={INK} strokeWidth="1.5" />
-        <circle cx="420" cy="325" r="6" fill={PURPLE} />
+        <rect x="475" y="345" width="70" height="50" fill="none" stroke={INK} strokeWidth="1.5" />
+        <circle cx="510" cy="370" r="6" fill={PURPLE} />
+        <text x="510" y="388" textAnchor="middle" fontFamily={MONO} fontSize="8" fill={DIM}>CHIPSET</text>
       </g>
 
-      {/* Cooling — 2 fan circles, right column */}
+      {/* PSU — bottom shroud */}
       <g>
-        <circle cx="450" cy="100" r="22" fill="none" stroke={INK} strokeWidth="2" />
-        {[0, 60, 120, 180, 240, 300].map((a) => (
-          <line
-            key={a}
-            x1="450" y1="100"
-            x2={450 + Math.cos((a * Math.PI) / 180) * 18}
-            y2={100 + Math.sin((a * Math.PI) / 180) * 18}
-            stroke={INK} strokeWidth="1.2" opacity="0.6"
-          />
-        ))}
-        <circle cx="450" cy="100" r="5" fill={INK} />
-
-        <circle cx="450" cy="175" r="22" fill="none" stroke={INK} strokeWidth="2" />
-        {[0, 60, 120, 180, 240, 300].map((a) => (
-          <line
-            key={a}
-            x1="450" y1="175"
-            x2={450 + Math.cos((a * Math.PI) / 180) * 18}
-            y2={175 + Math.sin((a * Math.PI) / 180) * 18}
-            stroke={INK} strokeWidth="1.2" opacity="0.6"
-          />
-        ))}
-        <circle cx="450" cy="175" r="5" fill={INK} />
-      </g>
-
-      {/* PSU — bottom full-width block */}
-      <g>
-        <rect x="265" y="370" width="210" height="55" fill={CARD} stroke={INK} strokeWidth="2" />
-        <circle cx="295" cy="397" r="20" fill="none" stroke={INK} strokeWidth="1.5" />
+        <rect x="325" y="420" width="290" height="70" fill={CARD} stroke={INK} strokeWidth="2" />
+        <circle cx="375" cy="455" r="26" fill="none" stroke={INK} strokeWidth="1.5" />
         {[0, 1, 2, 3, 4].map((i) => (
-          <line key={i} x1={284 + i * 6} y1="385" x2={284 + i * 6} y2="409" stroke={INK} strokeWidth="0.8" opacity="0.5" />
+          <line key={i} x1={360 + i * 8} y1="435" x2={360 + i * 8} y2="475" stroke={INK} strokeWidth="0.8" opacity="0.5" />
         ))}
-        <text x="395" y="402" textAnchor="middle" fontFamily={MONO} fontSize="9" fontWeight="700" fill={INK}>PSU</text>
+        <text x="520" y="460" textAnchor="middle" fontFamily={MONO} fontSize="11" fontWeight="700" fill={INK}>PSU</text>
       </g>
 
       {/* Case feet */}
-      <rect x="270" y="492" width="30" height="8" fill={INK} />
-      <rect x="440" y="492" width="30" height="8" fill={INK} />
+      <rect x="335" y="510" width="40" height="10" fill={INK} />
+      <rect x="565" y="510" width="40" height="10" fill={INK} />
     </svg>
   );
 }
@@ -180,7 +186,7 @@ function PCChassisSVG() {
 function CalloutLines({ build }: { build: BuildState }) {
   return (
     <svg
-      viewBox="0 0 720 512"
+      viewBox="0 0 960 540"
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
     >
       {SLOT_ANCHORS.map(({ slot, side, caseX, caseY, railY }) => {
@@ -189,8 +195,8 @@ function CalloutLines({ build }: { build: BuildState }) {
         const strokeWidth = selected ? 2 : 1.5;
         const strokeDasharray = selected ? "none" : "4 3";
 
-        const elbowX = side === "left" ? 230 : 510;
-        const railEndX = side === "left" ? 220 : 500;
+        const elbowX = side === "left" ? 290 : 650;
+        const railEndX = side === "left" ? 280 : 640;
         const points = `${caseX},${caseY} ${elbowX},${caseY} ${elbowX},${railY} ${railEndX},${railY}`;
 
         return (
@@ -202,9 +208,7 @@ function CalloutLines({ build }: { build: BuildState }) {
               strokeWidth={strokeWidth}
               strokeDasharray={strokeDasharray}
             />
-            {/* Anchor dot on chassis edge */}
             <circle cx={caseX} cy={caseY} r="4" fill={color} stroke={INK} strokeWidth="1.5" />
-            {/* Rail-end bullet */}
             <circle cx={railEndX} cy={railY} r="3" fill={color} />
           </g>
         );
@@ -227,8 +231,9 @@ function LabelCard({
   const selected = part !== null;
   const color = selected ? PURPLE : INK;
 
-  const topPct = (railY / 512) * 100;
-  const widthPct = (220 / 720) * 100;
+  const topPct = (railY / 540) * 100;
+  // Card width: 250px out of 960 coord = ~26%
+  const widthPct = (250 / 960) * 100;
 
   return (
     <div
@@ -236,7 +241,7 @@ function LabelCard({
       style={{
         position: "absolute",
         top: `calc(${topPct}% - 30px)`,
-        ...(side === "left" ? { left: 0 } : { right: 0 }),
+        ...(side === "left" ? { left: "12px" } : { right: "12px" }),
         width: `${widthPct}%`,
         background: selected ? "var(--bg-card)" : "var(--bg)",
         border: `2px solid ${color}`,
@@ -301,12 +306,10 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
   return (
     <section
       style={{
-        height: "calc(100vh - 52px)",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "40px 24px 32px",
+        alignItems: "flex-start",
+        padding: "32px 32px 24px",
         background: "var(--bg)",
         position: "relative",
         overflow: "hidden",
@@ -324,8 +327,8 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
         Configure your build
       </motion.p>
       <motion.h1
-        className="font-black text-center"
-        style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "var(--text)", marginBottom: "28px", position: "relative" }}
+        className="font-black"
+        style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "var(--text)", marginBottom: "20px", position: "relative" }}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
@@ -333,10 +336,10 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
         Build a PC
       </motion.h1>
 
-      {/* Framed container */}
+      {/* Framed container — fills available width of left column */}
       <div style={{
         position: "relative",
-        width: "min(960px, 94vw)",
+        width: "100%",
         background: CARD,
         border: `2px solid ${INK}`,
         boxShadow: `6px 6px 0 ${INK}`,
@@ -357,11 +360,11 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
           PARTS: 8 SLOTS
         </div>
 
-        {/* 720×512 coordinate space — placeholder for now */}
+        {/* 960×540 coordinate space */}
         <div style={{
           position: "relative",
           width: "100%",
-          aspectRatio: "720 / 512",
+          aspectRatio: "960 / 540",
         }}>
           <PCChassisSVG />
           <CalloutLines build={build} />
@@ -377,7 +380,7 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
       </div>
 
       {/* Legend */}
-      <div style={{ marginTop: 16, display: "flex", gap: 16, alignItems: "center", position: "relative" }}>
+      <div style={{ marginTop: 14, display: "flex", gap: 16, alignItems: "center", position: "relative", width: "100%" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 10, color: TEXT2 }}>
           <svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke={INK} strokeWidth="1.5" strokeDasharray="4 3" /></svg>
           empty slot
@@ -388,22 +391,6 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
         </div>
         <div style={{ marginLeft: "auto", fontFamily: MONO, fontSize: 10, color: DIM }}>↓ scroll for parts</div>
       </div>
-
-      {/* Scroll hint */}
-      <motion.div
-        style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", marginTop: "16px", color: "var(--text-dim)", position: "relative" }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-      >
-        <motion.span
-          style={{ fontSize: "18px" }}
-          animate={{ y: [0, 5, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-        >
-          ↓
-        </motion.span>
-      </motion.div>
     </section>
   );
 }

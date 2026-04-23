@@ -76,28 +76,54 @@ function BuildPage() {
   return (
     <div className="flex flex-col min-h-screen" style={{ background: "var(--bg)" }}>
       <Navbar />
-      <main className="flex flex-col flex-1">
-        <BuildWireframe build={build} onSlotClick={setActiveSlot} />
-        <section className="max-w-[1200px] mx-auto w-full px-8 py-16">
-          <p className="section-label mb-1">Your Build</p>
-          <h2
-            className="font-black mb-2"
-            style={{ fontSize: "clamp(1.2rem, 2.5vw, 1.5rem)", color: "var(--text)" }}
-          >
-            Component List
-          </h2>
-          <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
-            Click any slot to browse and select parts from the marketplace.
-          </p>
-          <div
-            className="flex gap-7 items-start"
-            style={{ flexDirection: isMobile ? "column" : "row" }}
-          >
+      <main
+        style={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          flex: 1,
+          alignItems: "flex-start",
+          gap: isMobile ? 0 : "24px",
+          padding: isMobile ? "0" : "0 24px 0 0",
+        }}
+      >
+        {/* Left column — wireframe + cards + banner */}
+        <div style={{ flex: 1, minWidth: 0, width: isMobile ? "100%" : "auto" }}>
+          <BuildWireframe build={build} onSlotClick={setActiveSlot} />
+          <section style={{ padding: isMobile ? "32px 24px 48px" : "32px 32px 64px" }}>
+            <p className="section-label mb-1">Your Build</p>
+            <h2
+              className="font-black mb-2"
+              style={{ fontSize: "clamp(1.2rem, 2.5vw, 1.5rem)", color: "var(--text)" }}
+            >
+              Component List
+            </h2>
+            <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
+              Click any slot to browse and select parts from the marketplace.
+            </p>
             <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} />
+            <CompatibilityBanner issues={issues} />
+          </section>
+        </div>
+
+        {/* Right column — sticky BuildSummary */}
+        {!isMobile && (
+          <div
+            style={{
+              position: "sticky",
+              top: "72px",
+              width: "280px",
+              flexShrink: 0,
+              marginTop: "32px",
+            }}
+          >
             <BuildSummary build={build} />
           </div>
-          <CompatibilityBanner issues={issues} />
-        </section>
+        )}
+        {isMobile && (
+          <div style={{ padding: "0 24px 48px", width: "100%" }}>
+            <BuildSummary build={build} />
+          </div>
+        )}
       </main>
 
       {activeSlot && (
