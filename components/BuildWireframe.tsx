@@ -23,6 +23,11 @@ type SlotAnchor = {
   railY: number;
 };
 
+// CARD_LEFT_END and CARD_RIGHT_START must match elbowX/railEndX in CalloutLines.
+// Cards are placed using percentages derived from these SVG coords so lines always connect.
+const CARD_LEFT_END = 200;   // SVG x where left-side cards' right edge sits
+const CARD_RIGHT_START = 760; // SVG x where right-side cards' left edge sits
+
 const SLOT_ANCHORS: SlotAnchor[] = [
   { slot: "cpu",         side: "left",  caseX: 320, caseY: 110, railY: 70  },
   { slot: "gpu",         side: "left",  caseX: 320, caseY: 260, railY: 200 },
@@ -195,8 +200,9 @@ function CalloutLines({ build }: { build: BuildState }) {
         const strokeWidth = selected ? 2 : 1.5;
         const strokeDasharray = selected ? "none" : "4 3";
 
-        const elbowX = side === "left" ? 290 : 650;
-        const railEndX = side === "left" ? 280 : 640;
+        // elbowX: 10px out from chassis, then route to rail end aligned with card edge
+        const elbowX = side === "left" ? 310 : 630;
+        const railEndX = side === "left" ? CARD_LEFT_END : CARD_RIGHT_START;
         const points = `${caseX},${caseY} ${elbowX},${caseY} ${elbowX},${railY} ${railEndX},${railY}`;
 
         return (
@@ -232,8 +238,9 @@ function LabelCard({
   const color = selected ? PURPLE : INK;
 
   const topPct = (railY / 540) * 100;
-  // Card width: 250px out of 960 coord = ~26%
-  const widthPct = (250 / 960) * 100;
+  // Cards align with rail ends — left cards span 0..CARD_LEFT_END, right cards span CARD_RIGHT_START..960
+  const widthPct = (CARD_LEFT_END / 960) * 100; // same width both sides
+  const leftPct = side === "left" ? 0 : (CARD_RIGHT_START / 960) * 100;
 
   return (
     <div
@@ -241,7 +248,7 @@ function LabelCard({
       style={{
         position: "absolute",
         top: `calc(${topPct}% - 30px)`,
-        ...(side === "left" ? { left: "12px" } : { right: "12px" }),
+        left: `${leftPct}%`,
         width: `${widthPct}%`,
         background: selected ? "var(--bg-card)" : "var(--bg)",
         border: `2px solid ${color}`,
@@ -336,10 +343,10 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
         Build a PC
       </motion.h1>
 
-      {/* Framed container — fills available width of left column */}
+      {/* Framed container — ~80% of left column width */}
       <div style={{
         position: "relative",
-        width: "100%",
+        width: "80%",
         background: CARD,
         border: `2px solid ${INK}`,
         boxShadow: `6px 6px 0 ${INK}`,
