@@ -13,6 +13,25 @@ const TEXT2 = "#3f3f46";
 const MONO = "var(--mono)";
 const SANS = "-apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif";
 
+type SlotAnchor = {
+  slot: SlotKey;
+  side: "left" | "right";
+  caseX: number;
+  caseY: number;
+  railY: number;
+};
+
+const SLOT_ANCHORS: SlotAnchor[] = [
+  { slot: "cpu",         side: "left",  caseX: 260, caseY: 110, railY: 60  },
+  { slot: "gpu",         side: "left",  caseX: 260, caseY: 240, railY: 180 },
+  { slot: "ssd",         side: "left",  caseX: 260, caseY: 295, railY: 300 },
+  { slot: "psu",         side: "left",  caseX: 260, caseY: 410, railY: 420 },
+  { slot: "ram",         side: "right", caseX: 480, caseY: 120, railY: 60  },
+  { slot: "motherboard", side: "right", caseX: 480, caseY: 340, railY: 180 },
+  { slot: "cooling",     side: "right", caseX: 480, caseY: 160, railY: 300 },
+  { slot: "case",        side: "right", caseX: 480, caseY: 460, railY: 420 },
+];
+
 interface Props {
   build: BuildState;
   onSlotClick: (slot: SlotKey) => void;
@@ -158,6 +177,42 @@ function PCChassisSVG() {
   );
 }
 
+function CalloutLines({ build }: { build: BuildState }) {
+  return (
+    <svg
+      viewBox="0 0 720 512"
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+    >
+      {SLOT_ANCHORS.map(({ slot, side, caseX, caseY, railY }) => {
+        const selected = build[slot] !== null;
+        const color = selected ? PURPLE : INK;
+        const strokeWidth = selected ? 2 : 1.5;
+        const strokeDasharray = selected ? "none" : "4 3";
+
+        const elbowX = side === "left" ? 230 : 510;
+        const railEndX = side === "left" ? 220 : 500;
+        const points = `${caseX},${caseY} ${elbowX},${caseY} ${elbowX},${railY} ${railEndX},${railY}`;
+
+        return (
+          <g key={slot}>
+            <polyline
+              points={points}
+              fill="none"
+              stroke={color}
+              strokeWidth={strokeWidth}
+              strokeDasharray={strokeDasharray}
+            />
+            {/* Anchor dot on chassis edge */}
+            <circle cx={caseX} cy={caseY} r="4" fill={color} stroke={INK} strokeWidth="1.5" />
+            {/* Rail-end bullet */}
+            <circle cx={railEndX} cy={railY} r="3" fill={color} />
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 export default function BuildWireframe({ build, onSlotClick }: Props) {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -236,7 +291,8 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
           aspectRatio: "720 / 512",
         }}>
           <PCChassisSVG />
-          {/* CalloutLines and LabelCards go here in later tasks */}
+          <CalloutLines build={build} />
+          {/* LabelCards go here in the next task */}
         </div>
       </div>
 
