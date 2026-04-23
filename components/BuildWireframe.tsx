@@ -1,89 +1,57 @@
 "use client";
 
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import type { BuildState, SlotKey } from "@/app/build/page";
-import { SLOT_LABELS } from "@/app/build/page";
+import { SLOT_LABELS, SLOT_SUB } from "@/app/build/page";
+
+const INK = "#111112";
+const PURPLE = "#7c3aed";
+const CARD = "#f8f8f9";
+const DIM = "#a1a1aa";
+const TEXT2 = "#3f3f46";
+const MONO = "var(--mono)";
+const SANS = "-apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif";
 
 interface Props {
   build: BuildState;
   onSlotClick: (slot: SlotKey) => void;
 }
 
-// SVG viewBox: 1000x560. Image rendered 340x380, centered at (500, 280).
-// Image origin in SVG: left=330, top=90. Scale: 340/600=0.567 x, 380/600=0.633 y.
-// Part hotspot coords measured from wireframe image (600x600):
-//   cpu cooler circle:  ~(220,285) → SVG (330+220*0.567, 90+285*0.633) = (455, 270)
-//   gpu (long card):    ~(195,405) → SVG (330+195*0.567, 90+405*0.633) = (441, 346)
-//   ram sticks:         ~(305,205) → SVG (330+305*0.567, 90+205*0.633) = (503, 220)
-//   motherboard center: ~(265,310) → SVG (330+265*0.567, 90+310*0.633) = (480, 286)
-//   psu (bottom-right): ~(445,455) → SVG (330+445*0.567, 90+455*0.633) = (582, 378)
-//   case (outer frame): ~(500,100) → SVG (330+500*0.567, 90+100*0.633) = (614, 153)
-//   ssd (small card):   ~(195,375) → SVG (330+195*0.567, 90+375*0.633) = (441, 327)
-//   cooling (top fans): ~(310,150) → SVG (330+310*0.567, 90+150*0.633) = (506, 185)
-// Left chips anchor at x=148, right chips at x=852 (in 1000-wide viewBox)
-const LEFT_CHIPS: [SlotKey, number, number, number, number][] = [
-  ["cpu",         148, 80,  455, 270],
-  ["gpu",         148, 170, 441, 346],
-  ["ram",         148, 260, 503, 220],
-  ["motherboard", 148, 350, 480, 286],
-];
-
-const RIGHT_CHIPS: [SlotKey, number, number, number, number][] = [
-  ["case",    852, 80,  614, 153],
-  ["cooling", 852, 170, 506, 185],
-  ["ssd",     852, 260, 441, 327],
-  ["psu",     852, 350, 582, 378],
-];
-
-function Chip({
-  slot,
-  build,
-  onClick,
-  style,
-}: {
-  slot: SlotKey;
-  build: BuildState;
-  onClick: () => void;
-  style: React.CSSProperties;
-}) {
-  const selected = build[slot] !== null;
+function DiagLines() {
+  const lines = [];
+  for (let i = 0; i < 40; i++) {
+    const x = (i * 63) % 1400;
+    const len = 40 + ((i * 37) % 120);
+    const col = i % 3 === 0 ? "#c4b5fd" : i % 3 === 1 ? "#e4e4e7" : "#ddd6fe";
+    const thick = i % 5 === 0 ? 2.5 : 1.5;
+    lines.push(
+      <line key={i} x1={x} y1={-20} x2={x - len} y2={len + 20}
+        stroke={col} strokeWidth={thick} strokeLinecap="round" />
+    );
+  }
   return (
-    <motion.button
-      onClick={onClick}
-      animate={selected ? {} : { opacity: [1, 0.6, 1] }}
-      transition={selected ? {} : { repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
-      style={{
-        position: "absolute",
-        padding: "6px 16px",
-        background: selected ? "#7c3aed" : "var(--bg)",
-        border: "2px solid #111112",
-        boxShadow: "3px 3px 0 #111112",
-        transform: "skewX(-12deg)",
-        fontSize: "11px",
-        fontWeight: 800,
-        letterSpacing: "1px",
-        textTransform: "uppercase",
-        color: selected ? "white" : "var(--text)",
-        cursor: "pointer",
-        whiteSpace: "nowrap",
-        fontFamily: "var(--mono)",
-        ...style,
-      }}
-      whileHover={{ background: selected ? "#6d28d9" : "#ede9fe" }}
+    <svg
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: 0.35 }}
+      viewBox="0 0 1400 900"
+      preserveAspectRatio="xMidYMid slice"
     >
-      {SLOT_LABELS[slot]}{selected ? " ✓" : ""}
-    </motion.button>
+      {lines}
+    </svg>
   );
 }
 
 export default function BuildWireframe({ build, onSlotClick }: Props) {
-  function lineColor(slot: SlotKey) {
-    return build[slot] ? "#7c3aed" : "#111112";
-  }
-  function lineDash(slot: SlotKey) {
-    return build[slot] ? "none" : "4 3";
-  }
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  if (isMobile) return null;
 
   return (
     <section
@@ -99,9 +67,11 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
         overflow: "hidden",
       }}
     >
+      <DiagLines />
+
       <motion.p
         className="section-label"
-        style={{ marginBottom: "6px" }}
+        style={{ marginBottom: "6px", position: "relative" }}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -110,7 +80,7 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
       </motion.p>
       <motion.h1
         className="font-black text-center"
-        style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "var(--text)", marginBottom: "40px" }}
+        style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "var(--text)", marginBottom: "28px", position: "relative" }}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
@@ -118,79 +88,56 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
         Build a PC
       </motion.h1>
 
-      {/* Wireframe + chips container — 1000x560 coordinate space */}
-      <div style={{ position: "relative", width: "min(1000px, 96vw)", aspectRatio: "1000/560" }}>
-
-        {/* SVG connector lines */}
-        <svg
-          viewBox="0 0 1000 560"
-          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none" }}
-        >
-          {LEFT_CHIPS.map(([slot, cx, cy, lx, ly]) => (
-            <line
-              key={slot}
-              x1={cx} y1={cy} x2={lx} y2={ly}
-              stroke={lineColor(slot)}
-              strokeWidth="1.5"
-              strokeDasharray={lineDash(slot)}
-            />
-          ))}
-          {RIGHT_CHIPS.map(([slot, cx, cy, lx, ly]) => (
-            <line
-              key={slot}
-              x1={cx} y1={cy} x2={lx} y2={ly}
-              stroke={lineColor(slot)}
-              strokeWidth="1.5"
-              strokeDasharray={lineDash(slot)}
-            />
-          ))}
-        </svg>
-
-        {/* Left chips — positioned as % of container */}
-        {LEFT_CHIPS.map(([slot, , cy]) => (
-          <Chip
-            key={slot}
-            slot={slot}
-            build={build}
-            onClick={() => onSlotClick(slot)}
-            style={{ left: 0, top: `calc(${(cy / 560) * 100}% - 16px)` }}
-          />
-        ))}
-
-        {/* Wireframe image — positioned at 33% from left, 16% from top, 34% wide */}
-        <div
-          style={{
-            position: "absolute",
-            left: "33%", top: "16%",
-            width: "34%",
-            border: "2px solid #111112",
-            boxShadow: "8px 8px 0 #111112",
-          }}
-        >
-          <Image
-            src="/wireframe.webp"
-            alt="PC wireframe"
-            width={340}
-            height={380}
-            style={{ display: "block", width: "100%", height: "auto" }}
-          />
+      {/* Framed container */}
+      <div style={{
+        position: "relative",
+        width: "min(960px, 94vw)",
+        background: CARD,
+        border: `2px solid ${INK}`,
+        boxShadow: `6px 6px 0 ${INK}`,
+        overflow: "hidden",
+        flexShrink: 0,
+      }}>
+        {/* Corner annotations */}
+        <div style={{ position: "absolute", top: 10, left: 14, fontFamily: MONO, fontSize: 9, color: DIM, letterSpacing: 1.5, zIndex: 2, pointerEvents: "none" }}>
+          ◼ SIDE VIEW · MID-TOWER ATX
+        </div>
+        <div style={{ position: "absolute", top: 10, right: 14, fontFamily: MONO, fontSize: 9, color: DIM, letterSpacing: 1.5, zIndex: 2, pointerEvents: "none" }}>
+          SCALE 1:4 · CLICK ANY CALLOUT
+        </div>
+        <div style={{ position: "absolute", bottom: 10, left: 14, fontFamily: MONO, fontSize: 9, color: DIM, letterSpacing: 1.5, zIndex: 2, pointerEvents: "none" }}>
+          REV A · 2026.04
+        </div>
+        <div style={{ position: "absolute", bottom: 10, right: 14, fontFamily: MONO, fontSize: 9, color: PURPLE, letterSpacing: 1.5, zIndex: 2, pointerEvents: "none" }}>
+          PARTS: 8 SLOTS
         </div>
 
-        {/* Right chips */}
-        {RIGHT_CHIPS.map(([slot, , cy]) => (
-          <Chip
-            key={slot}
-            slot={slot}
-            build={build}
-            onClick={() => onSlotClick(slot)}
-            style={{ right: 0, top: `calc(${(cy / 560) * 100}% - 16px)` }}
-          />
-        ))}
+        {/* 720×512 coordinate space — placeholder for now */}
+        <div style={{
+          position: "relative",
+          width: "100%",
+          aspectRatio: "720 / 512",
+        }}>
+          {/* SVG layers and label cards go here in later tasks */}
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div style={{ marginTop: 16, display: "flex", gap: 16, alignItems: "center", position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 10, color: TEXT2 }}>
+          <svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke={INK} strokeWidth="1.5" strokeDasharray="4 3" /></svg>
+          empty slot
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 10, color: TEXT2 }}>
+          <svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke={PURPLE} strokeWidth="2" /></svg>
+          selected
+        </div>
+        <div style={{ marginLeft: "auto", fontFamily: MONO, fontSize: 10, color: DIM }}>↓ scroll for parts</div>
       </div>
 
       {/* Scroll hint */}
       <motion.div
-        style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", marginTop: "32px", color: "var(--text-dim)" }}
+        style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", marginTop: "16px", color: "var(--text-dim)", position: "relative" }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
@@ -202,7 +149,6 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
         >
           ↓
         </motion.span>
-        <span className="section-label">configure parts below</span>
       </motion.div>
     </section>
   );
