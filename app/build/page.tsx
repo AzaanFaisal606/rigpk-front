@@ -43,6 +43,14 @@ function BuildPage() {
   const searchParams = useSearchParams();
   const [build, setBuild] = useState<BuildState>(EMPTY_BUILD);
   const [activeSlot, setActiveSlot] = useState<SlotKey | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     const code = searchParams.get("share");
@@ -81,7 +89,10 @@ function BuildPage() {
           <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
             Click any slot to browse and select parts from the marketplace.
           </p>
-          <div className="flex gap-7 items-start">
+          <div
+            className="flex gap-7 items-start"
+            style={{ flexDirection: isMobile ? "column" : "row" }}
+          >
             <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} />
             <BuildSummary build={build} />
           </div>
