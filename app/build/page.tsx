@@ -25,7 +25,13 @@ const EMPTY_BUILD: BuildState = {
 
 export const SLOT_LABELS: Record<SlotKey, string> = {
   cpu: "CPU", gpu: "GPU", ram: "RAM", motherboard: "Mobo",
-  psu: "PSU", case: "Case", ssd: "SSD", cooling: "Cooling",
+  psu: "PSU", case: "Case", ssd: "Storage", cooling: "Cooling",
+};
+
+export const SLOT_SUB: Record<SlotKey, string> = {
+  cpu: "Processor", gpu: "Graphics Card", ram: "Memory",
+  motherboard: "Mainboard", ssd: "SSD / NVMe", psu: "Power Supply",
+  case: "Chassis", cooling: "CPU Cooler",
 };
 
 export const SLOT_CATEGORY: Record<SlotKey, string> = {
@@ -37,6 +43,14 @@ function BuildPage() {
   const searchParams = useSearchParams();
   const [build, setBuild] = useState<BuildState>(EMPTY_BUILD);
   const [activeSlot, setActiveSlot] = useState<SlotKey | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     const code = searchParams.get("share");
@@ -62,25 +76,56 @@ function BuildPage() {
   return (
     <div className="flex flex-col min-h-screen" style={{ background: "var(--bg)" }}>
       <Navbar />
-      <main className="flex flex-col flex-1">
-        <BuildWireframe build={build} onSlotClick={setActiveSlot} />
-        <section className="max-w-[1200px] mx-auto w-full px-8 py-16">
-          <p className="section-label mb-1">Your Build</p>
-          <h2
-            className="font-black mb-2"
-            style={{ fontSize: "clamp(1.2rem, 2.5vw, 1.5rem)", color: "var(--text)" }}
+      <main
+        style={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          flex: 1,
+          alignItems: "flex-start",
+          gap: isMobile ? 0 : "24px",
+          padding: isMobile ? "0" : "0 16px 0 0",
+        }}
+      >
+        {/* Left column — wireframe + cards + banner */}
+        <div style={{ flex: 1, minWidth: 0, width: isMobile ? "100%" : "auto" }}>
+          <BuildWireframe build={build} onSlotClick={setActiveSlot} />
+          <section style={{ padding: isMobile ? "32px 24px 48px" : "32px 32px 64px" }}>
+            <div style={{ width: isMobile ? "100%" : "85%" }}>
+              <p className="section-label mb-1">Your Build</p>
+              <h2
+                className="font-black mb-2"
+                style={{ fontSize: "clamp(1.2rem, 2.5vw, 1.5rem)", color: "var(--text)" }}
+              >
+                Component List
+              </h2>
+              <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
+                Click any slot to browse and select parts from the marketplace.
+              </p>
+              <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} isMobile={isMobile} />
+              <CompatibilityBanner issues={issues} />
+            </div>
+          </section>
+        </div>
+
+        {/* Right column — sticky BuildSummary */}
+        {!isMobile && (
+          <div
+            style={{
+              position: "sticky",
+              top: "72px",
+              width: "375px",
+              flexShrink: 0,
+              marginTop: "127px",
+            }}
           >
-            Component List
-          </h2>
-          <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
-            Click any slot to browse and select parts from the marketplace.
-          </p>
-          <div className="flex gap-7 items-start" style={{ flexWrap: "wrap" }}>
-            <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} />
             <BuildSummary build={build} />
           </div>
-          <CompatibilityBanner issues={issues} />
-        </section>
+        )}
+        {isMobile && (
+          <div style={{ padding: "0 24px 48px", width: "100%" }}>
+            <BuildSummary build={build} />
+          </div>
+        )}
       </main>
 
       {activeSlot && (

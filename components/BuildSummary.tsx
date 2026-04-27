@@ -65,12 +65,11 @@ export default function BuildSummary({ build }: Props) {
   return (
     <div
       style={{
-        width: isMobile ? "100%" : "240px",
+        width: "100%",
         flexShrink: 0,
         border: "2px solid #111112",
         background: "var(--bg-card)",
         boxShadow: "5px 5px 0 #111112",
-        ...(isMobile ? {} : { position: "sticky", top: "72px" }),
       }}
     >
       {/* Header */}

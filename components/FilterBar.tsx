@@ -536,9 +536,10 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
             scrollbarWidth: "none",
             paddingBottom: "300px",
             marginBottom: "-300px",
+            pointerEvents: "none",
           }}
         >
-        <div className="flex items-center gap-2" style={{ minWidth: "max-content" }}>
+        <div className="flex items-center gap-2" style={{ minWidth: "max-content", pointerEvents: "auto" }}>
 
           {/* Parts count */}
           <span
