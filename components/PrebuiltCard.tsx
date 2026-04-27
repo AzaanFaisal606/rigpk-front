@@ -51,7 +51,7 @@ export default function PrebuiltCard({ prebuilt }: Props) {
         border: "2px solid #111112",
         boxShadow: "4px 4px 0 #111112",
         background: hovered ? "#ede9fe" : "white",
-        borderLeft: hovered ? "4px solid #7c3aed" : "2px solid #111112",
+        borderLeft: hovered ? "4px solid #7c3aed" : "4px solid transparent",
         transition: "background 0.1s",
         display: "flex",
         flexDirection: "column",
