@@ -29,7 +29,7 @@ export default async function PrebuiltDetailPage({ params }: PageProps) {
   return (
     <>
       <Navbar />
-      <div className="pb-spec-page-breadcrumb" style={{ maxWidth: "1280px", margin: "0 auto", padding: "16px 48px 0" }}>
+      <div className="pb-spec-page-breadcrumb" style={{ maxWidth: "1280px", margin: "0 auto", padding: "16px 48px 0", overflow: "hidden", width: "100%" }}>
         <nav style={{ display: "flex", alignItems: "center", gap: "6px", fontFamily: monoFont, fontSize: "10px", fontWeight: 700, color: "#a1a1aa", letterSpacing: "1px", textTransform: "uppercase", flexWrap: "nowrap", overflow: "hidden" }}>
           <Link href="/" style={{ color: "#a1a1aa", textDecoration: "none", flexShrink: 0 }}>RIGPK</Link>
           <span style={{ flexShrink: 0 }}>›</span>

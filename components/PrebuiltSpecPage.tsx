@@ -51,6 +51,7 @@ interface Props {
 
 export default function PrebuiltSpecPage({ prebuilt }: Props) {
   const [liked, setLiked] = useState(false);
+  const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 768px)");
@@ -59,6 +60,13 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
+
+  function handleShare() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setShareStatus("copied");
+      setTimeout(() => setShareStatus("idle"), 2500);
+    });
+  }
   const c = prebuilt.components ?? {};
   const tags = derivePrebuiltTags(c);
 
@@ -72,7 +80,7 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
   const restOfName = words.join(" ");
 
   return (
-    <div className="pb-spec-wrapper" style={{ maxWidth: "1280px", margin: "0 auto", padding: "32px 48px 60px" }}>
+    <div className="pb-spec-wrapper" style={{ maxWidth: "1280px", margin: "0 auto", padding: "32px 48px 60px", overflowX: "hidden" }}>
 
       {/* ── HERO ── */}
       <div className="pb-spec-hero" style={{ display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: "28px", alignItems: "start", marginBottom: "40px" }}>
@@ -226,16 +234,19 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
 
                 {/* Share */}
                 <button
-                  onClick={() => {}}
+                  onClick={handleShare}
                   style={{
                     width: isMobile ? "38px" : "52px", height: isMobile ? "38px" : "52px",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    border: "2px solid #111112", boxShadow: "4px 4px 0 #111112",
-                    background: "white", cursor: "pointer",
+                    border: "2px solid #111112",
+                    boxShadow: "4px 4px 0 #111112",
+                    background: shareStatus === "copied" ? "#16a34a" : "white",
+                    cursor: "pointer",
+                    transition: "background 0.15s",
                   }}
                   aria-label="Share"
                 >
-                  <Share2 size={18} color="#111112" />
+                  <Share2 size={18} color={shareStatus === "copied" ? "white" : "#111112"} />
                 </button>
               </div>
             </div>

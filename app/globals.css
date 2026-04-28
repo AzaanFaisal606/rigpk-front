@@ -39,13 +39,14 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 
 body {
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "kern" 1, "liga" 1;
+  overflow-x: hidden;
 }
 
 /* ── Noise texture overlay for cards ────────────────────── */
