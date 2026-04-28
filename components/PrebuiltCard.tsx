@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import ComicFrame from "./ComicFrame";
 import PCThumb from "./PCThumb";
 import type { Prebuilt } from "@/lib/prebuilts-api";
 
@@ -48,10 +47,12 @@ export default function PrebuiltCard({ prebuilt }: Props) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        border: "2px solid #111112",
-        boxShadow: "4px 4px 0 #111112",
-        background: hovered ? "#ede9fe" : "white",
+        borderTop: "none",
+        borderRight: "2px solid #111112",
+        borderBottom: "2px solid #111112",
         borderLeft: hovered ? "4px solid #7c3aed" : "4px solid transparent",
+        boxShadow: hovered ? "6px 6px 0 #7c3aed" : "6px 6px 0 #111112",
+        background: hovered ? "#ede9fe" : "white",
         transition: "background 0.1s",
         display: "flex",
         flexDirection: "column",
@@ -59,33 +60,69 @@ export default function PrebuiltCard({ prebuilt }: Props) {
       }}
     >
       {/* Thumbnail */}
-      <ComicFrame height={200} sub={prebuilt.source}>
+      <div
+        style={{
+          borderBottom: "2px solid #111112",
+          height: 200,
+          background: "#f4f4f5",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        {/* Halftone bg */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage:
+              "radial-gradient(circle, rgba(124,58,237,0.10) 1px, transparent 1px)",
+            backgroundSize: "10px 10px",
+            pointerEvents: "none",
+          }}
+        />
         {prebuilt.thumbnail_url ? (
           <img
             src={prebuilt.thumbnail_url}
             referrerPolicy="no-referrer"
             alt={prebuilt.name}
             style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
+              position: "relative",
+              maxWidth: "80%",
+              maxHeight: "80%",
+              width: "auto",
+              height: "auto",
+              objectFit: "contain",
               display: "block",
             }}
           />
         ) : (
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <div style={{ position: "relative" }}>
             <PCThumb scale={0.85} />
           </div>
         )}
-      </ComicFrame>
+        {/* Source label */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            right: 0,
+            background: "#111112",
+            color: "white",
+            fontFamily: monoFont,
+            fontSize: "9px",
+            fontWeight: 800,
+            letterSpacing: "1.5px",
+            textTransform: "uppercase",
+            padding: "4px 10px",
+          }}
+        >
+          {prebuilt.source}
+        </div>
+      </div>
 
       {/* Content */}
       <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
@@ -103,25 +140,6 @@ export default function PrebuiltCard({ prebuilt }: Props) {
           }}
         >
           {prebuilt.name}
-        </div>
-
-        {/* Source badge */}
-        <div>
-          <span
-            style={{
-              fontFamily: monoFont,
-              fontSize: "9px",
-              fontWeight: 800,
-              letterSpacing: "0.8px",
-              textTransform: "uppercase",
-              padding: "2px 7px",
-              background: "rgba(124,58,237,0.08)",
-              border: "1px solid rgba(124,58,237,0.22)",
-              color: "#7c3aed",
-            }}
-          >
-            {prebuilt.source}
-          </span>
         </div>
 
         {/* Component chips */}

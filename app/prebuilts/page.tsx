@@ -75,13 +75,7 @@ async function PrebuiltGrid({
           // NO PREBUILTS FOUND
         </div>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "20px",
-          }}
-        >
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "28px" }} className="pb-browser-grid">
           {items.map(p => <PrebuiltCard key={p.id} prebuilt={p} />)}
         </div>
       )}
@@ -162,7 +156,7 @@ export default async function PrebuiltsPage({ searchParams }: PageProps) {
         <PrebuiltFilterBar />
       </Suspense>
 
-      <main style={{ maxWidth: "72rem", margin: "0 auto", padding: "32px 24px" }}>
+      <main className="pb-browser-wrapper" style={{ maxWidth: "80rem", margin: "0 auto", padding: "32px 24px" }}>
         <div style={{ marginBottom: "28px" }}>
           <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "#a1a1aa", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "6px" }}>
             RIGPK

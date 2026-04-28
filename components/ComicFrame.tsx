@@ -2,6 +2,7 @@ interface Props {
   sub?: string;
   height?: number;
   accent?: string;
+  className?: string;
   children: React.ReactNode;
 }
 
@@ -12,10 +13,12 @@ export default function ComicFrame({
   sub,
   height = 300,
   accent = "#7c3aed",
+  className,
   children,
 }: Props) {
   return (
     <div
+      className={className}
       style={{
         position: "relative",
         height,

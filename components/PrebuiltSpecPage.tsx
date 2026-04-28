@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart, Share2 } from "lucide-react";
 import ComicFrame from "./ComicFrame";
 import PCThumb from "./PCThumb";
@@ -15,19 +15,19 @@ function PB_Chip({ label }: { label: string }) {
       style={{
         display: "inline-block",
         fontFamily: monoFont,
-        fontSize: "10px",
+        fontSize: "9px",
         fontWeight: 800,
         letterSpacing: "1px",
         textTransform: "uppercase",
-        padding: "3px 9px",
+        padding: "3px 10px",
         border: "2px solid #111112",
-        boxShadow: "2px 2px 0 #111112",
-        background: "#7c3aed",
-        color: "white",
-        transform: "skewX(-8deg)",
+        boxShadow: "3px 3px 0 #111112",
+        background: "#f8f8f9",
+        color: "#111112",
+        transform: "skewX(-10deg)",
       }}
     >
-      <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>{label}</span>
+      <span style={{ display: "inline-block", transform: "skewX(10deg)" }}>{label}</span>
     </span>
   );
 }
@@ -37,10 +37,10 @@ const SPEC_LABELS: Record<string, string> = {
   gpu:        "GPU",
   ram:        "RAM",
   storage:    "STORAGE",
-  motherboard:"MOBO",
+  motherboard:"MOTHERBOARD",
   psu:        "PSU",
   case:       "CASE",
-  cpu_cooler: "COOLER",
+  cpu_cooler: "COOLING",
 };
 
 const SPEC_ORDER = ["cpu", "gpu", "ram", "storage", "motherboard", "psu", "case", "cpu_cooler"] as const;
@@ -51,6 +51,14 @@ interface Props {
 
 export default function PrebuiltSpecPage({ prebuilt }: Props) {
   const [liked, setLiked] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
   const c = prebuilt.components ?? {};
   const tags = derivePrebuiltTags(c);
 
@@ -59,33 +67,26 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
     ? new Date(prebuilt.scraped_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
     : "";
 
-  // Italic last word of title
   const words = prebuilt.name.trim().split(" ");
   const lastWord = words.pop();
   const restOfName = words.join(" ");
 
   return (
-    <div style={{ maxWidth: "72rem", margin: "0 auto", padding: "32px 24px" }}>
+    <div className="pb-spec-wrapper" style={{ maxWidth: "1280px", margin: "0 auto", padding: "32px 48px 60px" }}>
 
-      {/* Hero — 2-col */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.05fr 0.95fr",
-          gap: "32px",
-          alignItems: "start",
-          marginBottom: "40px",
-        }}
-      >
+      {/* ── HERO ── */}
+      <div className="pb-spec-hero" style={{ display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: "28px", alignItems: "start", marginBottom: "40px" }}>
         {/* Left: ComicFrame thumbnail */}
-        <ComicFrame height={460} sub={prebuilt.source}>
+        <ComicFrame height={isMobile ? 260 : 460} sub={prebuilt.source}>
           {prebuilt.thumbnail_url ? (
-            <img
-              src={prebuilt.thumbnail_url}
-              referrerPolicy="no-referrer"
-              alt={prebuilt.name}
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            />
+            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <img
+                src={prebuilt.thumbnail_url}
+                referrerPolicy="no-referrer"
+                alt={prebuilt.name}
+                style={{ maxWidth: "85%", maxHeight: "85%", width: "auto", height: "auto", objectFit: "contain", display: "block" }}
+              />
+            </div>
           ) : (
             <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <PCThumb scale={1.6} />
@@ -94,28 +95,32 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
         </ComicFrame>
 
         {/* Right: info */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           {/* Eyebrow */}
-          <div style={{ fontFamily: monoFont, fontSize: "11px", fontWeight: 800, color: "#71717a", letterSpacing: "2px", textTransform: "uppercase" }}>
+          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "#7c3aed", letterSpacing: "2px", textTransform: "uppercase" }}>
             — RIGPK // PRE-BUILT
           </div>
 
           {/* Source */}
-          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 700, color: "#a1a1aa", letterSpacing: "1px", textTransform: "uppercase" }}>
-            {prebuilt.source}
+          <div style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 700, color: "#3f3f46", marginBottom: "2px" }}>
+            {prebuilt.source} //
           </div>
 
-          {/* Title */}
+          {/* Title — max 2 lines */}
           <h1
             style={{
               fontFamily: monoFont,
               fontWeight: 900,
-              fontSize: "clamp(2rem, 4vw, 4rem)",
-              lineHeight: 1.05,
+              fontSize: "clamp(1.4rem, 2.8vw, 2.8rem)",
+              lineHeight: 0.95,
               textTransform: "uppercase",
-              letterSpacing: "-0.01em",
+              letterSpacing: "-0.02em",
               color: "#111112",
               margin: 0,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
             }}
           >
             {restOfName}{restOfName ? " " : ""}
@@ -124,31 +129,31 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
 
           {/* Tags */}
           {tags.length > 0 && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "4px" }}>
               {tags.map(t => <PB_Chip key={t} label={t} />)}
             </div>
           )}
 
-          {/* Price card */}
+          {/* Price + buy card */}
           <div
             style={{
-              border: "2px solid #111112",
+              marginTop: "12px",
+              border: "3px solid #111112",
               boxShadow: "6px 6px 0 #111112",
-              overflow: "hidden",
-              marginTop: "8px",
+              background: "white",
             }}
           >
             {/* Header bar */}
             <div
               style={{
                 background: "#111112",
-                padding: "10px 16px",
+                padding: "8px 14px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
               }}
             >
-              <span style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "1.5px", textTransform: "uppercase" }}>
+              <span style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "2px", textTransform: "uppercase" }}>
                 ◼ PRICE · LISTED ON {prebuilt.source.toUpperCase()}
               </span>
               {scrapedDate && (
@@ -159,84 +164,78 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
             </div>
 
             {/* Body */}
-            <div style={{ padding: "20px 16px", display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ padding: "18px 20px 20px" }}>
               <div
                 style={{
                   fontFamily: monoFont,
                   fontWeight: 900,
-                  fontSize: "2rem",
+                  fontSize: isMobile ? "1.5rem" : "2.25rem",
                   color: "#7c3aed",
                   letterSpacing: "-0.02em",
+                  marginBottom: isMobile ? "8px" : "12px",
                 }}
               >
                 {prebuilt.price_pkr
-                  ? `Rs ${prebuilt.price_pkr.toLocaleString("en-PK")}`
+                  ? `Rs ${prebuilt.price_pkr.toLocaleString("en-PK")}`
                   : "—"}
               </div>
 
-              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                 {/* Buy Now */}
                 <a
                   href={prebuilt.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    display: "inline-block",
-                    padding: "10px 22px",
+                    flex: 1,
+                    display: "block",
+                    padding: isMobile ? "9px 10px" : "14px 18px",
                     background: "#7c3aed",
                     color: "white",
                     border: "2px solid #111112",
-                    boxShadow: "3px 3px 0 #111112",
+                    boxShadow: "4px 4px 0 #111112",
                     fontFamily: monoFont,
-                    fontSize: "11px",
+                    fontSize: isMobile ? "10px" : "12px",
                     fontWeight: 800,
-                    letterSpacing: "1.5px",
+                    letterSpacing: isMobile ? "1px" : "2px",
                     textTransform: "uppercase",
                     textDecoration: "none",
-                    transform: "skewX(-8deg)",
+                    textAlign: "center",
+                    transform: "skewX(-6deg)",
                   }}
                 >
-                  <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>
-                    BUY NOW →
+                  <span style={{ display: "inline-block", transform: "skewX(6deg)" }}>
+                    BUY NOW @ {prebuilt.source.toUpperCase()} ↗
                   </span>
                 </a>
 
-                {/* Like button */}
+                {/* Like */}
                 <button
                   onClick={() => setLiked(l => !l)}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "38px",
-                    height: "38px",
-                    border: "2px solid #111112",
-                    boxShadow: "2px 2px 0 #111112",
-                    background: liked ? "#fef2f2" : "white",
-                    cursor: "pointer",
+                    width: isMobile ? "38px" : "52px", height: isMobile ? "38px" : "52px",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    border: "2px solid #111112", boxShadow: "4px 4px 0 #111112",
+                    background: liked ? "#fef2f2" : "white", cursor: "pointer",
+                    fontFamily: monoFont, fontSize: "18px",
                   }}
                   aria-label="Like"
                 >
-                  <Heart size={16} color={liked ? "#dc2626" : "#111112"} fill={liked ? "#dc2626" : "none"} />
+                  <Heart size={18} color={liked ? "#dc2626" : "#111112"} fill={liked ? "#dc2626" : "none"} />
                 </button>
 
-                {/* Share button */}
+                {/* Share */}
                 <button
                   onClick={() => {}}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "38px",
-                    height: "38px",
-                    border: "2px solid #111112",
-                    boxShadow: "2px 2px 0 #111112",
-                    background: "white",
-                    cursor: "pointer",
+                    width: isMobile ? "38px" : "52px", height: isMobile ? "38px" : "52px",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    border: "2px solid #111112", boxShadow: "4px 4px 0 #111112",
+                    background: "white", cursor: "pointer",
                   }}
                   aria-label="Share"
                 >
-                  <Share2 size={16} color="#111112" />
+                  <Share2 size={18} color="#111112" />
                 </button>
               </div>
             </div>
@@ -244,46 +243,44 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
         </div>
       </div>
 
-      {/* Spec table section — 2-col */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.6fr 0.9fr",
-          gap: "28px",
-          alignItems: "start",
-        }}
-      >
-        {/* Left: Full spec sheet */}
+      {/* ── SPECS + SIDEBAR ── */}
+      <div className="pb-spec-bottom" style={{ display: "grid", gridTemplateColumns: "1.6fr 0.9fr", gap: "28px", alignItems: "start" }}>
+        {/* Left: spec table */}
         <div>
-          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "#a1a1aa", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "6px" }}>
-            COMPONENTS
+          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "#7c3aed", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "8px" }}>
+            — FULL SPEC SHEET
           </div>
-          <h2 style={{ fontFamily: monoFont, fontWeight: 900, fontSize: "1.35rem", textTransform: "uppercase", letterSpacing: "0.04em", color: "#111112", margin: "0 0 16px" }}>
-            What&apos;s inside.
+          <h2
+            style={{
+              fontFamily: "'Inter', system-ui, sans-serif",
+              fontWeight: 900,
+              fontSize: "1.875rem",
+              letterSpacing: "-0.04em",
+              color: "#111112",
+              margin: "0 0 16px",
+            }}
+          >
+            What&apos;s <span style={{ color: "#7c3aed", fontStyle: "italic" }}>inside.</span>
           </h2>
 
-          <div style={{ border: "2px solid #111112", boxShadow: "6px 6px 0 #111112", overflow: "hidden" }}>
-            {/* Header bar */}
-            <div style={{ background: "#111112", padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontFamily: monoFont, fontSize: "11px", fontWeight: 800, color: "white", letterSpacing: "2px" }}>◼ FULL SPEC SHEET</span>
-              <span style={{ fontFamily: monoFont, fontSize: "10px", color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>{specRows.length} COMPONENTS</span>
-            </div>
-
-            {/* Rows */}
+          <div style={{ border: "2px solid #111112", boxShadow: "6px 6px 0 #111112", background: "white" }}>
             {specRows.map((key, i) => (
               <div
                 key={key}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "120px 1fr",
-                  borderBottom: i < specRows.length - 1 ? "1px dashed #d4d4d8" : "none",
+                  gridTemplateColumns: "130px 1fr",
+                  padding: "14px 18px",
+                  gap: "18px",
+                  alignItems: "baseline",
+                  borderBottom: i < specRows.length - 1 ? "1.5px dashed #d4d4d8" : "none",
                   background: i % 2 === 0 ? "white" : "#fafafa",
                 }}
               >
-                <div style={{ padding: "12px 14px", fontFamily: monoFont, fontSize: "11px", fontWeight: 800, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "0.5px", borderRight: "1px solid #e4e4e7" }}>
+                <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "#7c3aed", letterSpacing: "1.5px", textTransform: "uppercase" }}>
                   {SPEC_LABELS[key]}
                 </div>
-                <div style={{ padding: "12px 16px", fontSize: "14px", fontWeight: 700, color: "#111112" }}>
+                <div style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: "14px", fontWeight: 700, color: "#111112" }}>
                   {c[key]}
                 </div>
               </div>
@@ -291,37 +288,45 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
           </div>
         </div>
 
-        {/* Right: Sidebar */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Benchmarks placeholder */}
-          <div style={{ border: "2px solid #111112", boxShadow: "4px 4px 0 #111112", overflow: "hidden" }}>
-            <div style={{ background: "#7c3aed", padding: "10px 16px" }}>
-              <span style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "1.5px", textTransform: "uppercase" }}>◼ GAME BENCHMARKS</span>
+        {/* Right: sidebar */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+          {/* Benchmarks */}
+          <div style={{ border: "2px solid #111112", boxShadow: "5px 5px 0 #111112", background: "white" }}>
+            <div style={{ background: "#7c3aed", padding: "8px 12px" }}>
+              <span style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "2px", textTransform: "uppercase" }}>◼ GAME BENCHMARKS</span>
             </div>
-            <div style={{ padding: "20px 16px" }}>
+            <div style={{ padding: "14px" }}>
               <p style={{ fontFamily: monoFont, fontSize: "11px", color: "#a1a1aa", margin: 0, lineHeight: 1.7 }}>
-                // Game performance data coming soon.{" "}
+                // Game performance data coming soon.
                 <br />We&apos;re working on it.
               </p>
             </div>
           </div>
 
-          {/* What's Included */}
-          <div style={{ border: "2px solid #111112", boxShadow: "4px 4px 0 #111112", overflow: "hidden" }}>
-            <div style={{ background: "#111112", padding: "10px 16px" }}>
-              <span style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "1.5px", textTransform: "uppercase" }}>◼ WHAT&apos;S INCLUDED</span>
+          {/* What's included */}
+          <div style={{ border: "2px solid #111112", boxShadow: "5px 5px 0 #111112", background: "white" }}>
+            <div style={{ background: "#111112", padding: "8px 12px" }}>
+              <span style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "2px", textTransform: "uppercase" }}>◼ WHAT&apos;S INCLUDED</span>
             </div>
-            <ul style={{ padding: "16px", margin: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "10px" }}>
-              {["Assembly + cable management", "Delivery across Pakistan", "Retailer warranty applies"].map(item => (
-                <li key={item} style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-                  <span style={{ fontFamily: monoFont, fontSize: "11px", fontWeight: 800, color: "#7c3aed", flexShrink: 0 }}>◼</span>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#111112" }}>{item}</span>
-                </li>
+            <div style={{ padding: "14px" }}>
+              {["Free assembly + cable management", "Delivery across Pakistan", "Retailer warranty applies"].map((item, i, arr) => (
+                <div
+                  key={item}
+                  style={{
+                    display: "flex", alignItems: "flex-start", gap: "10px",
+                    padding: "6px 0",
+                    borderBottom: i < arr.length - 1 ? "1px dashed #d4d4d8" : "none",
+                  }}
+                >
+                  <span style={{ color: "#7c3aed", fontFamily: monoFont, fontWeight: 900, fontSize: "12px", flexShrink: 0 }}>+</span>
+                  <span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: "12px", color: "#3f3f46", lineHeight: 1.4 }}>{item}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
   );
 }

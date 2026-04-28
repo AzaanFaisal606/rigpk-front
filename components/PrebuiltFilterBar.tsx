@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 const monoFont = '"JetBrains Mono", "Fira Code", monospace';
@@ -57,28 +58,115 @@ function ComicDropdown({
 }: {
   label: string;
   value: string | undefined;
-  options: string[];
+  options: string[] | { value: string; label: string }[];
   onSelect: (v: string | undefined) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (
+        btnRef.current && !btnRef.current.contains(e.target as Node) &&
+        panelRef.current && !panelRef.current.contains(e.target as Node)
+      ) setOpen(false);
     }
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const display = value ?? label;
+  function handleOpen() {
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setCoords({ top: r.bottom + 4, left: r.left });
+    }
+    setOpen(o => !o);
+  }
+
+  const isLabeled = options.length > 0 && typeof options[0] === "object";
+  const getOptValue = (o: string | { value: string; label: string }) => typeof o === "string" ? o : o.value;
+  const getOptLabel = (o: string | { value: string; label: string }) => typeof o === "string" ? o : o.label;
+  const display = value
+    ? (isLabeled ? getOptLabel(options.find(o => getOptValue(o) === value) ?? value) : value)
+    : label;
+
+  const panel = open && coords ? createPortal(
+    <div
+      ref={panelRef}
+      style={{
+        position: "fixed",
+        top: coords.top,
+        left: coords.left,
+        zIndex: 9999,
+        background: "white",
+        border: "2px solid #111112",
+        boxShadow: "4px 4px 0 #111112",
+        minWidth: "180px",
+      }}
+    >
+      {value && (
+        <button
+          onClick={() => { onSelect(undefined); setOpen(false); }}
+          style={{
+            display: "block",
+            width: "100%",
+            textAlign: "left",
+            padding: "7px 12px",
+            fontFamily: monoFont,
+            fontSize: "10px",
+            fontWeight: 700,
+            color: "#7c3aed",
+            background: "rgba(124,58,237,0.06)",
+            cursor: "pointer",
+            border: "none",
+            borderBottom: "1px solid #111112",
+            letterSpacing: "0.5px",
+            textTransform: "uppercase",
+          }}
+        >
+          ✕ Clear
+        </button>
+      )}
+      {options.map(opt => {
+        const optVal = getOptValue(opt);
+        const optLbl = getOptLabel(opt);
+        return (
+          <button
+            key={optVal}
+            onClick={() => { onSelect(optVal); setOpen(false); }}
+            style={{
+              display: "block",
+              width: "100%",
+              textAlign: "left",
+              padding: "6px 12px 6px 18px",
+              borderBottom: "1px solid #e4e4e7",
+              fontFamily: monoFont,
+              fontSize: "10px",
+              fontWeight: optVal === value ? 800 : 600,
+              color: optVal === value ? "#7c3aed" : "#111112",
+              background: optVal === value ? "#f0ebff" : "white",
+              cursor: "pointer",
+              border: "none",
+              letterSpacing: "0.3px",
+            }}
+          >
+            {optLbl}
+          </button>
+        );
+      })}
+    </div>,
+    document.body
+  ) : null;
 
   return (
-    <div ref={ref} style={{ position: "relative" }}>
+    <div style={{ position: "relative" }}>
       <button
-        onClick={() => setOpen(o => !o)}
+        ref={btnRef}
+        onClick={handleOpen}
         style={{
-          padding: "5px 12px",
+          padding: "5px 10px",
           border: value ? "2px solid #7c3aed" : "2px solid #111112",
           boxShadow: value ? "2px 2px 0 #7c3aed" : "2px 2px 0 #111112",
           background: value ? "#7c3aed" : "white",
@@ -91,70 +179,15 @@ function ComicDropdown({
           transform: "skewX(-8deg)",
           cursor: "pointer",
           whiteSpace: "nowrap",
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
         }}
       >
-        <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>
-          {display} ▾
-        </span>
+        <span>{display}</span>
+        <span style={{ opacity: 0.6, fontSize: "8px" }}>{open ? "▲" : "▼"}</span>
       </button>
-      {open && (
-        <div
-          style={{
-            position: "absolute",
-            top: "calc(100% + 4px)",
-            left: 0,
-            zIndex: 100,
-            background: "white",
-            border: "2px solid #111112",
-            boxShadow: "4px 4px 0 #111112",
-            minWidth: "160px",
-          }}
-        >
-          {value && (
-            <button
-              onClick={() => { onSelect(undefined); setOpen(false); }}
-              style={{
-                display: "block",
-                width: "100%",
-                textAlign: "left",
-                padding: "8px 14px",
-                fontFamily: monoFont,
-                fontSize: "10px",
-                fontWeight: 800,
-                color: "#7c3aed",
-                background: "rgba(124,58,237,0.06)",
-                cursor: "pointer",
-                border: "none",
-                borderBottom: "1px solid #111112",
-              }}
-            >
-              CLEAR
-            </button>
-          )}
-          {options.map(opt => (
-            <button
-              key={opt}
-              onClick={() => { onSelect(opt); setOpen(false); }}
-              style={{
-                display: "block",
-                width: "100%",
-                textAlign: "left",
-                padding: "8px 14px",
-                borderBottom: "1px solid #e4e4e7",
-                fontFamily: monoFont,
-                fontSize: "10px",
-                fontWeight: opt === value ? 800 : 600,
-                color: opt === value ? "#7c3aed" : "#111112",
-                background: opt === value ? "#f0ebff" : "white",
-                cursor: "pointer",
-                border: "none",
-              }}
-            >
-              {opt}
-            </button>
-          ))}
-        </div>
-      )}
+      {panel}
     </div>
   );
 }
@@ -170,8 +203,11 @@ export default function PrebuiltFilterBar() {
   useEffect(() => {
     function onScroll() {
       const y = window.scrollY;
-      if (y < 60) { setVisible(true); lastScroll.current = y; return; }
-      setVisible(y < lastScroll.current);
+      if (y > lastScroll.current && y > 80) {
+        setVisible(false);
+      } else if (y < lastScroll.current) {
+        setVisible(true);
+      }
       lastScroll.current = y;
     }
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -204,16 +240,19 @@ export default function PrebuiltFilterBar() {
         zIndex: 40,
         background: "var(--bg)",
         borderBottom: "2px solid #111112",
-        transform: visible ? "translateY(0)" : "translateY(-110%)",
-        transition: "transform 0.2s ease",
-        overflowX: "auto",
+        transform: visible ? "translateY(0)" : "translateY(-100%)",
+        transition: "transform 0.25s ease",
       }}
     >
+      <div style={{
+        overflowX: "auto",
+        scrollbarWidth: "none",
+      }}>
       <div
         style={{
-          maxWidth: "72rem",
+          maxWidth: "80rem",
           margin: "0 auto",
-          padding: "10px 24px",
+          padding: "12px 24px",
           display: "flex",
           alignItems: "center",
           gap: "10px",
@@ -312,14 +351,13 @@ export default function PrebuiltFilterBar() {
         <div style={{ width: "1px", height: "20px", background: "#111112", flexShrink: 0 }} />
 
         {/* Sort */}
-        {SORT_OPTIONS.map(opt => (
-          <ToggleChip
-            key={opt.value}
-            label={opt.label}
-            active={sort === opt.value}
-            onClick={() => push({ sort: opt.value })}
-          />
-        ))}
+        <ComicDropdown
+          label="SORT"
+          value={sort}
+          options={SORT_OPTIONS}
+          onSelect={v => push({ sort: v })}
+        />
+      </div>
       </div>
     </div>
   );

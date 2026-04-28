@@ -16,7 +16,7 @@ export default function Navbar() {
         borderBottom: "2px solid #111112",
       }}
     >
-      <div className="max-w-6xl mx-auto px-6 flex items-center justify-between" style={{ height: "52px" }}>
+      <div className="navbar-inner max-w-6xl mx-auto px-6 flex items-center justify-between" style={{ height: "52px" }}>
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 no-underline">
           <div
@@ -70,6 +70,7 @@ function NavButton({
   return (
     <Link
       href={href}
+      className="navbar-nav-btn"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -87,6 +88,7 @@ function NavButton({
         textTransform: "uppercase",
         textDecoration: "none",
         transition: "background 0.1s",
+        whiteSpace: "nowrap",
       }}
     >
       {children}
