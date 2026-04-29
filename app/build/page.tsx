@@ -15,8 +15,8 @@ import { getSharedBuild } from "@/lib/api";
 
 export type { SlotKey } from "@/lib/types";
 import type { SlotKey } from "@/lib/types";
-
-export type BuildState = Record<SlotKey, Part | null>;
+import type { BuildState } from "@/lib/types";
+export type { BuildState } from "@/lib/types";
 
 const EMPTY_BUILD: BuildState = {
   cpu: null, gpu: null, ram: null, motherboard: null,
