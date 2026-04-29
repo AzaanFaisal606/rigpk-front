@@ -1,47 +1,15 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FilterOptions } from "@/lib/api";
 import { getFilterOptions } from "@/lib/api";
-
-const CATEGORIES = [
-  "gpu", "cpu", "ram", "ssd", "hdd",
-  "psu", "case", "motherboard", "cooling", "monitor",
-];
-
-const SOURCES = [
-  { key: "czone.com.pk",     label: "CZone" },
-  { key: "zahcomputers.pk",  label: "Zah Computers" },
-  { key: "amdhouse.pk",      label: "AMD House" },
-  { key: "rbtechngames.com", label: "RB Tech" },
-  { key: "junaidtech.pk",    label: "Junaid Tech" },
-];
-
-const SPEC_KEYS = [
-  "brand","socket","vram","ddr_type","speed","chipset",
-  "wattage","rating","form_factor","type","aio_size",
-  "fan_size","interface","capacity",
-];
-
-const SPEC_LABELS: Record<string, string> = {
-  brand:       "Brand",
-  socket:      "Socket",
-  vram:        "VRAM",
-  ddr_type:    "DDR",
-  speed:       "Speed",
-  chipset:     "Chipset",
-  wattage:     "Wattage",
-  rating:      "80+",
-  form_factor: "Form",
-  type:        "Type",
-  aio_size:    "AIO",
-  fan_size:    "Fan",
-  interface:   "Interface",
-  capacity:    "Capacity",
-};
-
-const monoFont = '"JetBrains Mono", "Fira Code", monospace';
+import { ComicDropdown } from "@/components/ui/ComicDropdown";
+import type { DropdownOption } from "@/components/ui/ComicDropdown";
+import { PriceRangeFilter } from "@/components/ui/PriceRangeFilter";
+import { monoFont } from "@/lib/tokens";
+import { CATEGORIES, SOURCES, SPEC_LABELS } from "@/lib/constants";
+import { useScrollHide } from "@/lib/hooks/useScrollHide";
 
 // Bucketing: group raw spec values into labelled options
 // Returns { label, values[] } where values are the raw strings that match
@@ -110,287 +78,6 @@ function bucketValues(key: string, rawValues: string[]): Bucket[] | null {
   return null;
 }
 
-// Resolve a bucket label back to a raw value match for display
-// Price range popover
-function PriceRangeFilter({
-  minPrice,
-  maxPrice,
-  onMin,
-  onMax,
-  onClear,
-}: {
-  minPrice: string;
-  maxPrice: string;
-  onMin: (v: string) => void;
-  onMax: (v: string) => void;
-  onClear: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const isActive = !!minPrice || !!maxPrice;
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const label = isActive
-    ? `${minPrice || "0"} – ${maxPrice || "∞"}`
-    : "Price";
-
-  return (
-    <div ref={ref} style={{ position: "relative", flexShrink: 0 }}>
-      <button
-        onClick={() => setOpen(o => !o)}
-        style={{
-          padding: "5px 10px",
-          border: isActive ? "2px solid #7c3aed" : "2px solid #111112",
-          background: isActive ? "#7c3aed" : "white",
-          color: isActive ? "white" : "#111112",
-          boxShadow: isActive ? "2px 2px 0 #7c3aed" : "2px 2px 0 #111112",
-          transform: "skewX(-8deg)",
-          fontFamily: monoFont,
-          fontSize: "10px",
-          fontWeight: 800,
-          letterSpacing: "0.8px",
-          textTransform: "uppercase",
-          cursor: "pointer",
-          whiteSpace: "nowrap",
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-        }}
-      >
-        <span>{label}</span>
-        <span style={{ opacity: 0.6, fontSize: "8px" }}>{open ? "▲" : "▼"}</span>
-      </button>
-
-      {open && (
-        <div
-          style={{
-            position: "absolute",
-            top: "calc(100% + 6px)",
-            left: 0,
-            background: "white",
-            border: "2px solid #111112",
-            boxShadow: "4px 4px 0 #111112",
-            zIndex: 100,
-            padding: "12px 14px",
-            minWidth: "200px",
-          }}
-        >
-          <div style={{ marginBottom: "8px" }}>
-            <div className="section-label" style={{ marginBottom: "4px" }}>Min (PKR)</div>
-            <input
-              type="number"
-              placeholder="0"
-              value={minPrice}
-              onChange={e => onMin(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "6px 8px",
-                border: "1.5px solid #111112",
-                background: "white",
-                fontFamily: monoFont,
-                fontSize: "11px",
-                outline: "none",
-                color: "var(--text)",
-              }}
-            />
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <div className="section-label" style={{ marginBottom: "4px" }}>Max (PKR)</div>
-            <input
-              type="number"
-              placeholder="Any"
-              value={maxPrice}
-              onChange={e => onMax(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "6px 8px",
-                border: "1.5px solid #111112",
-                background: "white",
-                fontFamily: monoFont,
-                fontSize: "11px",
-                outline: "none",
-                color: "var(--text)",
-              }}
-            />
-          </div>
-          {isActive && (
-            <button
-              onClick={() => { onClear(); setOpen(false); }}
-              style={{
-                width: "100%",
-                padding: "5px 8px",
-                background: "rgba(124,58,237,0.06)",
-                border: "1.5px solid #7c3aed",
-                fontFamily: monoFont,
-                fontSize: "10px",
-                fontWeight: 700,
-                color: "#7c3aed",
-                cursor: "pointer",
-                letterSpacing: "0.5px",
-                textTransform: "uppercase",
-              }}
-            >
-              ✕ Clear
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Comic dropdown component
-function ComicDropdown({
-  label,
-  active,
-  options,
-  onSelect,
-  onClear,
-}: {
-  label: string;
-  active: string;
-  options: { value: string; label: string; separator?: boolean }[];
-  onSelect: (value: string) => void;
-  onClear: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const isActive = !!active && !active.startsWith("__sep__");
-  const displayLabel = active
-    ? options.find(o => !o.separator && o.value === active)?.label ?? active
-    : label;
-
-  return (
-    <div ref={ref} style={{ position: "relative", flexShrink: 0 }}>
-      <button
-        onClick={() => setOpen(o => !o)}
-        style={{
-          padding: "5px 10px",
-          border: isActive ? "2px solid #7c3aed" : "2px solid #111112",
-          background: isActive ? "#7c3aed" : "white",
-          color: isActive ? "white" : "#111112",
-          boxShadow: isActive ? "2px 2px 0 #7c3aed" : "2px 2px 0 #111112",
-          transform: "skewX(-8deg)",
-          fontFamily: monoFont,
-          fontSize: "10px",
-          fontWeight: 800,
-          letterSpacing: "0.8px",
-          textTransform: "uppercase",
-          cursor: "pointer",
-          whiteSpace: "nowrap",
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          transition: "background 0.1s, border-color 0.1s",
-        }}
-      >
-        <span>{displayLabel}</span>
-        <span style={{ opacity: 0.6, fontSize: "8px" }}>{open ? "▲" : "▼"}</span>
-      </button>
-
-      {open && (
-        <div
-          style={{
-            position: "absolute",
-            top: "calc(100% + 6px)",
-            left: 0,
-            background: "white",
-            border: "2px solid #111112",
-            boxShadow: "4px 4px 0 #111112",
-            zIndex: 100,
-            minWidth: "140px",
-            maxHeight: "280px",
-            overflowY: "auto",
-          }}
-        >
-          {isActive && (
-            <button
-              onClick={() => { onClear(); setOpen(false); }}
-              style={{
-                display: "block",
-                width: "100%",
-                padding: "7px 12px",
-                textAlign: "left",
-                background: "rgba(124,58,237,0.06)",
-                border: "none",
-                borderBottom: "1px solid #111112",
-                fontFamily: monoFont,
-                fontSize: "10px",
-                fontWeight: 700,
-                color: "#7c3aed",
-                cursor: "pointer",
-                letterSpacing: "0.5px",
-                textTransform: "uppercase",
-              }}
-            >
-              ✕ Clear
-            </button>
-          )}
-          {options.map(opt =>
-            opt.separator ? (
-              <div
-                key={opt.value}
-                style={{
-                  padding: "4px 12px 2px",
-                  fontFamily: monoFont,
-                  fontSize: "9px",
-                  fontWeight: 800,
-                  color: "#7c3aed",
-                  letterSpacing: "1px",
-                  textTransform: "uppercase",
-                  background: "rgba(124,58,237,0.05)",
-                  borderTop: "1px solid #e4e4e7",
-                  borderBottom: "none",
-                }}
-              >
-                {opt.label}
-              </div>
-            ) : (
-              <button
-                key={opt.value}
-                onClick={() => { onSelect(opt.value); setOpen(false); }}
-                style={{
-                  display: "block",
-                  width: "100%",
-                  padding: "6px 12px 6px 18px",
-                  textAlign: "left",
-                  background: active === opt.value ? "#f0ebff" : "white",
-                  border: "none",
-                  borderBottom: "1px solid #e4e4e7",
-                  fontFamily: monoFont,
-                  fontSize: "10px",
-                  fontWeight: active === opt.value ? 800 : 600,
-                  color: active === opt.value ? "#7c3aed" : "#111112",
-                  cursor: "pointer",
-                  letterSpacing: "0.3px",
-                }}
-              >
-                {opt.label}
-              </button>
-            )
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function FilterBar({ total, activeCategory }: { total: number; activeCategory?: string }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -406,22 +93,7 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchInput, setSearchInput] = useState(q);
-  const [barHidden, setBarHidden] = useState(false);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentY = window.scrollY;
-      if (currentY > lastScrollY.current && currentY > 80) {
-        setBarHidden(true);
-      } else if (currentY < lastScrollY.current) {
-        setBarHidden(false);
-      }
-      lastScrollY.current = currentY;
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const barHidden = useScrollHide();
 
   useEffect(() => {
     if (!category) {
@@ -473,7 +145,7 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
     if (buckets) {
       // Flatten buckets: group header (disabled separator) + one representative per bucket
       // Representative = first value in each bucket (exact API match)
-      const options: { value: string; label: string; separator?: boolean }[] = [];
+      const options: DropdownOption[] = [];
       for (const b of buckets) {
         options.push({ value: `__sep__${b.label}`, label: b.label, separator: true });
         for (const v of b.values) {
