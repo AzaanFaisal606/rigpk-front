@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
+import { useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-
-const monoFont = '"JetBrains Mono", "Fira Code", monospace';
+import { ComicDropdown } from "@/components/ui/ComicDropdown";
+import { monoFont } from "@/lib/tokens";
+import { useScrollHide } from "@/lib/hooks/useScrollHide";
 
 const SOURCES = ["zestrogaming.com", "redtech.pk", "techmatched.pk"];
 const CPU_BRANDS  = ["ALL", "AMD", "INTEL"] as const;
@@ -50,169 +50,12 @@ function ToggleChip({
   );
 }
 
-function ComicDropdown({
-  label,
-  value,
-  options,
-  onSelect,
-}: {
-  label: string;
-  value: string | undefined;
-  options: string[] | { value: string; label: string }[];
-  onSelect: (v: string | undefined) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
-  const btnRef = useRef<HTMLButtonElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handler(e: MouseEvent) {
-      if (
-        btnRef.current && !btnRef.current.contains(e.target as Node) &&
-        panelRef.current && !panelRef.current.contains(e.target as Node)
-      ) setOpen(false);
-    }
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  function handleOpen() {
-    if (!open && btnRef.current) {
-      const r = btnRef.current.getBoundingClientRect();
-      setCoords({ top: r.bottom + 4, left: r.left });
-    }
-    setOpen(o => !o);
-  }
-
-  const isLabeled = options.length > 0 && typeof options[0] === "object";
-  const getOptValue = (o: string | { value: string; label: string }) => typeof o === "string" ? o : o.value;
-  const getOptLabel = (o: string | { value: string; label: string }) => typeof o === "string" ? o : o.label;
-  const display = value
-    ? (isLabeled ? getOptLabel(options.find(o => getOptValue(o) === value) ?? value) : value)
-    : label;
-
-  const panel = open && coords ? createPortal(
-    <div
-      ref={panelRef}
-      style={{
-        position: "fixed",
-        top: coords.top,
-        left: coords.left,
-        zIndex: 9999,
-        background: "white",
-        border: "2px solid #111112",
-        boxShadow: "4px 4px 0 #111112",
-        minWidth: "180px",
-      }}
-    >
-      {value && (
-        <button
-          onClick={() => { onSelect(undefined); setOpen(false); }}
-          style={{
-            display: "block",
-            width: "100%",
-            textAlign: "left",
-            padding: "7px 12px",
-            fontFamily: monoFont,
-            fontSize: "10px",
-            fontWeight: 700,
-            color: "#7c3aed",
-            background: "rgba(124,58,237,0.06)",
-            cursor: "pointer",
-            border: "none",
-            borderBottom: "1px solid #111112",
-            letterSpacing: "0.5px",
-            textTransform: "uppercase",
-          }}
-        >
-          ✕ Clear
-        </button>
-      )}
-      {options.map(opt => {
-        const optVal = getOptValue(opt);
-        const optLbl = getOptLabel(opt);
-        return (
-          <button
-            key={optVal}
-            onClick={() => { onSelect(optVal); setOpen(false); }}
-            style={{
-              display: "block",
-              width: "100%",
-              textAlign: "left",
-              padding: "6px 12px 6px 18px",
-              borderBottom: "1px solid #e4e4e7",
-              fontFamily: monoFont,
-              fontSize: "10px",
-              fontWeight: optVal === value ? 800 : 600,
-              color: optVal === value ? "#7c3aed" : "#111112",
-              background: optVal === value ? "#f0ebff" : "white",
-              cursor: "pointer",
-              border: "none",
-              letterSpacing: "0.3px",
-            }}
-          >
-            {optLbl}
-          </button>
-        );
-      })}
-    </div>,
-    document.body
-  ) : null;
-
-  return (
-    <div style={{ position: "relative" }}>
-      <button
-        ref={btnRef}
-        onClick={handleOpen}
-        style={{
-          padding: "5px 10px",
-          border: value ? "2px solid #7c3aed" : "2px solid #111112",
-          boxShadow: value ? "2px 2px 0 #7c3aed" : "2px 2px 0 #111112",
-          background: value ? "#7c3aed" : "white",
-          color: value ? "white" : "#111112",
-          fontFamily: monoFont,
-          fontSize: "10px",
-          fontWeight: 800,
-          letterSpacing: "0.8px",
-          textTransform: "uppercase",
-          transform: "skewX(-8deg)",
-          cursor: "pointer",
-          whiteSpace: "nowrap",
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-        }}
-      >
-        <span>{display}</span>
-        <span style={{ opacity: 0.6, fontSize: "8px" }}>{open ? "▲" : "▼"}</span>
-      </button>
-      {panel}
-    </div>
-  );
-}
-
 export default function PrebuiltFilterBar() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [visible, setVisible]   = useState(true);
-  const lastScroll               = useRef(0);
-
-  useEffect(() => {
-    function onScroll() {
-      const y = window.scrollY;
-      if (y > lastScroll.current && y > 80) {
-        setVisible(false);
-      } else if (y < lastScroll.current) {
-        setVisible(true);
-      }
-      lastScroll.current = y;
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const hidden = useScrollHide();
 
   function push(updates: Record<string, string | undefined>) {
     const p = new URLSearchParams(searchParams.toString());
@@ -240,7 +83,7 @@ export default function PrebuiltFilterBar() {
         zIndex: 40,
         background: "var(--bg)",
         borderBottom: "2px solid #111112",
-        transform: visible ? "translateY(0)" : "translateY(-100%)",
+        transform: hidden ? "translateY(-100%)" : "translateY(0)",
         transition: "transform 0.25s ease",
       }}
     >
@@ -283,9 +126,10 @@ export default function PrebuiltFilterBar() {
         {/* Retailer */}
         <ComicDropdown
           label="RETAILER"
-          value={source}
-          options={SOURCES}
+          active={source ?? ""}
+          options={SOURCES.map(s => ({ value: s, label: s }))}
           onSelect={v => push({ source: v })}
+          onClear={() => push({ source: undefined })}
         />
 
         <div style={{ width: "1px", height: "20px", background: "#111112", flexShrink: 0 }} />
@@ -353,9 +197,10 @@ export default function PrebuiltFilterBar() {
         {/* Sort */}
         <ComicDropdown
           label="SORT"
-          value={sort}
+          active={sort}
           options={SORT_OPTIONS}
           onSelect={v => push({ sort: v })}
+          onClear={() => push({ sort: "price_asc" })}
         />
       </div>
       </div>
