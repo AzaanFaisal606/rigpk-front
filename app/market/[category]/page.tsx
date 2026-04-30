@@ -13,6 +13,7 @@ import Footer from "@/components/Footer";
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rigpk.vercel.app";
 
+// Subset of lib/constants.ts CATEGORIES — hdd/monitor excluded as they lack CATEGORY_META entries
 const CATEGORIES = ["cpu", "gpu", "ram", "motherboard", "psu", "case", "ssd", "cooling"] as const;
 type Category = (typeof CATEGORIES)[number];
 

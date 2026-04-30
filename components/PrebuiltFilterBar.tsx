@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import { ToggleChip } from "@/components/ui/ToggleChip";
@@ -21,7 +22,7 @@ export default function PrebuiltFilterBar() {
 
   const hidden = useScrollHide();
 
-  function push(updates: Record<string, string | undefined>) {
+  const push = useCallback((updates: Record<string, string | undefined>) => {
     const p = new URLSearchParams(searchParams.toString());
     p.delete("offset");
     for (const [k, v] of Object.entries(updates)) {
@@ -29,7 +30,7 @@ export default function PrebuiltFilterBar() {
       else p.set(k, v);
     }
     router.push(`${pathname}?${p.toString()}`);
-  }
+  }, [searchParams, router, pathname]);
 
   const source    = searchParams.get("source")    ?? undefined;
   const cpuBrand  = searchParams.get("cpu_brand") ?? undefined;
@@ -38,6 +39,15 @@ export default function PrebuiltFilterBar() {
   const q         = searchParams.get("q")         ?? "";
   const minPrice  = searchParams.get("min_price") ?? "";
   const maxPrice  = searchParams.get("max_price") ?? "";
+
+  const [searchInput, setSearchInput] = useState(q);
+
+  useEffect(() => { setSearchInput(q); }, [q]);
+
+  useEffect(() => {
+    const t = setTimeout(() => { push({ q: searchInput || undefined }); }, 350);
+    return () => clearTimeout(t);
+  }, [searchInput, push]);
 
   return (
     <div
@@ -68,13 +78,13 @@ export default function PrebuiltFilterBar() {
       >
         {/* Search */}
         <input
-          value={q}
-          onChange={e => push({ q: e.target.value || undefined })}
+          value={searchInput}
+          onChange={e => setSearchInput(e.target.value)}
           placeholder="SEARCH PREBUILTS"
           style={{
             padding: "5px 10px",
-            border: q ? "2px solid #7c3aed" : "2px solid #111112",
-            boxShadow: q ? "2px 2px 0 #7c3aed" : "2px 2px 0 #111112",
+            border: searchInput ? "2px solid #7c3aed" : "2px solid #111112",
+            boxShadow: searchInput ? "2px 2px 0 #7c3aed" : "2px 2px 0 #111112",
             fontFamily: monoFont,
             fontSize: "11px",
             fontWeight: 700,
