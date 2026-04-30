@@ -95,24 +95,6 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
   const [searchInput, setSearchInput] = useState(q);
   const barHidden = useScrollHide();
 
-  useEffect(() => {
-    if (!category) {
-      setFilterOptions({});
-      return;
-    }
-    getFilterOptions(category).then(setFilterOptions);
-  }, [category]);
-
-  // Sync searchInput when URL param changes externally (e.g. clear)
-  useEffect(() => { setSearchInput(q); }, [q]);
-
-  // Debounce search: wait 350ms after user stops typing before pushing to URL
-  useEffect(() => {
-    const t = setTimeout(() => { push("q", searchInput); }, 350);
-    return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchInput]);
-
   const push = useCallback(
     (key: string, value: string) => {
       if (key === "category") {
@@ -134,6 +116,23 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
     },
     [params, router, pathname]
   );
+
+  useEffect(() => {
+    if (!category) {
+      setFilterOptions({});
+      return;
+    }
+    getFilterOptions(category).then(setFilterOptions);
+  }, [category]);
+
+  // Sync searchInput when URL param changes externally (e.g. clear)
+  useEffect(() => { setSearchInput(q); }, [q]);
+
+  // Debounce search: wait 350ms after user stops typing before pushing to URL
+  useEffect(() => {
+    const t = setTimeout(() => { push("q", searchInput); }, 350);
+    return () => clearTimeout(t);
+  }, [searchInput, push]);
 
   const specEntries = Object.entries(filterOptions).filter(
     ([, values]) => values && values.length > 0
