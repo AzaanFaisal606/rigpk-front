@@ -15,7 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://rigpk.vercel.app"),
   verification: { google: "m6z967mmdOlQekmoR1OXUv2-SVPDBJax2g6SUn1lZXA" },
-  title: "RigPK — PC Part Picker for Pakistan",
+  applicationName: "RigPK",
+  title: {
+    default: "RigPK — PC Part Picker for Pakistan",
+    template: "%s | RigPK",
+  },
   description:
     "Compare PC part prices from Pakistani retailers. Build your dream rig and track price history.",
   keywords: [
@@ -48,6 +52,18 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col text-[var(--text)]">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "RigPK",
+              alternateName: "RigPK — PC Part Picker for Pakistan",
+              url: "https://rigpk.vercel.app",
+            }),
+          }}
+        />
         {children}
       </body>
     </html>
