@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "www.amdhouse.pk" },
       { protocol: "https", hostname: "rbtechngames.com" },
       { protocol: "https", hostname: "www.rbtechngames.com" },
+      { protocol: "https", hostname: "zestrogaming.com" },
+      { protocol: "https", hostname: "www.zestrogaming.com" },
+      { protocol: "https", hostname: "redtech.pk" },
+      { protocol: "https", hostname: "www.redtech.pk" },
+      { protocol: "https", hostname: "techmatched.pk" },
+      { protocol: "https", hostname: "www.techmatched.pk" },
     ],
   },
 };

@@ -1,4 +1,4 @@
-import type { BuildState } from "@/app/build/page";
+import type { BuildState } from "@/lib/types";
 
 export type IssueCategory = "SOCKET" | "DDR";
 

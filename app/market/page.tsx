@@ -5,6 +5,10 @@ import Navbar from "@/components/Navbar";
 import FilterBar from "@/components/FilterBar";
 import PartRow from "@/components/PartRow";
 import { getParts } from "@/lib/api";
+import { str } from "@/lib/utils";
+import { monoFont } from "@/lib/tokens";
+import { SPEC_KEYS } from "@/lib/constants";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "PC Parts Market — RigPK",
@@ -16,19 +20,7 @@ interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-function str(v: string | string[] | undefined): string | undefined {
-  if (!v) return undefined;
-  return Array.isArray(v) ? v[0] : v;
-}
-
-const SPEC_KEYS = [
-  "brand", "socket", "vram", "ddr_type", "speed", "chipset",
-  "wattage", "rating", "form_factor", "type", "aio_size",
-  "fan_size", "interface", "capacity",
-] as const;
-
 const LIMIT = 50;
-const monoFont = '"JetBrains Mono", "Fira Code", monospace';
 
 async function PartsList({
   searchParams,
@@ -289,21 +281,7 @@ export default async function MarketPage({ searchParams }: PageProps) {
           <PartsList searchParams={resolvedParams} />
         </Suspense>
       </main>
-      <footer
-        className="px-6 py-5 text-center"
-        style={{
-          background: "var(--bg)",
-          borderTop: "2px solid #111112",
-          color: "var(--text-dim)",
-          fontFamily: monoFont,
-          fontSize: "0.65rem",
-          fontWeight: 600,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-        }}
-      >
-        RigPK — prices updated regularly from Pakistani retailers
-      </footer>
+      <Footer />
     </div>
   );
 }

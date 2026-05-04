@@ -5,22 +5,18 @@ import Navbar from "@/components/Navbar";
 import PrebuiltCard from "@/components/PrebuiltCard";
 import PrebuiltFilterBar from "@/components/PrebuiltFilterBar";
 import { getPrebuilts } from "@/lib/prebuilts-api";
+import { str } from "@/lib/utils";
+import { monoFont } from "@/lib/tokens";
 
 export const metadata: Metadata = {
   title: "Pre-Built PCs — RigPK",
   description: "Browse pre-built gaming PCs from Pakistani retailers. Filter by CPU, GPU, price and more.",
 };
 
-const monoFont = '"JetBrains Mono", "Fira Code", monospace';
 const LIMIT = 24;
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
-}
-
-function str(v: string | string[] | undefined): string | undefined {
-  if (!v) return undefined;
-  return Array.isArray(v) ? v[0] : v;
 }
 
 async function PrebuiltGrid({

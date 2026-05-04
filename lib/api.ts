@@ -1,7 +1,7 @@
 import type { SlotKey } from "@/lib/types";
 export type { SlotKey };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export interface Stats {
   total_parts: number;
