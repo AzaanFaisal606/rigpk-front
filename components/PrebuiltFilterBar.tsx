@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import { ToggleChip } from "@/components/ui/ToggleChip";
@@ -41,10 +41,12 @@ export default function PrebuiltFilterBar() {
   const maxPrice  = searchParams.get("max_price") ?? "";
 
   const [searchInput, setSearchInput] = useState(q);
+  const didMount = useRef(false);
 
   useEffect(() => { setSearchInput(q); }, [q]);
 
   useEffect(() => {
+    if (!didMount.current) { didMount.current = true; return; }
     const t = setTimeout(() => { push({ q: searchInput || undefined }); }, 350);
     return () => clearTimeout(t);
   }, [searchInput, push]);

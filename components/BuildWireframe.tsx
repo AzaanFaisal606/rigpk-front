@@ -355,10 +355,10 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
         Build a PC
       </motion.h1>
 
-      {/* Framed container — ~85% of left column width */}
+      {/* Framed container — full left column width */}
       <div style={{
         position: "relative",
-        width: "85%",
+        width: "100%",
         background: CARD,
         border: `2px solid ${INK}`,
         boxShadow: `6px 6px 0 ${INK}`,
@@ -399,7 +399,7 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
       </div>
 
       {/* Legend — same width as framed container so "scroll for parts" aligns with right edge */}
-      <div style={{ marginTop: 14, display: "flex", gap: 16, alignItems: "center", position: "relative", width: "85%" }}>
+      <div style={{ marginTop: 14, display: "flex", gap: 16, alignItems: "center", position: "relative", width: "100%" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 10, color: TEXT2 }}>
           <svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke={INK} strokeWidth="1.5" strokeDasharray="4 3" /></svg>
           empty slot

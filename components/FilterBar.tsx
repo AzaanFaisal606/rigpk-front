@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FilterOptions } from "@/lib/api";
 import { getFilterOptions } from "@/lib/api";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
@@ -94,6 +94,7 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchInput, setSearchInput] = useState(q);
   const barHidden = useScrollHide();
+  const didMount = useRef(false);
 
   const push = useCallback(
     (key: string, value: string) => {
@@ -130,6 +131,7 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
 
   // Debounce search: wait 350ms after user stops typing before pushing to URL
   useEffect(() => {
+    if (!didMount.current) { didMount.current = true; return; }
     const t = setTimeout(() => { push("q", searchInput); }, 350);
     return () => clearTimeout(t);
   }, [searchInput, push]);
@@ -205,12 +207,9 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
             overflowY: "visible",
             WebkitOverflowScrolling: "touch",
             scrollbarWidth: "none",
-            paddingBottom: "300px",
-            marginBottom: "-300px",
-            pointerEvents: "none",
           }}
         >
-        <div className="flex items-center gap-2" style={{ minWidth: "max-content", pointerEvents: "auto" }}>
+        <div className="flex items-center gap-2" style={{ minWidth: "max-content" }}>
 
           {/* Parts count */}
           <span

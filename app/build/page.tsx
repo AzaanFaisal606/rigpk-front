@@ -8,6 +8,7 @@ import BuildCards from "@/components/BuildCards";
 import BuildSummary from "@/components/BuildSummary";
 import PartPickerModal from "@/components/PartPickerModal";
 import CompatibilityBanner from "@/components/CompatibilityBanner";
+import { GameBenchmarksPanel } from "@/components/ui/GameBenchmarksPanel";
 import { checkCompatibility } from "@/lib/compatibility";
 import type { Part } from "@/lib/api";
 import { getSharedBuild } from "@/lib/api";
@@ -89,8 +90,8 @@ function BuildPage() {
         {/* Left column — wireframe + cards + banner */}
         <div style={{ flex: 1, minWidth: 0, width: isMobile ? "100%" : "auto" }}>
           <BuildWireframe build={build} onSlotClick={setActiveSlot} />
-          <section style={{ padding: isMobile ? "32px 24px 48px" : "32px 32px 64px" }}>
-            <div style={{ width: isMobile ? "100%" : "85%" }}>
+          <section style={{ padding: isMobile ? "32px 24px 16px" : "32px 32px 16px" }}>
+            <div style={{ width: "100%" }}>
               <p className="section-label mb-1">Your Build</p>
               <h2
                 className="font-black mb-2"
@@ -105,6 +106,9 @@ function BuildPage() {
               <CompatibilityBanner issues={issues} />
             </div>
           </section>
+          <section style={{ padding: isMobile ? "24px 24px 48px" : "28px 32px 64px" }}>
+            <GameBenchmarksPanel />
+          </section>
         </div>
 
         {/* Right column — sticky BuildSummary */}
@@ -113,7 +117,7 @@ function BuildPage() {
             style={{
               position: "sticky",
               top: "72px",
-              width: "375px",
+              width: "431px",
               flexShrink: 0,
               marginTop: "127px",
             }}
