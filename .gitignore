@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude Code internal
+CLAUDE.md
+.claude/
+.superpowers/
+.worktrees/
+.playwright-mcp/
