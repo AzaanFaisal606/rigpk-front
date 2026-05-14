@@ -116,7 +116,7 @@ async function PartsList({
         <FilterBar total={total} activeCategory={category} />
       </Suspense>
 
-      <div className="max-w-6xl mx-auto px-6 py-6 w-full">
+      <div className="max-w-6xl mx-auto px-6 py-6 w-full market-list-wrap">
         <div className="flex items-end justify-between mb-5">
           <div>
             <p className="section-label mb-1">Browse Parts</p>

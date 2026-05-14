@@ -42,8 +42,13 @@ export default function PrebuiltFilterBar() {
 
   const [searchInput, setSearchInput] = useState(q);
   const didMount = useRef(false);
+  const lastPushedQ = useRef(q);
 
-  useEffect(() => { setSearchInput(q); }, [q]);
+  useEffect(() => {
+    if (q === lastPushedQ.current) return;
+    setSearchInput(q);
+    lastPushedQ.current = q;
+  }, [q]);
 
   const pushRef = useRef(push);
   useEffect(() => { pushRef.current = push; }, [push]);
@@ -51,7 +56,10 @@ export default function PrebuiltFilterBar() {
   useEffect(() => {
     if (!didMount.current) { didMount.current = true; return; }
     if (searchInput === q) return;
-    const t = setTimeout(() => { pushRef.current({ q: searchInput || undefined }); }, 350);
+    const t = setTimeout(() => {
+      lastPushedQ.current = searchInput;
+      pushRef.current({ q: searchInput || undefined });
+    }, 350);
     return () => clearTimeout(t);
   }, [searchInput, q]);
 

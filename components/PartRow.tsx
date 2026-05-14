@@ -1,7 +1,7 @@
 "use client";
 
 import { Cpu, HardDrive, MemoryStick, MonitorPlay, Zap, Box, CircuitBoard, Wind, Database, Monitor } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Part } from "@/lib/api";
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
@@ -33,6 +33,15 @@ function formatPrice(p: number | null): string {
 export default function PartRow({ part }: { part: Part }) {
   const Icon = CATEGORY_ICONS[part.category] ?? Cpu;
   const [hovered, setHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   return (
     <a
@@ -41,8 +50,9 @@ export default function PartRow({ part }: { part: Part }) {
       rel="noopener noreferrer"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="flex items-center gap-4 px-4 py-3 no-underline"
+      className="flex items-center px-4 py-3 no-underline"
       style={{
+        gap: isMobile ? "10px" : "16px",
         borderBottom: "1px solid #111112",
         borderLeft: hovered ? "4px solid var(--purple)" : "4px solid transparent",
         background: hovered ? "var(--purple-pale)" : "var(--bg-card)",
@@ -51,8 +61,10 @@ export default function PartRow({ part }: { part: Part }) {
     >
       {/* Thumbnail */}
       <div
-        className="flex-shrink-0 w-12 h-12 flex items-center justify-center overflow-hidden"
+        className="flex-shrink-0 flex items-center justify-center overflow-hidden"
         style={{
+          width: isMobile ? "38px" : "48px",
+          height: isMobile ? "38px" : "48px",
           background: "var(--bg-section)",
           border: "1.5px solid #111112",
         }}
@@ -62,21 +74,25 @@ export default function PartRow({ part }: { part: Part }) {
           <img
             src={part.thumbnail_url}
             alt={part.name}
-            width={48}
-            height={48}
+            width={isMobile ? 38 : 48}
+            height={isMobile ? 38 : 48}
             className="object-contain"
             referrerPolicy="no-referrer"
           />
         ) : (
-          <Icon size={20} style={{ color: "var(--text-dim)" }} />
+          <Icon size={isMobile ? 16 : 20} style={{ color: "var(--text-dim)" }} />
         )}
       </div>
 
       {/* Name + badges */}
       <div className="flex-1 min-w-0">
         <p
-          className="font-medium text-sm truncate"
-          style={{ color: hovered ? "var(--purple)" : "var(--text)", transition: "color 0.1s" }}
+          className="font-medium truncate"
+          style={{
+            fontSize: isMobile ? "0.78rem" : "0.875rem",
+            color: hovered ? "var(--purple)" : "var(--text)",
+            transition: "color 0.1s",
+          }}
         >
           {part.name}
         </p>
@@ -107,8 +123,9 @@ export default function PartRow({ part }: { part: Part }) {
         <span
           className="mono"
           style={{
-            fontSize: "1rem",
+            fontSize: isMobile ? "0.78rem" : "1rem",
             fontWeight: 900,
+            whiteSpace: "nowrap",
             color: part.price_pkr ? "#111112" : "var(--text-dim)",
           }}
         >

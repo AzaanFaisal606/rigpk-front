@@ -180,6 +180,14 @@ body {
   }
 }
 
+/* ── Market parts list mobile: tighter, asymmetric to fit hard-shadow ── */
+@media (max-width: 640px) {
+  .market-list-wrap {
+    padding-left: 14px !important;
+    padding-right: 22px !important;
+  }
+}
+
 /* ── Prebuilt browser card grid responsive ────────────────── */
 .pb-browser-grid {
   display: grid;
