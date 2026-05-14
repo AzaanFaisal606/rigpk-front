@@ -4,8 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import PCThumb from "./PCThumb";
 import type { Prebuilt } from "@/lib/prebuilts-api";
-
-const monoFont = '"JetBrains Mono", "Fira Code", monospace';
+import { monoFont } from "@/lib/tokens";
 
 function truncate(s: string | undefined, n: number): string {
   if (!s) return "—";
@@ -50,9 +49,9 @@ export default function PrebuiltCard({ prebuilt }: Props) {
         borderTop: "none",
         borderRight: "2px solid #111112",
         borderBottom: "2px solid #111112",
-        borderLeft: hovered ? "4px solid #7c3aed" : "4px solid transparent",
-        boxShadow: hovered ? "6px 6px 0 #7c3aed" : "6px 6px 0 #111112",
-        background: hovered ? "#ede9fe" : "white",
+        borderLeft: hovered ? "4px solid var(--purple)" : "4px solid transparent",
+        boxShadow: hovered ? "6px 6px 0 var(--purple)" : "6px 6px 0 #111112",
+        background: hovered ? "var(--purple-pale)" : "white",
         transition: "background 0.1s",
         display: "flex",
         flexDirection: "column",
@@ -79,7 +78,7 @@ export default function PrebuiltCard({ prebuilt }: Props) {
             position: "absolute",
             inset: 0,
             backgroundImage:
-              "radial-gradient(circle, rgba(124,58,237,0.10) 1px, transparent 1px)",
+              "radial-gradient(circle, color-mix(in srgb, var(--purple) 10%, transparent) 1px, transparent 1px)",
             backgroundSize: "10px 10px",
             pointerEvents: "none",
           }}
@@ -132,7 +131,7 @@ export default function PrebuiltCard({ prebuilt }: Props) {
             fontWeight: 700,
             fontSize: "0.875rem",
             lineHeight: 1.35,
-            color: hovered ? "#7c3aed" : "#111112",
+            color: hovered ? "var(--purple)" : "#111112",
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
@@ -177,7 +176,7 @@ export default function PrebuiltCard({ prebuilt }: Props) {
             display: "inline-block",
             textAlign: "center",
             padding: "7px 14px",
-            background: "#7c3aed",
+            background: "var(--purple)",
             color: "white",
             border: "2px solid #111112",
             boxShadow: "3px 3px 0 #111112",

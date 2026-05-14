@@ -89,8 +89,8 @@ export default function PrebuiltFilterBar() {
           placeholder="SEARCH PREBUILTS"
           style={{
             padding: "5px 10px",
-            border: searchInput ? "2px solid #7c3aed" : "2px solid #111112",
-            boxShadow: searchInput ? "2px 2px 0 #7c3aed" : "2px 2px 0 #111112",
+            border: searchInput ? "2px solid var(--purple)" : "2px solid #111112",
+            boxShadow: searchInput ? "2px 2px 0 var(--purple)" : "2px 2px 0 #111112",
             fontFamily: monoFont,
             fontSize: "11px",
             fontWeight: 700,

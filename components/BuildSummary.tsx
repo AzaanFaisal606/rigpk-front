@@ -146,7 +146,7 @@ export default function BuildSummary({ build }: Props) {
           </span>
           <span
             className="mono"
-            style={{ fontSize: "18px", fontWeight: 900, color: "#7c3aed" }}
+            style={{ fontSize: "18px", fontWeight: 900, color: "var(--purple)" }}
           >
             Rs&nbsp;{total.toLocaleString("en-PK")}
           </span>
@@ -159,7 +159,7 @@ export default function BuildSummary({ build }: Props) {
             width: "100%",
             marginTop: "16px",
             padding: "10px",
-            background: "#7c3aed",
+            background: "var(--purple)",
             color: "white",
             border: "2px solid #111112",
             boxShadow: "3px 3px 0 #111112",
@@ -171,8 +171,8 @@ export default function BuildSummary({ build }: Props) {
             transform: "skewX(-6deg)",
             fontFamily: "var(--mono)",
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#6d28d9"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#7c3aed"; }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--purple-hover)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--purple)"; }}
         >
           Copy Build List
         </button>
@@ -199,7 +199,7 @@ export default function BuildSummary({ build }: Props) {
             opacity: shareStatus === "loading" ? 0.7 : 1,
           }}
           onMouseEnter={(e) => {
-            if (shareStatus === "idle") (e.currentTarget as HTMLButtonElement).style.background = "rgba(124,58,237,0.06)";
+            if (shareStatus === "idle") (e.currentTarget as HTMLButtonElement).style.background = "color-mix(in srgb, var(--purple) 6%, transparent)";
           }}
           onMouseLeave={(e) => {
             if (shareStatus === "idle") (e.currentTarget as HTMLButtonElement).style.background = "white";

@@ -20,9 +20,9 @@ export function ToggleChip({
       onMouseLeave={() => setHov(false)}
       style={{
         padding: "5px 12px",
-        border: active ? "2px solid #7c3aed" : "2px solid #111112",
-        boxShadow: active ? "2px 2px 0 #7c3aed" : "2px 2px 0 #111112",
-        background: active ? "#7c3aed" : hov ? "rgba(124,58,237,0.06)" : "white",
+        border: active ? "2px solid var(--purple)" : "2px solid #111112",
+        boxShadow: active ? "2px 2px 0 var(--purple)" : "2px 2px 0 #111112",
+        background: active ? "var(--purple)" : hov ? "color-mix(in srgb, var(--purple) 6%, transparent)" : "white",
         color: active ? "white" : "#111112",
         fontFamily: monoFont,
         fontSize: "10px",

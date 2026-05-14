@@ -4,6 +4,7 @@ import Sources from "@/components/Sources";
 import Features from "@/components/Features";
 import JsonLd from "@/components/JsonLd";
 import { getStats } from "@/lib/api";
+import { monoFont } from "@/lib/tokens";
 
 export default async function Home() {
   const stats = await getStats();
@@ -36,7 +37,7 @@ export default async function Home() {
           background: "var(--bg)",
           borderTop: "2px solid #111112",
           color: "var(--text-dim)",
-          fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+          fontFamily: monoFont,
           fontSize: "0.65rem",
           fontWeight: 600,
           letterSpacing: "0.1em",

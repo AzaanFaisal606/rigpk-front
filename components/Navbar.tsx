@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Cpu } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { monoFont } from "@/lib/tokens";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -22,7 +23,7 @@ export default function Navbar() {
           <div
             className="flex items-center justify-center w-7 h-7"
             style={{
-              background: "#7c3aed",
+              background: "var(--purple)",
               border: "2px solid #111112",
               boxShadow: "2px 2px 0 #111112",
             }}
@@ -33,7 +34,7 @@ export default function Navbar() {
             className="font-bold"
             style={{ color: "#111112", fontSize: "0.95rem", letterSpacing: "-0.01em" }}
           >
-            Rig<span style={{ color: "#7c3aed" }}>PK</span>
+            Rig<span style={{ color: "var(--purple)" }}>PK</span>
           </span>
         </Link>
 
@@ -60,8 +61,8 @@ function NavButton({
   const [hovered, setHovered] = useState(false);
 
   const bg = active
-    ? hovered ? "#6d28d9" : "#7c3aed"
-    : hovered ? "rgba(124,58,237,0.06)" : "white";
+    ? hovered ? "var(--purple-hover)" : "var(--purple)"
+    : hovered ? "color-mix(in srgb, var(--purple) 6%, transparent)" : "white";
 
   const color = active ? "white" : "#111112";
   const border = "2px solid #111112";
@@ -81,7 +82,7 @@ function NavButton({
         border,
         boxShadow: shadow,
         transform: "skewX(-8deg)",
-        fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+        fontFamily: monoFont,
         fontSize: "0.72rem",
         fontWeight: 800,
         letterSpacing: "1.5px",

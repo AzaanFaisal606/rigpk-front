@@ -4,6 +4,7 @@ import { ExternalLink, Database } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { type Stats } from "@/lib/api";
+import { monoFont } from "@/lib/tokens";
 
 const STORES = [
   { key: "czone.com.pk",       name: "CZone",           domain: "czone.com.pk",       tag: "FLAGSHIP" },
@@ -32,7 +33,7 @@ export default function Sources({ stats }: SourcesProps) {
             <p className="section-label mb-1">Data Sources</p>
             <h2
               style={{
-                fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                fontFamily: monoFont,
                 fontWeight: 900,
                 fontSize: "clamp(1.1rem, 2vw, 1.4rem)",
                 textTransform: "uppercase",
@@ -90,7 +91,7 @@ function StoreCard({
       className="flex-shrink-0 w-44 md:w-auto overflow-hidden group no-underline"
       style={{
         background: "var(--bg-card)",
-        borderTop: "3px solid #7c3aed",
+        borderTop: "3px solid var(--purple)",
         borderRight: "2px solid #111112",
         borderBottom: "2px solid #111112",
         borderLeft: "2px solid #111112",
@@ -107,9 +108,9 @@ function StoreCard({
             style={{
               fontSize: "0.6rem",
               fontWeight: 800,
-              color: "#7c3aed",
-              background: "rgba(124,58,237,0.08)",
-              border: "1px solid rgba(124,58,237,0.22)",
+              color: "var(--purple)",
+              background: "color-mix(in srgb, var(--purple) 8%, transparent)",
+              border: "1px solid color-mix(in srgb, var(--purple) 22%, transparent)",
             }}
           >
             {store.tag}

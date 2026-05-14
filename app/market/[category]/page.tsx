@@ -266,7 +266,7 @@ async function PartsList({
                   padding: "7px 18px",
                   border: "2px solid #111112",
                   boxShadow: "3px 3px 0 #111112",
-                  background: "#7c3aed",
+                  background: "var(--purple)",
                   color: "white",
                   fontFamily: monoFont,
                   fontSize: "10px",

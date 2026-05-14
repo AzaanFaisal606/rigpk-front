@@ -18,7 +18,7 @@ export default function DotGrid() {
 
     const SPACING = 28;
     const DOT_R = 1.2;
-    const PURPLE = { r: 124, g: 58, b: 237 };
+    const PURPLE = { r: 135, g: 50, b: 96 };
 
     let mouse = { x: -9999, y: -9999 };
     let scrollY = window.scrollY;
