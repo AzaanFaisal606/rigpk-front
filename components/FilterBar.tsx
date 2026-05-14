@@ -126,8 +126,18 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
     getFilterOptions(category).then(setFilterOptions);
   }, [category]);
 
-  // Sync searchInput when URL param changes externally (e.g. clear)
-  useEffect(() => { setSearchInput(q); }, [q]);
+  // Track last value we pushed to URL so we can distinguish "URL changed externally"
+  // from "URL just caught up to our own push". Without this, external sync clobbers
+  // in-flight typing after a debounced push completes.
+  const lastPushedQ = useRef(q);
+
+  // Sync searchInput when URL param changes EXTERNALLY (clear button, back nav, etc.)
+  // Skip if URL just matches our own latest push.
+  useEffect(() => {
+    if (q === lastPushedQ.current) return;
+    setSearchInput(q);
+    lastPushedQ.current = q;
+  }, [q]);
 
   // Keep latest push in ref so debounce effect doesn't refire when searchParams change
   const pushRef = useRef(push);
@@ -137,7 +147,10 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
   useEffect(() => {
     if (!didMount.current) { didMount.current = true; return; }
     if (searchInput === q) return;
-    const t = setTimeout(() => { pushRef.current("q", searchInput); }, 350);
+    const t = setTimeout(() => {
+      lastPushedQ.current = searchInput;
+      pushRef.current("q", searchInput);
+    }, 350);
     return () => clearTimeout(t);
   }, [searchInput, q]);
 
