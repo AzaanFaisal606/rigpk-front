@@ -6,12 +6,14 @@ import type { BuildState, SlotKey } from "@/app/build/page";
 import { SLOT_LABELS, SLOT_SUB } from "@/app/build/page";
 
 const INK = "#111112";
-const PURPLE = "#7c3aed";
+// Note: SVG `fill`/`stroke` attributes do not resolve CSS vars. Must stay literal.
+// Keep in sync with --purple in app/globals.css.
+const PURPLE = "#873260";
 const CARD = "#f8f8f9";
 const DIM = "#a1a1aa";
 const TEXT2 = "#3f3f46";
 const MONO = "var(--mono)";
-const SANS = "-apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif";
+const SANS = "var(--font-inter), -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif";
 
 // Coordinate space 960 × 540 (aspect ~16:9 — less vertical stretch than before).
 // Chassis occupies x=320–620 (width 300), y=30–510 (height 480). Wider, shorter look.

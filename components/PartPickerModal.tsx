@@ -155,8 +155,8 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
                 fontFamily: "inherit",
               }}
               onFocus={(e) => {
-                e.target.style.borderColor = "#7c3aed";
-                e.target.style.boxShadow = "2px 2px 0 #7c3aed";
+                e.target.style.borderColor = "var(--purple)";
+                e.target.style.boxShadow = "2px 2px 0 var(--purple)";
               }}
               onBlur={(e) => {
                 e.target.style.borderColor = "#111112";
@@ -195,12 +195,12 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
                           onClick={() => toggleFilter(key, v)}
                           style={{
                             padding: "4px 12px",
-                            border: active ? "1.5px solid #7c3aed" : "1.5px solid var(--border)",
+                            border: active ? "1.5px solid var(--purple)" : "1.5px solid var(--border)",
                             background: active ? "#f0ebff" : "white",
-                            boxShadow: active ? "2px 2px 0 #7c3aed" : "none",
+                            boxShadow: active ? "2px 2px 0 var(--purple)" : "none",
                             transform: "skewX(-8deg)",
                             fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px",
-                            color: active ? "#7c3aed" : "var(--text-muted)",
+                            color: active ? "var(--purple)" : "var(--text-muted)",
                             cursor: "pointer",
                             fontFamily: "var(--mono)",
                           }}
@@ -236,12 +236,12 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
                       padding: "14px 22px",
                       borderBottom: "1px solid var(--border)",
                       background: isCurrent ? "#f0ebff" : "transparent",
-                      borderLeft: isCurrent ? "3px solid #7c3aed" : "3px solid transparent",
+                      borderLeft: isCurrent ? "3px solid var(--purple)" : "3px solid transparent",
                       cursor: "pointer",
                       transition: "background 0.1s",
                     }}
                     onMouseEnter={(e) => {
-                      if (!isCurrent) (e.currentTarget as HTMLDivElement).style.background = "#ede9fe";
+                      if (!isCurrent) (e.currentTarget as HTMLDivElement).style.background = "var(--purple-pale)";
                     }}
                     onMouseLeave={(e) => {
                       (e.currentTarget as HTMLDivElement).style.background = isCurrent ? "#f0ebff" : "transparent";
@@ -288,7 +288,7 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
                       onClick={() => onSelect(part)}
                       style={{
                         padding: "8px 18px",
-                        background: isCurrent ? "#7c3aed" : "var(--bg)",
+                        background: isCurrent ? "var(--purple)" : "var(--bg)",
                         border: "2px solid #111112",
                         boxShadow: "2px 2px 0 #111112",
                         fontSize: "9px", fontWeight: 800, letterSpacing: "1px",
@@ -301,12 +301,12 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
                       }}
                       onMouseEnter={(e) => {
                         const btn = e.currentTarget as HTMLButtonElement;
-                        btn.style.background = "#7c3aed";
+                        btn.style.background = "var(--purple)";
                         btn.style.color = "white";
                       }}
                       onMouseLeave={(e) => {
                         const btn = e.currentTarget as HTMLButtonElement;
-                        btn.style.background = isCurrent ? "#7c3aed" : "var(--bg)";
+                        btn.style.background = isCurrent ? "var(--purple)" : "var(--bg)";
                         btn.style.color = isCurrent ? "white" : "var(--text)";
                       }}
                     >

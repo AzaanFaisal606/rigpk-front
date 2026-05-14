@@ -4,6 +4,7 @@ import { Search, Cpu, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Link from "next/link";
+import { monoFont } from "@/lib/tokens";
 
 const FEATURES = [
   {
@@ -12,7 +13,7 @@ const FEATURES = [
     title: "Browse Prices",
     description:
       "Search and filter thousands of PC parts from multiple Pakistani retailers. Sort by price, source, or category.",
-    accent: "#7c3aed",
+    accent: "var(--purple)",
     dark: false,
     href: "/market",
     cta: "BROWSE MARKET →",
@@ -23,7 +24,7 @@ const FEATURES = [
     title: "Build a PC",
     description:
       "Pick parts, check compatibility, and calculate your total build cost in real time.",
-    accent: "#9333ea",
+    accent: "var(--purple-accent)",
     dark: true,
     href: "/build",
     cta: "BUILD NOW →",
@@ -34,7 +35,7 @@ const FEATURES = [
     title: "Track Prices",
     description:
       "View full price history graphs for any part. Know the best time to buy.",
-    accent: "#a855f7",
+    accent: "var(--purple-accent)",
     dark: false,
     href: null,
     cta: "COMING SOON →",
@@ -53,7 +54,7 @@ export default function Features() {
           <p className="section-label mb-2">Platform Features</p>
           <h2
             style={{
-              fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+              fontFamily: monoFont,
               fontWeight: 900,
               fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
               textTransform: "uppercase",
@@ -87,9 +88,9 @@ function FeatureCard({
 }) {
   const [hovered, setHovered] = useState(false);
 
-  const border = f.dark ? `2px solid #7c3aed` : "2px solid #111112";
+  const border = f.dark ? `2px solid var(--purple)` : "2px solid #111112";
   const shadow = f.dark
-    ? hovered ? "7px 7px 0 #7c3aed" : "5px 5px 0 #7c3aed"
+    ? hovered ? "7px 7px 0 var(--purple)" : "5px 5px 0 var(--purple)"
     : hovered ? "7px 7px 0 #111112" : "5px 5px 0 #111112";
 
   return (
@@ -129,7 +130,7 @@ function FeatureCard({
           <div
             className="w-9 h-9 flex items-center justify-center"
             style={{
-              background: f.dark ? "rgba(124,58,237,0.15)" : "rgba(124,58,237,0.08)",
+              background: f.dark ? "color-mix(in srgb, var(--purple) 15%, transparent)" : "color-mix(in srgb, var(--purple) 8%, transparent)",
               border: `2px solid ${f.accent}`,
             }}
           >

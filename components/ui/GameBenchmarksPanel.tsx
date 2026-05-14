@@ -7,7 +7,7 @@ interface GameBenchmarksPanelProps {
 export function GameBenchmarksPanel({ style }: GameBenchmarksPanelProps) {
   return (
     <div style={{ border: "2px solid #111112", boxShadow: "5px 5px 0 #111112", background: "white", ...style }}>
-      <div style={{ background: "#7c3aed", padding: "8px 12px" }}>
+      <div style={{ background: "var(--purple)", padding: "8px 12px" }}>
         <span style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "2px", textTransform: "uppercase" }}>
           ◼ GAME BENCHMARKS
         </span>

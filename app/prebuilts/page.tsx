@@ -122,7 +122,7 @@ async function PrebuiltGrid({
               padding: "8px 18px",
               border: "2px solid #111112",
               boxShadow: "3px 3px 0 #111112",
-              background: hasNext ? "#7c3aed" : "#f4f4f5",
+              background: hasNext ? "var(--purple)" : "#f4f4f5",
               color: hasNext ? "white" : "#a1a1aa",
               fontFamily: monoFont,
               fontSize: "10px",

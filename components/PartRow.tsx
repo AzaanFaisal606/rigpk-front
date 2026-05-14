@@ -44,8 +44,8 @@ export default function PartRow({ part }: { part: Part }) {
       className="flex items-center gap-4 px-4 py-3 no-underline"
       style={{
         borderBottom: "1px solid #111112",
-        borderLeft: hovered ? "4px solid #7c3aed" : "4px solid transparent",
-        background: hovered ? "#ede9fe" : "var(--bg-card)",
+        borderLeft: hovered ? "4px solid var(--purple)" : "4px solid transparent",
+        background: hovered ? "var(--purple-pale)" : "var(--bg-card)",
         transition: "background 0.1s, border-left-color 0.1s",
       }}
     >
@@ -76,7 +76,7 @@ export default function PartRow({ part }: { part: Part }) {
       <div className="flex-1 min-w-0">
         <p
           className="font-medium text-sm truncate"
-          style={{ color: hovered ? "#7c3aed" : "var(--text)", transition: "color 0.1s" }}
+          style={{ color: hovered ? "var(--purple)" : "var(--text)", transition: "color 0.1s" }}
         >
           {part.name}
         </p>
@@ -86,9 +86,9 @@ export default function PartRow({ part }: { part: Part }) {
             style={{
               fontSize: "0.6rem",
               fontWeight: 800,
-              color: "#7c3aed",
-              background: "rgba(124,58,237,0.08)",
-              border: "1px solid rgba(124,58,237,0.22)",
+              color: "var(--purple)",
+              background: "color-mix(in srgb, var(--purple) 8%, transparent)",
+              border: "1px solid color-mix(in srgb, var(--purple) 22%, transparent)",
             }}
           >
             {part.category.toUpperCase()}

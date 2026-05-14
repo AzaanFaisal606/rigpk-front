@@ -1,3 +1,5 @@
+import { monoFont } from "@/lib/tokens";
+
 interface Props {
   sub?: string;
   height?: number;
@@ -6,13 +8,12 @@ interface Props {
   children: React.ReactNode;
 }
 
-const monoFont = '"JetBrains Mono", "Fira Code", monospace';
 const FOLD = 20; // px for corner fold triangle
 
 export default function ComicFrame({
   sub,
   height = 300,
-  accent = "#7c3aed",
+  accent = "var(--purple)",
   className,
   children,
 }: Props) {
@@ -35,7 +36,7 @@ export default function ComicFrame({
           position: "absolute",
           inset: 0,
           backgroundImage:
-            "radial-gradient(circle, rgba(124,58,237,0.12) 1px, transparent 1px)",
+            "radial-gradient(circle, color-mix(in srgb, var(--purple) 12%, transparent) 1px, transparent 1px)",
           backgroundSize: "10px 10px",
           pointerEvents: "none",
         }}

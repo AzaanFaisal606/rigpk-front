@@ -30,8 +30,8 @@ export default function BuildCards({ build, onSlotClick, onRemove, isMobile }: P
           <div
             key={slot}
             style={{
-              border: selected ? "2px solid #7c3aed" : "2px dashed #d4d4d8",
-              boxShadow: selected ? "3px 3px 0 #7c3aed" : "3px 3px 0 #d4d4d8",
+              border: selected ? "2px solid var(--purple)" : "2px dashed #d4d4d8",
+              boxShadow: selected ? "3px 3px 0 var(--purple)" : "3px 3px 0 #d4d4d8",
               background: selected ? "var(--bg-card)" : "#fafafa",
               position: "relative",
             }}
@@ -49,7 +49,7 @@ export default function BuildCards({ build, onSlotClick, onRemove, isMobile }: P
                 display: "block",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = "#ede9fe";
+                (e.currentTarget as HTMLButtonElement).style.background = "var(--purple-pale)";
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.background = "transparent";
@@ -62,7 +62,7 @@ export default function BuildCards({ build, onSlotClick, onRemove, isMobile }: P
                   fontWeight: 800,
                   letterSpacing: "1.5px",
                   textTransform: "uppercase",
-                  color: selected ? "#7c3aed" : "var(--text-dim)",
+                  color: selected ? "var(--purple)" : "var(--text-dim)",
                   marginBottom: "7px",
                 }}
               >

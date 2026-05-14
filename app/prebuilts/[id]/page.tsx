@@ -4,8 +4,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import PrebuiltSpecPage from "@/components/PrebuiltSpecPage";
 import { getPrebuilt } from "@/lib/prebuilts-api";
-
-const monoFont = '"JetBrains Mono", "Fira Code", monospace';
+import { monoFont } from "@/lib/tokens";
 
 interface PageProps {
   params: Promise<{ id: string }>;

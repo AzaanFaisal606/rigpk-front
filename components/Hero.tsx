@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 import { type Stats } from "@/lib/api";
+import { monoFont } from "@/lib/tokens";
 import DiagLines from "./DiagLines";
 
 interface HeroProps {
@@ -44,7 +45,7 @@ export default function Hero({ stats }: HeroProps) {
         className="absolute left-0 top-0 bottom-0 pointer-events-none"
         style={{
           width: "4px",
-          background: "#7c3aed",
+          background: "var(--purple)",
           borderRight: "1px solid #111112",
         }}
       />
@@ -57,8 +58,8 @@ export default function Hero({ stats }: HeroProps) {
           transition={{ duration: 0.5 }}
           className="flex items-center gap-3 mb-8"
         >
-          <div style={{ width: "8px", height: "2px", background: "#7c3aed" }} />
-          <span className="mono" style={{ color: "#7c3aed" }}>
+          <div style={{ width: "8px", height: "2px", background: "var(--purple)" }} />
+          <span className="mono" style={{ color: "var(--purple)" }}>
             RIGPK // PC PARTS IN PAKISTAN
           </span>
         </motion.div>
@@ -69,6 +70,7 @@ export default function Hero({ stats }: HeroProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
           style={{
+            fontFamily: monoFont,
             fontSize: "clamp(2.3rem, 7vw, 5.5rem)",
             fontWeight: 900,
             lineHeight: 1.04,
@@ -77,11 +79,9 @@ export default function Hero({ stats }: HeroProps) {
             maxWidth: "720px",
           }}
         >
-          Build Your
+          Yahan <span style={{ color: "var(--purple)", fontStyle: "italic" }}>sab kuch</span>
           <br />
-          Dream PC
-          <br />
-          <span style={{ color: "#7c3aed", fontStyle: "italic" }}>In Pakistan.</span>
+          milay ga.
         </motion.h1>
 
         {/* Subtext */}
@@ -142,7 +142,7 @@ export default function Hero({ stats }: HeroProps) {
                     fontWeight: 900,
                     color: "#111112",
                     lineHeight: 1,
-                    fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                    fontFamily: monoFont,
                   }}
                 >
                   {stat.value}
@@ -181,13 +181,13 @@ function CTAButton({
         gap: "8px",
         padding: "12px 28px",
         background: primary
-          ? hovered ? "#6d28d9" : "#7c3aed"
-          : hovered ? "rgba(124,58,237,0.06)" : "transparent",
+          ? hovered ? "var(--purple-hover)" : "var(--purple)"
+          : hovered ? "color-mix(in srgb, var(--purple) 6%, transparent)" : "transparent",
         color: primary ? "white" : "#111112",
         border: "2px solid #111112",
         boxShadow: hovered ? "5px 5px 0 #111112" : "4px 4px 0 #111112",
         transform: "skewX(-8deg)",
-        fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+        fontFamily: monoFont,
         fontSize: "0.78rem",
         fontWeight: 800,
         letterSpacing: "1.5px",

@@ -12,14 +12,12 @@
   /* Borders */
   --border:       #d4d4d8;
   --border-dark:  #3f3f46;
-  --border-purple: rgba(124, 58, 237, 0.28);
 
-  /* Purple */
-  --purple:       #7c3aed;
-  --purple-mid:   #9333ea;
-  --purple-light: #a855f7;
-  --purple-muted: rgba(124, 58, 237, 0.12);
-  --purple-glow:  rgba(124, 58, 237, 0.22);
+  /* Purple — single source of truth. Change --purple to recolor whole site. */
+  --purple:        #873260;
+  --purple-hover:  #6d2950;
+  --purple-accent: #a83f76;
+  --purple-pale:   #f9e1ed;
 
   /* Text */
   --text:         #111112;
@@ -27,8 +25,8 @@
   --text-muted:   #71717a;
   --text-dim:     #a1a1aa;
 
-  /* Mono accent */
-  --mono: "JetBrains Mono", "Fira Code", monospace;
+  /* Mono accent — JetBrains Mono loaded via next/font in app/layout.tsx */
+  --mono: var(--font-jetbrains-mono), "JetBrains Mono", "Fira Code", monospace;
 }
 
 @theme inline {
@@ -69,8 +67,8 @@ body {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 .card:hover {
-  border-color: var(--border-purple);
-  box-shadow: 0 2px 20px rgba(124, 58, 237, 0.08), 0 1px 3px rgba(0,0,0,0.06);
+  border-color: color-mix(in srgb, var(--purple) 28%, transparent);
+  box-shadow: 0 2px 20px color-mix(in srgb, var(--purple) 8%, transparent), 0 1px 3px rgba(0,0,0,0.06);
   background: var(--bg-card);
 }
 
@@ -81,8 +79,8 @@ body {
   transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
 .btn-primary:hover:not(:disabled) {
-  background: var(--purple-mid);
-  box-shadow: 0 0 22px 4px rgba(124, 58, 237, 0.35);
+  background: var(--purple-hover);
+  box-shadow: 0 0 22px 4px color-mix(in srgb, var(--purple) 35%, transparent);
   transform: translateY(-1px);
 }
 
