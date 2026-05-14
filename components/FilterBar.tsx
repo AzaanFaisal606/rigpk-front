@@ -129,12 +129,17 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
   // Sync searchInput when URL param changes externally (e.g. clear)
   useEffect(() => { setSearchInput(q); }, [q]);
 
-  // Debounce search: wait 350ms after user stops typing before pushing to URL
+  // Keep latest push in ref so debounce effect doesn't refire when searchParams change
+  const pushRef = useRef(push);
+  useEffect(() => { pushRef.current = push; }, [push]);
+
+  // Debounce search: only push when input diverges from URL `q`
   useEffect(() => {
     if (!didMount.current) { didMount.current = true; return; }
-    const t = setTimeout(() => { push("q", searchInput); }, 350);
+    if (searchInput === q) return;
+    const t = setTimeout(() => { pushRef.current("q", searchInput); }, 350);
     return () => clearTimeout(t);
-  }, [searchInput, push]);
+  }, [searchInput, q]);
 
   const specEntries = Object.entries(filterOptions).filter(
     ([, values]) => values && values.length > 0

@@ -45,11 +45,15 @@ export default function PrebuiltFilterBar() {
 
   useEffect(() => { setSearchInput(q); }, [q]);
 
+  const pushRef = useRef(push);
+  useEffect(() => { pushRef.current = push; }, [push]);
+
   useEffect(() => {
     if (!didMount.current) { didMount.current = true; return; }
-    const t = setTimeout(() => { push({ q: searchInput || undefined }); }, 350);
+    if (searchInput === q) return;
+    const t = setTimeout(() => { pushRef.current({ q: searchInput || undefined }); }, 350);
     return () => clearTimeout(t);
-  }, [searchInput, push]);
+  }, [searchInput, q]);
 
   return (
     <div
