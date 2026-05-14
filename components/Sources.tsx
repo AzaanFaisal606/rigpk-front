@@ -2,16 +2,18 @@
 
 import { ExternalLink, Database } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type Stats } from "@/lib/api";
 import { monoFont } from "@/lib/tokens";
 
 const STORES = [
   { key: "czone.com.pk",       name: "CZone",           domain: "czone.com.pk",       tag: "FLAGSHIP" },
   { key: "zahcomputers.pk",    name: "Zah Computers",   domain: "zahcomputers.pk",    tag: "VERIFIED" },
-  { key: "amdhouse.pk",        name: "AMD House",        domain: "amdhouse.pk",        tag: "VERIFIED" },
-  { key: "rbtechngames.com",   name: "RB Tech & Games",  domain: "rbtechngames.com",   tag: "ACTIVE" },
-  { key: "junaidtech.pk",      name: "Junaid Tech",      domain: "junaidtech.pk",      tag: "ACTIVE" },
+  { key: "amdhouse.pk",        name: "AMD House",       domain: "amdhouse.pk",        tag: "VERIFIED" },
+  { key: "rbtechngames.com",   name: "RB Tech & Games", domain: "rbtechngames.com",   tag: "ACTIVE" },
+  { key: "junaidtech.pk",      name: "Junaid Tech",     domain: "junaidtech.pk",      tag: "ACTIVE" },
+  { key: "techarc.pk",         name: "Tech Arc",        domain: "techarc.pk",         tag: "NEW" },
+  { key: "pakbyte.pk",         name: "PakByte",         domain: "www.pakbyte.pk",     tag: "NEW" },
 ];
 
 interface SourcesProps {
@@ -20,6 +22,38 @@ interface SourcesProps {
 
 export default function Sources({ stats }: SourcesProps) {
   const total = stats?.total_parts ?? 0;
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);   // 0..1
+  const [thumbWidth, setThumbWidth] = useState(1);           // 0..1 — ratio of visible viewport
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      const ratio = el.clientWidth / el.scrollWidth;
+      setIsOverflowing(max > 1);
+      setThumbWidth(Math.min(1, Math.max(0.15, ratio)));
+      setScrollProgress(max > 0 ? el.scrollLeft / max : 0);
+    };
+
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener("resize", update);
+
+    return () => {
+      el.removeEventListener("scroll", update);
+      ro.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
+  // Thumb position: scroll progress maps into track minus thumb width
+  const thumbLeft = scrollProgress * (1 - thumbWidth) * 100;
 
   return (
     <section
@@ -52,8 +86,16 @@ export default function Sources({ stats }: SourcesProps) {
           )}
         </div>
 
-        {/* Store cards */}
-        <div className="flex gap-3 overflow-x-auto pb-2 md:pb-0 md:grid md:grid-cols-5 md:overflow-visible">
+        {/* Store cards — always horizontal-scroll on all viewports */}
+        <div
+          ref={scrollRef}
+          className="flex gap-3 overflow-x-auto pb-2"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
           {STORES.map((store, i) => {
             const count = stats?.by_source[store.key];
             return (
@@ -61,6 +103,49 @@ export default function Sources({ stats }: SourcesProps) {
             );
           })}
         </div>
+
+        {/* Scroll indicator — visible whenever cards overflow */}
+        {isOverflowing && (
+          <div className="mt-4 flex items-center gap-3">
+            <div
+              aria-hidden
+              style={{
+                position: "relative",
+                flex: 1,
+                height: 6,
+                background: "var(--bg-card)",
+                border: "1.5px solid #111112",
+                boxShadow: "2px 2px 0 #111112",
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  bottom: 0,
+                  left: `${thumbLeft}%`,
+                  width: `${thumbWidth * 100}%`,
+                  background: "var(--purple)",
+                  borderRight: "1.5px solid #111112",
+                  transition: "left 0.08s linear",
+                }}
+              />
+            </div>
+            <span
+              className="mono"
+              style={{
+                fontSize: "0.62rem",
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "var(--text-dim)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Scroll →
+            </span>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -88,7 +173,7 @@ function StoreCard({
       transition={{ duration: 0.35, delay: i * 0.06 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="flex-shrink-0 w-44 md:w-auto overflow-hidden group no-underline"
+      className="flex-shrink-0 w-44 overflow-hidden group no-underline"
       style={{
         background: "var(--bg-card)",
         borderTop: "3px solid var(--purple)",

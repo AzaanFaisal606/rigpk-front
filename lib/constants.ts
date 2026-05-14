@@ -9,6 +9,8 @@ export const SOURCES = [
   { key: "amdhouse.pk",      label: "AMD House" },
   { key: "rbtechngames.com", label: "RB Tech" },
   { key: "junaidtech.pk",    label: "Junaid Tech" },
+  { key: "techarc.pk",       label: "Tech Arc" },
+  { key: "pakbyte.pk",       label: "PakByte" },
 ] as const;
 
 export const SPEC_KEYS = [
