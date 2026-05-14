@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Cpu } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { monoFont } from "@/lib/tokens";
@@ -26,9 +25,16 @@ export default function Navbar() {
               background: "var(--purple)",
               border: "2px solid #111112",
               boxShadow: "2px 2px 0 #111112",
+              overflow: "hidden",
             }}
           >
-            <Cpu size={14} color="#fff" />
+            <img
+              src="/logo.png"
+              alt="RigPK"
+              width={28}
+              height={28}
+              style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
+            />
           </div>
           <span
             className="font-bold"
