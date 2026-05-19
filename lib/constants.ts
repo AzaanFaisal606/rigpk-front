@@ -11,6 +11,8 @@ export const SOURCES = [
   { key: "junaidtech.pk",    label: "Junaid Tech" },
   { key: "techarc.pk",       label: "Tech Arc" },
   { key: "pakbyte.pk",       label: "PakByte" },
+  { key: "redtech.pk",       label: "Red Tech" },
+  { key: "techmatched.pk",   label: "TechMatched" },
 ] as const;
 
 export const SPEC_KEYS = [

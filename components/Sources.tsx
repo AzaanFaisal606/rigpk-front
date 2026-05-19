@@ -12,8 +12,10 @@ const STORES = [
   { key: "amdhouse.pk",        name: "AMD House",       domain: "amdhouse.pk",        tag: "VERIFIED" },
   { key: "rbtechngames.com",   name: "RB Tech & Games", domain: "rbtechngames.com",   tag: "ACTIVE" },
   { key: "junaidtech.pk",      name: "Junaid Tech",     domain: "junaidtech.pk",      tag: "ACTIVE" },
-  { key: "techarc.pk",         name: "Tech Arc",        domain: "techarc.pk",         tag: "NEW" },
-  { key: "pakbyte.pk",         name: "PakByte",         domain: "www.pakbyte.pk",     tag: "NEW" },
+  { key: "techarc.pk",         name: "Tech Arc",        domain: "techarc.pk",         tag: "ACTIVE" },
+  { key: "pakbyte.pk",         name: "PakByte",         domain: "www.pakbyte.pk",     tag: "ACTIVE" },
+  { key: "redtech.pk",         name: "Red Tech",        domain: "redtech.pk",         tag: "NEW" },
+  { key: "techmatched.pk",     name: "TechMatched",     domain: "techmatched.pk",     tag: "NEW" },
 ];
 
 interface SourcesProps {
@@ -23,9 +25,12 @@ interface SourcesProps {
 export default function Sources({ stats }: SourcesProps) {
   const total = stats?.total_parts ?? 0;
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);   // 0..1
   const [thumbWidth, setThumbWidth] = useState(1);           // 0..1 — ratio of visible viewport
   const [isOverflowing, setIsOverflowing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStateRef = useRef<{ startX: number; startScrollLeft: number; trackWidth: number; thumbWidthPx: number } | null>(null);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -54,6 +59,69 @@ export default function Sources({ stats }: SourcesProps) {
 
   // Thumb position: scroll progress maps into track minus thumb width
   const thumbLeft = scrollProgress * (1 - thumbWidth) * 100;
+
+  const scrollContainerToProgress = (progress: number, smooth: boolean) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    const clamped = Math.max(0, Math.min(1, progress));
+    el.scrollTo({ left: clamped * max, behavior: smooth ? "smooth" : "auto" });
+  };
+
+  const handleThumbPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const track = trackRef.current;
+    const el = scrollRef.current;
+    if (!track || !el) return;
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {
+      // synthetic pointer events (e.g. devtools/tests) lack a real pointer id; ignore
+    }
+    setIsDragging(true);
+    const trackRect = track.getBoundingClientRect();
+    dragStateRef.current = {
+      startX: e.clientX,
+      startScrollLeft: el.scrollLeft,
+      trackWidth: trackRect.width,
+      thumbWidthPx: thumbWidth * trackRect.width,
+    };
+  };
+
+  const handleThumbPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStateRef.current) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const { startX, startScrollLeft, trackWidth, thumbWidthPx } = dragStateRef.current;
+    const travel = trackWidth - thumbWidthPx;
+    if (travel <= 0) return;
+    const deltaX = e.clientX - startX;
+    const max = el.scrollWidth - el.clientWidth;
+    el.scrollLeft = Math.max(0, Math.min(max, startScrollLeft + (deltaX / travel) * max));
+  };
+
+  const handleThumbPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStateRef.current) return;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {
+      // ignore: capture may not have been set (synthetic events)
+    }
+    dragStateRef.current = null;
+    setIsDragging(false);
+  };
+
+  const handleTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (dragStateRef.current) return;
+    const track = trackRef.current;
+    const el = scrollRef.current;
+    if (!track || !el) return;
+    const rect = track.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const target = (clickX - (thumbWidth * rect.width) / 2) / (rect.width - thumbWidth * rect.width);
+    scrollContainerToProgress(target, true);
+  };
 
   return (
     <section
@@ -89,6 +157,7 @@ export default function Sources({ stats }: SourcesProps) {
         {/* Store cards — always horizontal-scroll on all viewports */}
         <div
           ref={scrollRef}
+          id="sources-cards"
           className="flex gap-3 overflow-x-auto pb-2"
           style={{
             scrollbarWidth: "none",
@@ -104,21 +173,34 @@ export default function Sources({ stats }: SourcesProps) {
           })}
         </div>
 
-        {/* Scroll indicator — visible whenever cards overflow */}
+        {/* Scroll indicator — interactive scrollbar (click track, drag thumb) */}
         {isOverflowing && (
           <div className="mt-4 flex items-center gap-3">
             <div
-              aria-hidden
+              ref={trackRef}
+              role="scrollbar"
+              aria-controls="sources-cards"
+              aria-orientation="horizontal"
+              aria-valuenow={Math.round(scrollProgress * 100)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              onPointerDown={handleTrackPointerDown}
               style={{
                 position: "relative",
                 flex: 1,
-                height: 6,
+                height: 10,
                 background: "var(--bg-card)",
                 border: "1.5px solid #111112",
                 boxShadow: "2px 2px 0 #111112",
+                cursor: "pointer",
+                touchAction: "none",
               }}
             >
               <div
+                onPointerDown={handleThumbPointerDown}
+                onPointerMove={handleThumbPointerMove}
+                onPointerUp={handleThumbPointerUp}
+                onPointerCancel={handleThumbPointerUp}
                 style={{
                   position: "absolute",
                   top: 0,
@@ -127,7 +209,9 @@ export default function Sources({ stats }: SourcesProps) {
                   width: `${thumbWidth * 100}%`,
                   background: "var(--purple)",
                   borderRight: "1.5px solid #111112",
-                  transition: "left 0.08s linear",
+                  transition: isDragging ? "none" : "left 0.08s linear",
+                  cursor: isDragging ? "grabbing" : "grab",
+                  touchAction: "none",
                 }}
               />
             </div>
