@@ -9,7 +9,7 @@ import { monoFont } from "@/lib/tokens";
 const STORES = [
   { key: "czone.com.pk",       name: "CZone",           domain: "czone.com.pk",       tag: "FLAGSHIP" },
   { key: "zahcomputers.pk",    name: "Zah Computers",   domain: "zahcomputers.pk",    tag: "VERIFIED" },
-  { key: "amdhouse.pk",        name: "AMD House",       domain: "amdhouse.pk",        tag: "VERIFIED" },
+  { key: "amdhouse.pk",        name: "AMD House",       domain: "amdhouse.pk",        tag: "VERIFIED", stale: true },
   { key: "rbtechngames.com",   name: "RB Tech & Games", domain: "rbtechngames.com",   tag: "ACTIVE" },
   { key: "junaidtech.pk",      name: "Junaid Tech",     domain: "junaidtech.pk",      tag: "ACTIVE" },
   { key: "techarc.pk",         name: "Tech Arc",        domain: "techarc.pk",         tag: "ACTIVE" },
@@ -240,7 +240,7 @@ function StoreCard({
   count,
   i,
 }: {
-  store: { key: string; name: string; domain: string; tag: string };
+  store: { key: string; name: string; domain: string; tag: string; stale?: boolean };
   count: number | undefined;
   i: number;
 }) {
@@ -259,6 +259,7 @@ function StoreCard({
       onMouseLeave={() => setHovered(false)}
       className="flex-shrink-0 w-44 overflow-hidden group no-underline"
       style={{
+        position: "relative",
         background: "var(--bg-card)",
         borderTop: "3px solid var(--purple)",
         borderRight: "2px solid #111112",
@@ -269,6 +270,37 @@ function StoreCard({
         transition: "box-shadow 0.1s, transform 0.1s",
       }}
     >
+      {/* Stale ribbon — diagonal red corner flag */}
+      {store.stale && (
+        <div
+          aria-label="data is stale"
+          className="mono"
+          style={{
+            position: "absolute",
+            top: 13,
+            right: -30,
+            width: 110,
+            transform: "rotate(45deg)",
+            transformOrigin: "center",
+            background: "#dc2626",
+            color: "#fff",
+            textAlign: "center",
+            fontSize: "0.55rem",
+            fontWeight: 900,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            padding: "2px 0",
+            borderTop: "1.5px solid #111112",
+            borderBottom: "1.5px solid #111112",
+            boxShadow: "0 1px 0 #111112",
+            zIndex: 2,
+            pointerEvents: "none",
+          }}
+        >
+          Stale
+        </div>
+      )}
+
       <div className="p-4">
         {/* Tag */}
         <div className="flex items-center justify-between mb-3">
