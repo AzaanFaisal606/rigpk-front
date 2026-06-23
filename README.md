@@ -6,7 +6,7 @@ Frontend for [RigPK](https://github.com/AzaanFaisal606/rigpk) — a PCPartPicker
 
 ## What It Does
 
-- **Market** — Browse ~4,800 PC parts from 5 Pakistani retailers with filtering by category, specs, and price
+- **Market** — Browse ~9,300 PC parts from 9 Pakistani retailers with filtering by category, specs, and price
 - **PC Builder** — Pick components slot by slot; live compatibility checker catches socket and DDR mismatches; shareable build links
 - **Prebuilts** — Browse 121 prebuilt PCs from 3 retailers with price and brand filters
 
