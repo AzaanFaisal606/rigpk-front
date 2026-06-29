@@ -215,3 +215,10 @@ body {
     padding: 20px 16px !important;
   }
 }
+
+.trends-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+  align-items: start;
+}
