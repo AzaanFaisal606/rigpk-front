@@ -3,11 +3,22 @@ export type { SlotKey };
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+export interface SourceHealth {
+  /** Latest scrape of this retailer failed — its listings are from an earlier run. */
+  stale: boolean;
+  last_run_at: string;
+  last_success_at: string | null;
+  last_products: number;
+  last_error: string | null;
+}
+
 export interface Stats {
   total_parts: number;
   total_price_rows: number;
   by_source: Record<string, number>;
   by_category: Record<string, number>;
+  /** Keyed by source domain, e.g. "amdhouse.pk". Absent for never-scraped sources. */
+  sources?: Record<string, SourceHealth>;
 }
 
 export async function getStats(): Promise<Stats | null> {
