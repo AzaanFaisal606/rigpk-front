@@ -9,7 +9,7 @@ import { monoFont } from "@/lib/tokens";
 const STORES = [
   { key: "czone.com.pk",       name: "CZone",           domain: "czone.com.pk",       tag: "FLAGSHIP" },
   { key: "zahcomputers.pk",    name: "Zah Computers",   domain: "zahcomputers.pk",    tag: "VERIFIED" },
-  { key: "amdhouse.pk",        name: "AMD House",       domain: "amdhouse.pk",        tag: "VERIFIED", stale: true },
+  { key: "amdhouse.pk",        name: "AMD House",       domain: "amdhouse.pk",        tag: "VERIFIED" },
   { key: "rbtechngames.com",   name: "RB Tech & Games", domain: "rbtechngames.com",   tag: "ACTIVE" },
   { key: "junaidtech.pk",      name: "Junaid Tech",     domain: "junaidtech.pk",      tag: "ACTIVE" },
   { key: "techarc.pk",         name: "Tech Arc",        domain: "techarc.pk",         tag: "ACTIVE" },
@@ -167,8 +167,12 @@ export default function Sources({ stats }: SourcesProps) {
         >
           {STORES.map((store, i) => {
             const count = stats?.by_source[store.key];
+            // Staleness comes from the backend's last recorded scrape outcome,
+            // so a retailer flags itself when a scrape fails and clears itself
+            // when one succeeds — nothing to update here by hand.
+            const stale = stats?.sources?.[store.key]?.stale ?? false;
             return (
-              <StoreCard key={store.key} store={store} count={count} i={i} />
+              <StoreCard key={store.key} store={store} count={count} stale={stale} i={i} />
             );
           })}
         </div>
@@ -238,10 +242,12 @@ export default function Sources({ stats }: SourcesProps) {
 function StoreCard({
   store,
   count,
+  stale,
   i,
 }: {
-  store: { key: string; name: string; domain: string; tag: string; stale?: boolean };
+  store: { key: string; name: string; domain: string; tag: string };
   count: number | undefined;
+  stale: boolean;
   i: number;
 }) {
   const [hovered, setHovered] = useState(false);
@@ -271,7 +277,7 @@ function StoreCard({
       }}
     >
       {/* Stale ribbon — diagonal red corner flag */}
-      {store.stale && (
+      {stale && (
         <div
           aria-label="data is stale"
           className="mono"

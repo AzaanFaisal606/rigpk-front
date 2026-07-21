@@ -48,6 +48,7 @@ export default function Navbar() {
         <nav className="flex items-center gap-2">
           <NavButton href="/market" active={pathname === "/market"}>Market</NavButton>
           <NavButton href="/build" active={pathname === "/build"}>Build PC</NavButton>
+          <NavButton href="/trends" active={pathname.startsWith("/trends")}>Trends</NavButton>
           <NavButton href="/prebuilts" active={pathname.startsWith("/prebuilts")}>Pre-Builts</NavButton>
         </nav>
       </div>
