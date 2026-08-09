@@ -59,8 +59,13 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
       q: debouncedSearch || undefined,
       ...activeFilters,
     });
-    setParts(result.items);
-    setTotal(result.total);
+    if (result.ok) {
+      setParts(result.items);
+      setTotal(result.total);
+    } else {
+      setParts([]);
+      setTotal(0);
+    }
     setLoading(false);
   }, [category, sort, activeFilters, debouncedSearch]);
 

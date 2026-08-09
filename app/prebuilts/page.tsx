@@ -33,7 +33,7 @@ async function PrebuiltGrid({
   const q         = str(searchParams.q);
   const offset    = Number(str(searchParams.offset) ?? "0");
 
-  const { items, total } = await getPrebuilts({
+  const result = await getPrebuilts({
     source,
     cpu_brand: cpuBrand,
     gpu_brand: gpuBrand,
@@ -44,6 +44,9 @@ async function PrebuiltGrid({
     limit: LIMIT,
     offset,
   });
+  const failed = !result.ok;
+  const items  = result.ok ? result.items : [];
+  const total  = result.ok ? result.total : 0;
 
   const buildPageUrl = (newOffset: number) => {
     const p = new URLSearchParams();
@@ -66,9 +69,18 @@ async function PrebuiltGrid({
 
   return (
     <>
-      {items.length === 0 ? (
+      {failed ? (
+        <div style={{ padding: "80px 0", textAlign: "center" }}>
+          <p style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 900, color: "var(--purple)", letterSpacing: "1.5px" }}>
+            {"// SEARCH FAILED"}
+          </p>
+          <p style={{ fontFamily: monoFont, fontSize: "11px", color: "var(--text-muted)", letterSpacing: "0.5px", marginTop: "8px" }}>
+            Couldn&apos;t reach the server. Reload to try again.
+          </p>
+        </div>
+      ) : items.length === 0 ? (
         <div style={{ padding: "80px 0", textAlign: "center", fontFamily: monoFont, fontSize: "13px", color: "#a1a1aa", letterSpacing: "1.5px" }}>
-          // NO PREBUILTS FOUND
+          {"// NO PREBUILTS FOUND"}
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "28px" }} className="pb-browser-grid">
@@ -76,7 +88,7 @@ async function PrebuiltGrid({
         </div>
       )}
 
-      {(hasPrev || hasNext) && (
+      {!failed && (hasPrev || hasNext) && (
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "32px" }}>
           <Link
             href={hasPrev ? buildPageUrl(offset - LIMIT) : "#"}
@@ -164,7 +176,7 @@ export default async function PrebuiltsPage({ searchParams }: PageProps) {
 
         <Suspense fallback={
           <div style={{ padding: "80px 0", textAlign: "center", fontFamily: monoFont, fontSize: "12px", color: "#a1a1aa", letterSpacing: "1.5px" }}>
-            // LOADING...
+            {"// LOADING..."}
           </div>
         }>
           <PrebuiltGrid searchParams={resolvedParams} />

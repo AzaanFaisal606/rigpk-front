@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import { ToggleChip } from "@/components/ui/ToggleChip";
@@ -20,7 +20,9 @@ export default function PrebuiltFilterBar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const hidden = useScrollHide();
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const hidden = useScrollHide(80, searchFocused);
 
   const push = useCallback((updates: Record<string, string | undefined>) => {
     const p = new URLSearchParams(searchParams.toString());
@@ -29,7 +31,9 @@ export default function PrebuiltFilterBar() {
       if (v == null || v === "") p.delete(k);
       else p.set(k, v);
     }
-    router.push(`${pathname}?${p.toString()}`);
+    startTransition(() => {
+      router.replace(`${pathname}?${p.toString()}`);
+    });
   }, [searchParams, router, pathname]);
 
   const source    = searchParams.get("source")    ?? undefined;
@@ -41,7 +45,6 @@ export default function PrebuiltFilterBar() {
   const maxPrice  = searchParams.get("max_price") ?? "";
 
   const [searchInput, setSearchInput] = useState(q);
-  const didMount = useRef(false);
   const lastPushedQ = useRef(q);
 
   useEffect(() => {
@@ -53,15 +56,25 @@ export default function PrebuiltFilterBar() {
   const pushRef = useRef(push);
   useEffect(() => { pushRef.current = push; }, [push]);
 
+  // See FilterBar.tsx — dims the results list while a navigation is in flight.
   useEffect(() => {
-    if (!didMount.current) { didMount.current = true; return; }
-    if (searchInput === q) return;
+    const el = document.documentElement;
+    if (isPending) el.dataset.filtering = "1";
+    else delete el.dataset.filtering;
+    return () => { delete el.dataset.filtering; };
+  }, [isPending]);
+
+  // `q` is intentionally not a dependency — see the same comment in
+  // FilterBar.tsx. Including it let every arriving response re-arm the timer
+  // and re-fire a navigation, making results flip between queries.
+  useEffect(() => {
+    if (searchInput === lastPushedQ.current) return;
     const t = setTimeout(() => {
       lastPushedQ.current = searchInput;
       pushRef.current({ q: searchInput || undefined });
-    }, 350);
+    }, 300);
     return () => clearTimeout(t);
-  }, [searchInput, q]);
+  }, [searchInput]);
 
   return (
     <div
@@ -91,23 +104,35 @@ export default function PrebuiltFilterBar() {
         }}
       >
         {/* Search */}
-        <input
-          value={searchInput}
-          onChange={e => setSearchInput(e.target.value)}
-          placeholder="SEARCH PREBUILTS"
-          style={{
-            padding: "5px 10px",
-            border: searchInput ? "2px solid var(--purple)" : "2px solid #111112",
-            boxShadow: searchInput ? "2px 2px 0 var(--purple)" : "2px 2px 0 #111112",
-            fontFamily: monoFont,
-            fontSize: "11px",
-            fontWeight: 700,
-            background: "white",
-            color: "#111112",
-            outline: "none",
-            width: "180px",
-          }}
-        />
+        <div style={{ position: "relative", display: "flex", alignItems: "center", flexShrink: 0 }}>
+          <input
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+            placeholder="SEARCH PREBUILTS"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            enterKeyHint="search"
+            style={{
+              padding: "5px 26px 5px 10px",
+              border: searchInput ? "2px solid var(--purple)" : "2px solid #111112",
+              boxShadow: searchInput ? "2px 2px 0 var(--purple)" : "2px 2px 0 #111112",
+              fontFamily: monoFont,
+              fontSize: "11px",
+              fontWeight: 700,
+              background: "white",
+              color: "#111112",
+              outline: "none",
+              width: "180px",
+            }}
+          />
+          {isPending && (
+            <span aria-hidden className="filter-pending-dot" style={{ position: "absolute", right: "9px" }} />
+          )}
+        </div>
 
         <div style={{ width: "1px", height: "20px", background: "#111112", flexShrink: 0 }} />
 

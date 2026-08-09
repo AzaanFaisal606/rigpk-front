@@ -41,7 +41,7 @@ async function PartsList({
     if (val) specParams[key] = val;
   }
 
-  const { items, total } = await getParts({
+  const result = await getParts({
     category,
     source,
     min_price: minPrice ? Number(minPrice) : undefined,
@@ -52,6 +52,9 @@ async function PartsList({
     q,
     ...specParams,
   });
+  const failed = !result.ok;
+  const items  = result.ok ? result.items : [];
+  const total  = result.ok ? result.total : 0;
 
   const heading = category ? category.toUpperCase() + "S" : "ALL PARTS";
   const totalPages = Math.ceil(total / LIMIT);
@@ -149,7 +152,32 @@ async function PartsList({
             </span>
           </div>
 
-          {items.length === 0 ? (
+          {failed ? (
+            <div
+              style={{
+                padding: "64px 24px",
+                textAlign: "center",
+                background: "var(--bg-card)",
+                borderTop: "1px solid #111112",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: monoFont,
+                  fontSize: "0.9rem",
+                  fontWeight: 900,
+                  color: "var(--purple)",
+                  letterSpacing: "3px",
+                  textTransform: "uppercase",
+                }}
+              >
+                {"// SEARCH FAILED"}
+              </p>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "8px" }}>
+                Couldn&apos;t reach the server. Reload to try again.
+              </p>
+            </div>
+          ) : items.length === 0 ? (
             <div
               style={{
                 padding: "64px 24px",
@@ -168,7 +196,7 @@ async function PartsList({
                   textTransform: "uppercase",
                 }}
               >
-                // NO PARTS FOUND
+                {"// NO PARTS FOUND"}
               </p>
               <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "8px" }}>
                 Try adjusting your filters
@@ -180,7 +208,7 @@ async function PartsList({
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {!failed && totalPages > 1 && (
           <div
             style={{
               marginTop: "20px",

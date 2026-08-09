@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import FilterBar from "@/components/FilterBar";
-import PartRow from "@/components/PartRow";
+import MarketSearchResults from "@/components/MarketSearchResults";
+import MarketResultsMeta from "@/components/MarketResultsMeta";
 import JsonLd from "@/components/JsonLd";
 import { getParts } from "@/lib/api";
 import { str } from "@/lib/utils";
@@ -78,7 +78,7 @@ async function PartsList({
     if (val) specParams[key] = val;
   }
 
-  const { items, total } = await getParts({
+  const result = await getParts({
     category,
     source,
     min_price: minPrice ? Number(minPrice) : undefined,
@@ -89,31 +89,17 @@ async function PartsList({
     q,
     ...specParams,
   });
+  const failed = !result.ok;
+  const items  = result.ok ? result.items : [];
+  const total  = result.ok ? result.total : 0;
+  const specFiltersActive = Object.keys(specParams).length > 0;
 
   const heading = category.toUpperCase() + "S";
-  const totalPages = Math.ceil(total / LIMIT);
-  const currentPage = Math.floor(offset / LIMIT) + 1;
-
-  function pageUrl(newOffset: number) {
-    const p = new URLSearchParams();
-    if (source) p.set("source", source);
-    if (sort !== "price_asc") p.set("sort", sort);
-    if (minPrice) p.set("min_price", minPrice);
-    if (maxPrice) p.set("max_price", maxPrice);
-    if (q) p.set("q", q);
-    for (const [k, v] of Object.entries(specParams)) p.set(k, v);
-    if (newOffset > 0) p.set("offset", String(newOffset));
-    const qs = p.toString();
-    return `/market/${category}${qs ? "?" + qs : ""}`;
-  }
-
-  const hasPrev = offset > 0;
-  const hasNext = offset + LIMIT < total;
 
   return (
     <>
       <Suspense>
-        <FilterBar total={total} activeCategory={category} />
+        <FilterBar total={total} activeCategory={category} clientIndexActive={!specFiltersActive} />
       </Suspense>
 
       <div className="max-w-6xl mx-auto px-6 py-6 w-full market-list-wrap">
@@ -135,9 +121,21 @@ async function PartsList({
             </h1>
           </div>
           {total > 0 && (
-            <span style={{ fontFamily: monoFont, fontSize: "0.65rem", color: "var(--text-dim)" }}>
-              {offset + 1}–{Math.min(offset + LIMIT, total)} of {total.toLocaleString()}
-            </span>
+            <MarketResultsMeta
+              part="range"
+              serverTotal={total}
+              offset={offset}
+              limit={LIMIT}
+              clientIndexActive={!specFiltersActive}
+              category={category}
+              source={source}
+              sort={sort}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              q={q}
+              specParams={specParams}
+              failed={failed}
+            />
           )}
         </div>
 
@@ -169,19 +167,32 @@ async function PartsList({
             >
               {heading} — Parts List
             </span>
-            <span
-              style={{
-                fontFamily: monoFont,
-                fontSize: "10px",
-                color: "rgba(255,255,255,0.45)",
-                fontWeight: 600,
-              }}
-            >
-              {total.toLocaleString()} results
-            </span>
+            <MarketResultsMeta
+              part="count"
+              serverTotal={total}
+              offset={offset}
+              limit={LIMIT}
+              clientIndexActive={!specFiltersActive}
+              category={category}
+              source={source}
+              sort={sort}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              q={q}
+              specParams={specParams}
+              failed={failed}
+            />
           </div>
 
-          {items.length === 0 ? (
+          {failed ? (
+            // SSR-level failure (e.g. the backend is unreachable on first
+            // paint). MarketSearchResults has no way to know about this — its
+            // own `failed` state only tracks client-side getPartsByIds
+            // failures — so this stays a server-rendered branch rather than
+            // folding into the client component. Typing while this is up
+            // still server-navigates (FilterBar's clientPathActive is false
+            // until the index actually loads), and a failed re-fetch lands
+            // right back here.
             <div
               style={{
                 padding: "64px 24px",
@@ -195,96 +206,48 @@ async function PartsList({
                   fontFamily: monoFont,
                   fontSize: "0.9rem",
                   fontWeight: 900,
-                  color: "var(--text-dim)",
+                  color: "var(--purple)",
                   letterSpacing: "3px",
                   textTransform: "uppercase",
                 }}
               >
-                // NO PARTS FOUND
+                {"// SEARCH FAILED"}
               </p>
               <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "8px" }}>
-                Try adjusting your filters
+                Couldn&apos;t reach the server. Reload to try again.
               </p>
             </div>
           ) : (
-            items.map((part) => <PartRow key={part.id} part={part} />)
+            <MarketSearchResults
+              category={category}
+              initialItems={items}
+              initialQ={q}
+              specFiltersActive={specFiltersActive}
+              source={source}
+              minPrice={minPrice ? Number(minPrice) : undefined}
+              maxPrice={maxPrice ? Number(maxPrice) : undefined}
+              sort={sort}
+              limit={LIMIT}
+              offset={offset}
+            />
           )}
         </div>
 
-        {totalPages > 1 && (
-          <div
-            style={{
-              marginTop: "20px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            {hasPrev ? (
-              <Link
-                href={pageUrl(offset - LIMIT)}
-                style={{
-                  padding: "7px 18px",
-                  border: "2px solid #111112",
-                  boxShadow: "3px 3px 0 #111112",
-                  background: "white",
-                  color: "#111112",
-                  fontFamily: monoFont,
-                  fontSize: "10px",
-                  fontWeight: 800,
-                  letterSpacing: "1px",
-                  textTransform: "uppercase",
-                  textDecoration: "none",
-                  transform: "skewX(-8deg)",
-                  display: "inline-block",
-                }}
-              >
-                ← Prev
-              </Link>
-            ) : (
-              <span style={{ width: 80 }} />
-            )}
-            <span
-              style={{
-                fontFamily: monoFont,
-                fontSize: "10px",
-                fontWeight: 700,
-                color: "var(--text-dim)",
-                letterSpacing: "1px",
-                border: "1.5px solid var(--border)",
-                padding: "5px 14px",
-                transform: "skewX(-6deg)",
-                display: "inline-block",
-              }}
-            >
-              {currentPage} / {totalPages}
-            </span>
-            {hasNext ? (
-              <Link
-                href={pageUrl(offset + LIMIT)}
-                style={{
-                  padding: "7px 18px",
-                  border: "2px solid #111112",
-                  boxShadow: "3px 3px 0 #111112",
-                  background: "var(--purple)",
-                  color: "white",
-                  fontFamily: monoFont,
-                  fontSize: "10px",
-                  fontWeight: 800,
-                  letterSpacing: "1px",
-                  textTransform: "uppercase",
-                  textDecoration: "none",
-                  transform: "skewX(-8deg)",
-                  display: "inline-block",
-                }}
-              >
-                Next →
-              </Link>
-            ) : (
-              <span style={{ width: 80 }} />
-            )}
-          </div>
-        )}
+        <MarketResultsMeta
+          part="pagination"
+          serverTotal={total}
+          offset={offset}
+          limit={LIMIT}
+          clientIndexActive={!specFiltersActive}
+          category={category}
+          source={source}
+          sort={sort}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          q={q}
+          specParams={specParams}
+          failed={failed}
+        />
       </div>
     </>
   );

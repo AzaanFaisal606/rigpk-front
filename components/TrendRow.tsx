@@ -1,7 +1,7 @@
 "use client";
 
 import { Cpu, MemoryStick, MonitorPlay } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { TrendGroup, TrendCategory } from "@/lib/trends-api";
 import TrendSparkline from "@/components/TrendSparkline";
 
@@ -12,7 +12,7 @@ const CAT_ICON: Record<TrendCategory, React.ElementType> = {
 };
 
 function fmt(p: number): string {
-  return "Rs " + p.toLocaleString("en-PK");
+  return "Rs " + p.toLocaleString("en-PK");
 }
 
 // "DDR5-6000-32GB" -> "DDR5 6000 · 32GB" for nicer display
@@ -31,131 +31,94 @@ export default function TrendRow({
 }) {
   const Icon = CAT_ICON[category];
   const [hovered, setHovered] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
+  // Sizing lives in CSS media queries (.trend-*) rather than an isMobile
+  // hook — the row must render identically on the server, and every column
+  // stays mounted at all widths now that the row scrolls horizontally.
+  const bg = hovered ? "var(--purple-pale)" : "var(--bg-card)";
 
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="flex items-center px-4 py-3"
       style={{
-        gap: isMobile ? "10px" : "16px",
         borderBottom: "1px solid #111112",
         borderLeft: hovered ? "4px solid var(--purple)" : "4px solid transparent",
-        background: hovered ? "var(--purple-pale)" : "var(--bg-card)",
+        background: bg,
         transition: "background 0.1s, border-left-color 0.1s",
       }}
     >
-      {/* Thumbnail */}
-      <div
-        className="flex-shrink-0 flex items-center justify-center overflow-hidden"
-        style={{
-          width: isMobile ? "40px" : "52px",
-          height: isMobile ? "40px" : "52px",
-          background: "var(--bg-section)",
-          border: "1.5px solid #111112",
-        }}
-      >
-        {group.thumbnail_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={group.thumbnail_url}
-            alt={group.group_key}
-            width={isMobile ? 40 : 52}
-            height={isMobile ? 40 : 52}
-            className="object-contain"
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <Icon size={isMobile ? 18 : 22} style={{ color: "var(--text-dim)" }} />
-        )}
-      </div>
-
-      {/* Name + listings */}
-      <div className="flex-1 min-w-0">
-        <p
-          className="font-bold truncate"
-          style={{
-            fontSize: isMobile ? "0.8rem" : "0.9rem",
-            color: hovered ? "var(--purple)" : "var(--text)",
-            transition: "color 0.1s",
-          }}
-        >
-          {displayName(group.group_key, category)}
-        </p>
-        <span
-          className="mono inline-block mt-1 px-1.5 py-px"
-          style={{
-            fontSize: "0.55rem",
-            fontWeight: 800,
-            color: "var(--text-muted)",
-            border: "1px solid color-mix(in srgb, #111112 30%, transparent)",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {group.sample_count} LISTINGS
-        </span>
-      </div>
-
-      {/* Center (average) */}
-      <div className="flex-shrink-0 text-right" style={{ width: isMobile ? "auto" : "110px" }}>
-        <div
-          className="mono"
-          style={{ fontSize: "0.5rem", fontWeight: 800, color: "var(--text-dim)", letterSpacing: "1px" }}
-        >
-          AVG
-        </div>
-        <div
-          className="mono"
-          style={{
-            fontSize: isMobile ? "0.82rem" : "0.95rem",
-            fontWeight: 900,
-            whiteSpace: "nowrap",
-            color: "#111112",
-          }}
-        >
-          {fmt(group.latest_price)}
-        </div>
-      </div>
-
-      {/* Max–Min range */}
-      {!isMobile && (
-        <div className="flex-shrink-0 text-right" style={{ width: "120px" }}>
-          <div
-            className="mono"
-            style={{ fontSize: "0.5rem", fontWeight: 800, color: "var(--text-dim)", letterSpacing: "1px" }}
-          >
-            RANGE
+      {/* Each row is its own scrollport, so rows scroll independently. */}
+      <div className="trend-row-scroll">
+        <div className="trend-row-track">
+          {/* Thumbnail — pinned left so the row stays identifiable while
+              the numbers and chart scroll past it. */}
+          <div className="trend-row-pin" style={{ background: bg }}>
+            <div className="trend-thumb flex items-center justify-center overflow-hidden">
+              {group.thumbnail_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={group.thumbnail_url}
+                  alt={group.group_key}
+                  className="object-contain"
+                  style={{ maxWidth: "100%", maxHeight: "100%" }}
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <Icon size={20} style={{ color: "var(--text-dim)" }} />
+              )}
+            </div>
           </div>
-          <div
-            className="mono"
-            style={{ fontSize: "0.62rem", fontWeight: 700, color: "var(--text-muted)", whiteSpace: "nowrap" }}
-          >
-            {fmt(group.min_price)}
+
+          {/* Name + listings */}
+          <div className="trend-name">
+            <p
+              className="font-bold truncate"
+              style={{
+                color: hovered ? "var(--purple)" : "var(--text)",
+                transition: "color 0.1s",
+              }}
+            >
+              {displayName(group.group_key, category)}
+            </p>
+            <span
+              className="mono inline-block mt-1 px-1.5 py-px"
+              style={{
+                fontSize: "0.55rem",
+                fontWeight: 800,
+                color: "var(--text-muted)",
+                border: "1px solid color-mix(in srgb, #111112 30%, transparent)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {group.sample_count} LISTINGS
+            </span>
           </div>
-          <div
-            className="mono"
-            style={{ fontSize: "0.62rem", fontWeight: 700, color: "var(--text-muted)", whiteSpace: "nowrap" }}
-          >
-            {fmt(group.max_price)}
+
+          {/* Center (average) */}
+          <div className="trend-avg text-right">
+            <div className="trend-col-label mono">AVG</div>
+            <div
+              className="mono trend-avg-value"
+              style={{ fontWeight: 900, whiteSpace: "nowrap", color: "#111112" }}
+            >
+              {fmt(group.latest_price)}
+            </div>
+          </div>
+
+          {/* Max–Min range */}
+          <div className="trend-range text-right">
+            <div className="trend-col-label mono">RANGE</div>
+            <div className="mono trend-range-value">{fmt(group.min_price)}</div>
+            <div className="mono trend-range-value">{fmt(group.max_price)}</div>
+          </div>
+
+          {/* Chart */}
+          <div className="flex-shrink-0">
+            <TrendSparkline series={group.series} />
           </div>
         </div>
-      )}
-
-      {/* Chart */}
-      {!isMobile && (
-        <div className="flex-shrink-0">
-          <TrendSparkline series={group.series} />
-        </div>
-      )}
+      </div>
     </div>
   );
 }

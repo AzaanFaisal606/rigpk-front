@@ -1,4 +1,5 @@
 import type { SlotKey } from "@/lib/types";
+import type { SearchIndexPayload } from "@/lib/search-index";
 export type { SlotKey };
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -76,10 +77,9 @@ export interface Part {
   specs: PartSpecs | null;
 }
 
-export interface PartsResult {
-  items: Part[];
-  total: number;
-}
+export type PartsResult =
+  | { ok: true; items: Part[]; total: number }
+  | { ok: false; error: "network" | "http"; status?: number };
 
 export interface PartsParams {
   category?: string;
@@ -120,13 +120,44 @@ export async function getParts(params: PartsParams = {}): Promise<PartsResult> {
     }
   }
   try {
-    const res = await fetch(`${API_BASE}/api/parts?${query}`, {
-      next: { revalidate: 30 },
-    });
-    if (!res.ok) return { items: [], total: 0 };
+    // A search result must never be cached. One backend hiccup used to pin an
+    // empty result to a query string for 30s, so retyping the same query kept
+    // returning nothing — the "sometimes works, sometimes doesn't" report.
+    const res = await fetch(
+      `${API_BASE}/api/parts?${query}`,
+      params.q ? { cache: "no-store" } : { next: { revalidate: 30 } },
+    );
+    if (!res.ok) return { ok: false, error: "http", status: res.status };
+    const data = await res.json();
+    return { ok: true, items: data.items, total: data.total };
+  } catch {
+    return { ok: false, error: "network" };
+  }
+}
+
+export async function getSearchIndex(
+  category: string,
+): Promise<SearchIndexPayload | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/search-index?category=${category}`);
+    if (!res.ok) return null;
     return res.json();
   } catch {
-    return { items: [], total: 0 };
+    return null;
+  }
+}
+
+export async function getPartsByIds(ids: number[]): Promise<PartsResult> {
+  if (ids.length === 0) return { ok: true, items: [], total: 0 };
+  try {
+    const res = await fetch(`${API_BASE}/api/parts?ids=${ids.join(",")}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return { ok: false, error: "http", status: res.status };
+    const data = await res.json();
+    return { ok: true, items: data.items, total: data.total };
+  } catch {
+    return { ok: false, error: "network" };
   }
 }
 

@@ -16,9 +16,9 @@ export default function Navbar() {
         borderBottom: "2px solid #111112",
       }}
     >
-      <div className="navbar-inner max-w-6xl mx-auto px-6 flex items-center justify-between" style={{ height: "52px" }}>
+      <div className="navbar-inner max-w-6xl mx-auto px-6 flex items-center" style={{ height: "52px" }}>
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 no-underline">
+        <Link href="/" className="flex items-center gap-2.5 no-underline flex-shrink-0">
           <div
             className="flex items-center justify-center w-7 h-7"
             style={{
@@ -44,8 +44,9 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Nav */}
-        <nav className="flex items-center gap-2">
+        {/* Nav — own scroll strip so it never rides over the logo when it
+            outgrows the viewport (4 buttons don't fit at 390px). */}
+        <nav className="navbar-nav flex items-center gap-2 min-w-0 ml-auto">
           <NavButton href="/market" active={pathname === "/market"}>Market</NavButton>
           <NavButton href="/build" active={pathname === "/build"}>Build PC</NavButton>
           <NavButton href="/trends" active={pathname.startsWith("/trends")}>Trends</NavButton>

@@ -11,6 +11,43 @@ interface PriceRangeFilterProps {
   onClear: () => void;
 }
 
+/**
+ * Local-state + debounce for one price field.
+ *
+ * These inputs used to be controlled straight from the URL with no debounce, so
+ * typing "150000" fired six full navigations and each character only appeared
+ * once its own navigation resolved — fast typing dropped characters and jumped
+ * the caret. The committed value is now local; the URL is written 400 ms after
+ * typing stops.
+ *
+ * `committed` is deliberately absent from the debounce dependencies: it is
+ * URL-derived, so including it would let each arriving response re-arm the
+ * timer and re-fire a navigation the client already issued.
+ */
+function useDebouncedField(committed: string, commit: (v: string) => void) {
+  const [value, setValue] = useState(committed);
+  const lastCommitted = useRef(committed);
+  const commitRef = useRef(commit);
+  useEffect(() => { commitRef.current = commit; }, [commit]);
+
+  useEffect(() => {
+    if (committed === lastCommitted.current) return;
+    lastCommitted.current = committed;
+    setValue(committed);
+  }, [committed]);
+
+  useEffect(() => {
+    if (value === lastCommitted.current) return;
+    const t = setTimeout(() => {
+      lastCommitted.current = value;
+      commitRef.current(value);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [value]);
+
+  return [value, setValue] as const;
+}
+
 export function PriceRangeFilter({
   minPrice,
   maxPrice,
@@ -21,6 +58,9 @@ export function PriceRangeFilter({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const isActive = !!minPrice || !!maxPrice;
+
+  const [minValue, setMinValue] = useDebouncedField(minPrice, onMin);
+  const [maxValue, setMaxValue] = useDebouncedField(maxPrice, onMax);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -78,8 +118,8 @@ export function PriceRangeFilter({
             <input
               type="number"
               placeholder="0"
-              value={minPrice}
-              onChange={e => onMin(e.target.value)}
+              value={minValue}
+              onChange={e => setMinValue(e.target.value)}
               style={{
                 width: "100%",
                 padding: "6px 8px",
@@ -97,8 +137,8 @@ export function PriceRangeFilter({
             <input
               type="number"
               placeholder="Any"
-              value={maxPrice}
-              onChange={e => onMax(e.target.value)}
+              value={maxValue}
+              onChange={e => setMaxValue(e.target.value)}
               style={{
                 width: "100%",
                 padding: "6px 8px",

@@ -34,9 +34,13 @@ export interface PrebuiltsParams {
   offset?: number;
 }
 
+export type PrebuiltsResult =
+  | { ok: true; items: Prebuilt[]; total: number }
+  | { ok: false; error: "network" | "http"; status?: number };
+
 export async function getPrebuilts(
   params: PrebuiltsParams = {}
-): Promise<{ items: Prebuilt[]; total: number }> {
+): Promise<PrebuiltsResult> {
   const qs = new URLSearchParams();
   if (params.source)                qs.set("source", params.source);
   if (params.min_price != null)     qs.set("min_price", String(params.min_price));
@@ -52,10 +56,11 @@ export async function getPrebuilts(
     const res = await fetch(`${API_BASE}/api/prebuilts?${qs}`, {
       next: { revalidate: 30 },
     });
-    if (!res.ok) return { items: [], total: 0 };
-    return res.json();
+    if (!res.ok) return { ok: false, error: "http", status: res.status };
+    const data = await res.json();
+    return { ok: true, items: data.items, total: data.total };
   } catch {
-    return { items: [], total: 0 };
+    return { ok: false, error: "network" };
   }
 }
 

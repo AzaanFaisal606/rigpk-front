@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import type { FilterOptions } from "@/lib/api";
 import { getFilterOptions } from "@/lib/api";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
@@ -10,6 +10,7 @@ import { PriceRangeFilter } from "@/components/ui/PriceRangeFilter";
 import { monoFont } from "@/lib/tokens";
 import { CATEGORIES, SOURCES, SPEC_LABELS } from "@/lib/constants";
 import { useScrollHide } from "@/lib/hooks/useScrollHide";
+import { publishSearch, subscribeIndexReady } from "@/lib/search-bus";
 
 // Bucketing: group raw spec values into labelled options
 // Returns { label, values[] } where values are the raw strings that match
@@ -78,7 +79,9 @@ function bucketValues(key: string, rawValues: string[]): Bucket[] | null {
   return null;
 }
 
-export default function FilterBar({ total, activeCategory }: { total: number; activeCategory?: string }) {
+export default function FilterBar({
+  total, activeCategory, clientIndexActive = false,
+}: { total: number; activeCategory?: string; clientIndexActive?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -93,17 +96,26 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchInput, setSearchInput] = useState(q);
-  const barHidden = useScrollHide();
-  const didMount = useRef(false);
+  // isPending stays true for the whole RSC round trip, so the bar can show the
+  // query is still resolving instead of silently holding stale results.
+  const [isPending, startTransition] = useTransition();
+  const barHidden = useScrollHide(80, searchFocused);
+
+  // Mirrors MarketSearchResults' index-load state off the shared bus. Until
+  // this is true, the client index either hasn't loaded or failed to load —
+  // either way there's nothing listening on the other end of publishSearch,
+  // so the debounce effect below must keep server-navigating regardless of
+  // clientIndexActive.
+  const [indexReady, setIndexReadyState] = useState(false);
+  useEffect(() => subscribeIndexReady(setIndexReadyState), []);
+  const clientPathActive = clientIndexActive && indexReady;
 
   const push = useCallback(
     (key: string, value: string) => {
       if (key === "category") {
-        if (value) {
-          router.push(`/market/${value}`);
-        } else {
-          router.push("/market");
-        }
+        startTransition(() => {
+          router.push(value ? `/market/${value}` : "/market");
+        });
         return;
       }
       const next = new URLSearchParams(params.toString());
@@ -113,7 +125,11 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
         next.delete(key);
       }
       next.delete("offset");
-      router.push(`${pathname}?${next.toString()}`);
+      startTransition(() => {
+        // replace, not push: a filter tweak is a refinement of the current
+        // view, not a place in history worth stepping back through.
+        router.replace(`${pathname}?${next.toString()}`);
+      });
     },
     [params, router, pathname]
   );
@@ -125,6 +141,16 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
     }
     getFilterOptions(category).then(setFilterOptions);
   }, [category]);
+
+  // Flag the document while a filter navigation is in flight. The results list
+  // is a server component rendered as a sibling, so it can't receive isPending
+  // as a prop; globals.css dims it off this attribute.
+  useEffect(() => {
+    const el = document.documentElement;
+    if (isPending) el.dataset.filtering = "1";
+    else delete el.dataset.filtering;
+    return () => { delete el.dataset.filtering; };
+  }, [isPending]);
 
   // Track last value we pushed to URL so we can distinguish "URL changed externally"
   // from "URL just caught up to our own push". Without this, external sync clobbers
@@ -143,16 +169,36 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
   const pushRef = useRef(push);
   useEffect(() => { pushRef.current = push; }, [push]);
 
-  // Debounce search: only push when input diverges from URL `q`
+  // Debounce search.
+  //
+  // `q` must NOT be a dependency here. It is derived from the URL, so every
+  // arriving response used to re-run this effect, clear the pending timer and
+  // re-arm a fresh one — typing "5060 ti" fired a navigation for "5060", whose
+  // response restarted the clock and issued a second one, so the list visibly
+  // flipped back to the earlier query's results. Comparing against a ref keeps
+  // the timer owned solely by keystrokes. Still load-bearing for the fallback
+  // path below.
   useEffect(() => {
-    if (!didMount.current) { didMount.current = true; return; }
-    if (searchInput === q) return;
+    if (searchInput === lastPushedQ.current) return;
     const t = setTimeout(() => {
       lastPushedQ.current = searchInput;
-      pushRef.current("q", searchInput);
-    }, 350);
+
+      if (clientPathActive) {
+        // No network cost per keystroke, so the debounce exists only to avoid
+        // re-rendering the list on every character. Update the address bar
+        // without an RSC round trip so links stay shareable.
+        const next = new URLSearchParams(params.toString());
+        if (searchInput) next.set("q", searchInput);
+        else next.delete("q");
+        next.delete("offset");
+        window.history.replaceState(null, "", `${pathname}?${next.toString()}`);
+        publishSearch({ q: searchInput });
+      } else {
+        pushRef.current("q", searchInput);
+      }
+    }, clientPathActive ? 60 : 300);
     return () => clearTimeout(t);
-  }, [searchInput, q]);
+  }, [searchInput, clientPathActive, params, pathname]);
 
   const specEntries = Object.entries(filterOptions).filter(
     ([, values]) => values && values.length > 0
@@ -238,28 +284,70 @@ export default function FilterBar({ total, activeCategory }: { total: number; ac
           </span>
 
           {/* Search */}
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchInput}
-            onChange={e => setSearchInput(e.target.value)}
-            onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
+          <div
             style={{
+              position: "relative",
               flex: "1 1 140px",
               minWidth: "120px",
               maxWidth: "220px",
-              padding: "6px 10px",
-              border: searchFocused ? "2px solid var(--purple)" : "2px solid #111112",
-              background: "white",
-              outline: "none",
-              boxShadow: searchFocused ? "2px 2px 0 var(--purple)" : "2px 2px 0 #111112",
-              fontFamily: monoFont,
-              fontSize: "11px",
-              color: "var(--text)",
-              transition: "border-color 0.1s, box-shadow 0.1s",
+              display: "flex",
+              alignItems: "center",
             }}
-          />
+          >
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              enterKeyHint="search"
+              style={{
+                width: "100%",
+                padding: "6px 26px 6px 10px",
+                border: searchFocused ? "2px solid var(--purple)" : "2px solid #111112",
+                background: "white",
+                outline: "none",
+                boxShadow: searchFocused ? "2px 2px 0 var(--purple)" : "2px 2px 0 #111112",
+                fontFamily: monoFont,
+                fontSize: "11px",
+                color: "var(--text)",
+                transition: "border-color 0.1s, box-shadow 0.1s",
+              }}
+            />
+            {searchInput && !isPending && (
+              <button
+                aria-label="Clear search"
+                onClick={() => setSearchInput("")}
+                style={{
+                  position: "absolute",
+                  right: "8px",
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  lineHeight: 1,
+                  cursor: "pointer",
+                  fontFamily: monoFont,
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  color: "var(--text-muted)",
+                }}
+              >
+                ✕
+              </button>
+            )}
+            {isPending && (
+              <span
+                aria-hidden
+                className="filter-pending-dot"
+                style={{ position: "absolute", right: "9px" }}
+              />
+            )}
+          </div>
 
           {/* Category */}
           <ComicDropdown
