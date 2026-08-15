@@ -240,7 +240,7 @@ export function ComicDropdown({
               width: "100%",
               padding: "6px 12px 6px 18px",
               textAlign: "left",
-              background: active === opt.value ? "#f0ebff" : "white",
+              background: active === opt.value ? "var(--purple-pale)" : "white",
               border: "none",
               borderBottom: "1px solid #e4e4e7",
               outline: i === activeIndex ? "2px solid var(--purple)" : "none",

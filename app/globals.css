@@ -22,8 +22,18 @@
   /* Text */
   --text:         #111112;
   --text-2:       #3f3f46;
-  --text-muted:   #71717a;
-  --text-dim:     #a1a1aa;
+  /* Both greys clear WCAG AA (4.5:1) against BOTH --bg (#f4f4f5) and
+     --bg-card (#f8f8f9) — --text-dim is used at 8px in places, so the old
+     #a1a1aa (2.33:1) was unreadable.
+
+     --text-dim is the lightest value that still passes: 4.53 / 4.69.
+     That left no room above it, so --text-muted had to move DOWN to keep
+     the hierarchy from collapsing — at its old #71717a it was both lighter
+     than dim (inverting the two roles) and itself failing on --bg at 4.40.
+     At #5a5a61 it reads 6.22 / 6.45: clearly darker than dim, clearly
+     lighter than --text (#111112). */
+  --text-muted:   #5a5a61;
+  --text-dim:     #6f6f78;
 
   /* Mono accent — JetBrains Mono loaded via next/font in app/layout.tsx */
   --mono: var(--font-jetbrains-mono), "JetBrains Mono", "Fira Code", monospace;

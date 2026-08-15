@@ -52,7 +52,7 @@ function DiagLines() {
   for (let i = 0; i < 40; i++) {
     const x = (i * 63) % 1400;
     const len = 40 + ((i * 37) % 120);
-    const col = i % 3 === 0 ? "#c4b5fd" : i % 3 === 1 ? "#e4e4e7" : "#ddd6fe";
+    const col = i % 3 === 0 ? "var(--purple-pale)" : i % 3 === 1 ? "#e4e4e7" : "var(--purple-pale)";
     const thick = i % 5 === 0 ? 2.5 : 1.5;
     lines.push(
       <line key={i} x1={x} y1={-20} x2={x - len} y2={len + 20}

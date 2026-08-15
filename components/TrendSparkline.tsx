@@ -144,7 +144,7 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
             pointerEvents: "none",
           }}
         >
-          <div style={{ fontWeight: 800, letterSpacing: "0.5px", color: "var(--purple-pale, #ede9fe)" }}>
+          <div style={{ fontWeight: 800, letterSpacing: "0.5px", color: "var(--purple-pale, #f9e1ed)" }}>
             {shortDate(active.scrape_date)}
           </div>
           <div style={{ fontWeight: 800 }}>{fmt(active.center_price)}</div>

@@ -257,7 +257,7 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
                           style={{
                             padding: "4px 12px",
                             border: active ? "1.5px solid var(--purple)" : "1.5px solid var(--border)",
-                            background: active ? "#f0ebff" : "white",
+                            background: active ? "var(--purple-pale)" : "white",
                             boxShadow: active ? "2px 2px 0 var(--purple)" : "none",
                             transform: "skewX(-8deg)",
                             fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px",
@@ -296,7 +296,7 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
                       display: "flex", alignItems: "center", gap: "14px",
                       padding: "14px 22px",
                       borderBottom: "1px solid var(--border)",
-                      background: isCurrent ? "#f0ebff" : "transparent",
+                      background: isCurrent ? "var(--purple-pale)" : "transparent",
                       borderLeft: isCurrent ? "3px solid var(--purple)" : "3px solid transparent",
                       cursor: "pointer",
                       transition: "background 0.1s",
@@ -305,7 +305,7 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
                       if (!isCurrent) (e.currentTarget as HTMLDivElement).style.background = "var(--purple-pale)";
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLDivElement).style.background = isCurrent ? "#f0ebff" : "transparent";
+                      (e.currentTarget as HTMLDivElement).style.background = isCurrent ? "var(--purple-pale)" : "transparent";
                     }}
                   >
                     {/* Thumbnail */}
