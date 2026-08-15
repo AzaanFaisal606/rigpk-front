@@ -114,6 +114,13 @@ body {
   .comic-btn, .filter-chip, .sort-chip {
     min-height: 44px;
   }
+  /* The quantity stepper is the one square control narrow enough to miss the
+     target on width as well as height — every other .comic-btn carries a text
+     label and is already wider than 44px. Scoped so widening it can't reflow
+     the filter bar. */
+  .qty-step {
+    min-width: 44px;
+  }
 }
 
 /* ── Mono label ──────────────────────────────────────────── */

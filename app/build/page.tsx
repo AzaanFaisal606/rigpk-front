@@ -45,23 +45,46 @@ function BuildPage() {
   const [build, setBuild] = useState<BuildState>(EMPTY_BUILD);
   const [activeSlot, setActiveSlot] = useState<SlotKey | null>(null);
 
+  // Depends on the actual "share" value (not just searchParams identity) so
+  // that an in-app client-side navigation to a NEW /build?share=CODE — which
+  // reuses this already-mounted component rather than remounting it — still
+  // re-runs the resolve. The old `[]` dependency array only ever fired once,
+  // on the page's first mount (H15).
+  const shareCode = searchParams.get("share");
   useEffect(() => {
-    const code = searchParams.get("share");
-    if (!code) return;
-    getSharedBuild(code).then((result) => {
+    if (!shareCode) return;
+    getSharedBuild(shareCode).then((result) => {
       if (!result.ok) return;
-      setBuild((prev) => ({ ...prev, ...result.data }));
+      setBuild((prev) => {
+        const next = { ...prev };
+        for (const [slot, sharedPart] of Object.entries(result.data)) {
+          if (!sharedPart) continue;
+          next[slot as SlotKey] = { part: sharedPart, qty: sharedPart.qty ?? 1 };
+        }
+        return next;
+      });
     });
-  }, []);
+  }, [shareCode]);
 
   function selectPart(part: Part) {
     if (!activeSlot) return;
-    setBuild((prev) => ({ ...prev, [activeSlot]: part }));
+    setBuild((prev) => ({
+      ...prev,
+      [activeSlot]: { part, qty: prev[activeSlot]?.qty ?? 1 },
+    }));
     setActiveSlot(null);
   }
 
   function removePart(slot: SlotKey) {
     setBuild((prev) => ({ ...prev, [slot]: null }));
+  }
+
+  function setQty(slot: SlotKey, qty: number) {
+    setBuild((prev) => {
+      const entry = prev[slot];
+      if (!entry) return prev;
+      return { ...prev, [slot]: { ...entry, qty } };
+    });
   }
 
   const issues = checkCompatibility(build);
@@ -92,7 +115,7 @@ function BuildPage() {
               <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
                 Click any slot to browse and select parts from the marketplace.
               </p>
-              <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} />
+              <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} onQtyChange={setQty} />
               <CompatibilityBanner issues={issues} />
             </div>
           </section>
@@ -110,7 +133,7 @@ function BuildPage() {
       {activeSlot && (
         <PartPickerModal
           slot={activeSlot}
-          currentPart={build[activeSlot]}
+          currentPart={build[activeSlot]?.part ?? null}
           onSelect={selectPart}
           onClose={() => setActiveSlot(null)}
         />

@@ -179,8 +179,13 @@ export async function getFilterOptions(category: string): Promise<FilterOptions>
   }
 }
 
+export interface ShareSlotValue {
+  id: number;
+  qty: number;
+}
+
 export async function shareBuild(
-  build: Partial<Record<SlotKey, number>>
+  build: Partial<Record<SlotKey, ShareSlotValue>>
 ): Promise<{ code: string } | null> {
   try {
     const res = await fetch(`${API_BASE}/api/builds/share`, {
@@ -195,8 +200,18 @@ export async function shareBuild(
   }
 }
 
+/** A part as returned inside a resolved shared build: the usual Part fields
+ * plus quantity and delisting/price-snapshot metadata the share endpoint
+ * adds. `price_at_share` is null for codes shared before snapshots existed. */
+export interface SharedPart extends Part {
+  qty: number;
+  price_at_share: number | null;
+  is_active: boolean;
+  delisted_at: string | null;
+}
+
 export type SharedBuildResult =
-  | { ok: true; data: Partial<Record<SlotKey, Part>> }
+  | { ok: true; data: Partial<Record<SlotKey, SharedPart>> }
   | { ok: false; error: "network" | "http"; status?: number };
 
 export async function getSharedBuild(

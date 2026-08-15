@@ -198,7 +198,7 @@ function CalloutLines({ build }: { build: BuildState }) {
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
     >
       {SLOT_ANCHORS.map(({ slot, side, caseX, caseY, railY }) => {
-        const selected = build[slot] !== null;
+        const selected = build[slot] != null;
         const color = selected ? PURPLE : INK;
         const strokeWidth = selected ? 2 : 1.5;
         const strokeDasharray = selected ? "none" : "4 3";
@@ -236,8 +236,9 @@ function LabelCard({
   onSlotClick: (slot: SlotKey) => void;
 }) {
   const { slot, side, railY } = anchor;
-  const part = build[slot];
-  const selected = part !== null;
+  const entry = build[slot];
+  const part = entry?.part ?? null;
+  const selected = entry != null;
   const color = selected ? PURPLE : INK;
 
   const topPct = (railY / 540) * 100;
