@@ -7,7 +7,7 @@ import PartRow from "@/components/PartRow";
 import { getParts } from "@/lib/api";
 import { str } from "@/lib/utils";
 import { monoFont } from "@/lib/tokens";
-import { SPEC_KEYS } from "@/lib/constants";
+import { buildPageUrl, DEFAULT_SORT, SPEC_KEYS } from "@/lib/constants";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
@@ -29,7 +29,7 @@ async function PartsList({
 }) {
   const category = str(searchParams.category);
   const source   = str(searchParams.source);
-  const sort     = (str(searchParams.sort) as "price_asc" | "price_desc") ?? "price_asc";
+  const sort     = (str(searchParams.sort) as "price_asc" | "price_desc") ?? DEFAULT_SORT;
   const minPrice = str(searchParams.min_price);
   const maxPrice = str(searchParams.max_price);
   const offset   = Number(str(searchParams.offset) ?? "0");
@@ -62,17 +62,17 @@ async function PartsList({
 
   // Build a URL with updated offset, preserving all other params
   function pageUrl(newOffset: number) {
-    const p = new URLSearchParams();
-    if (category) p.set("category", category);
-    if (source) p.set("source", source);
-    if (sort !== "price_asc") p.set("sort", sort);
-    if (minPrice) p.set("min_price", minPrice);
-    if (maxPrice) p.set("max_price", maxPrice);
-    if (q) p.set("q", q);
-    for (const [k, v] of Object.entries(specParams)) p.set(k, v);
-    if (newOffset > 0) p.set("offset", String(newOffset));
-    const qs = p.toString();
-    return `/market${qs ? "?" + qs : ""}`;
+    return buildPageUrl({
+      basePath: "/market",
+      category,
+      source,
+      sort,
+      min_price: minPrice,
+      max_price: maxPrice,
+      q,
+      ...specParams,
+      offset: newOffset,
+    });
   }
 
   const hasPrev = offset > 0;

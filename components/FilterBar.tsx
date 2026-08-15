@@ -8,7 +8,7 @@ import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import type { DropdownOption } from "@/components/ui/ComicDropdown";
 import { PriceRangeFilter } from "@/components/ui/PriceRangeFilter";
 import { monoFont } from "@/lib/tokens";
-import { CATEGORIES, SOURCES, SPEC_LABELS } from "@/lib/constants";
+import { CATEGORIES, DEFAULT_SORT, SOURCES, SPEC_LABELS } from "@/lib/constants";
 import { useScrollHide } from "@/lib/hooks/useScrollHide";
 import { publishSearch, subscribeIndexReady } from "@/lib/search-bus";
 
@@ -88,7 +88,7 @@ export default function FilterBar({
 
   const category = activeCategory ?? params.get("category") ?? "";
   const source   = params.get("source")   ?? "";
-  const sort     = params.get("sort")     ?? "price_asc";
+  const sort     = params.get("sort")     ?? DEFAULT_SORT;
   const minPrice = params.get("min_price") ?? "";
   const maxPrice = params.get("max_price") ?? "";
   const q        = params.get("q")        ?? "";
@@ -391,11 +391,11 @@ export default function FilterBar({
           {/* Sort — pushed to far right */}
           <div style={{ marginLeft: "auto" }}>
             <ComicDropdown
-              label={sort === "price_asc" ? "Price ↑" : "Price ↓"}
-              active={sort}
+              label="Sort"
+              active={sort === DEFAULT_SORT ? "" : sort}
               options={sortOptions}
               onSelect={v => push("sort", v)}
-              onClear={() => push("sort", "price_asc")}
+              onClear={() => push("sort", DEFAULT_SORT)}
             />
           </div>
         </div>

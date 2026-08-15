@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { monoFont } from "@/lib/tokens";
+import { buildPageUrl } from "@/lib/constants";
 import { subscribeIndexReady, subscribeSearch, subscribeTotal } from "@/lib/search-bus";
 
 interface Props {
@@ -85,16 +86,16 @@ export default function MarketResultsMeta({
   if (failed || totalPages <= 1) return null;
 
   function pageUrl(newOffset: number) {
-    const p = new URLSearchParams();
-    if (source) p.set("source", source);
-    if (sort !== "price_asc") p.set("sort", sort);
-    if (minPrice) p.set("min_price", minPrice);
-    if (maxPrice) p.set("max_price", maxPrice);
-    if (effectiveQ) p.set("q", effectiveQ);
-    for (const [k, v] of Object.entries(specParams)) p.set(k, v);
-    if (newOffset > 0) p.set("offset", String(newOffset));
-    const qs = p.toString();
-    return `/market/${category}${qs ? "?" + qs : ""}`;
+    return buildPageUrl({
+      basePath: `/market/${category}`,
+      source,
+      sort,
+      min_price: minPrice,
+      max_price: maxPrice,
+      q: effectiveQ,
+      ...specParams,
+      offset: newOffset,
+    });
   }
 
   return (

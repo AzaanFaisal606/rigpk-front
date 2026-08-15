@@ -7,6 +7,7 @@ import PrebuiltFilterBar from "@/components/PrebuiltFilterBar";
 import { getPrebuilts } from "@/lib/prebuilts-api";
 import { str } from "@/lib/utils";
 import { monoFont } from "@/lib/tokens";
+import { buildPageUrl, DEFAULT_SORT } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Pre-Built PCs — RigPK",
@@ -27,7 +28,7 @@ async function PrebuiltGrid({
   const source    = str(searchParams.source);
   const cpuBrand  = str(searchParams.cpu_brand);
   const gpuBrand  = str(searchParams.gpu_brand);
-  const sort      = (str(searchParams.sort) as "price_asc" | "price_desc") ?? "price_asc";
+  const sort      = (str(searchParams.sort) as "price_asc" | "price_desc") ?? DEFAULT_SORT;
   const minPrice  = str(searchParams.min_price);
   const maxPrice  = str(searchParams.max_price);
   const q         = str(searchParams.q);
@@ -48,19 +49,18 @@ async function PrebuiltGrid({
   const items  = result.ok ? result.items : [];
   const total  = result.ok ? result.total : 0;
 
-  const buildPageUrl = (newOffset: number) => {
-    const p = new URLSearchParams();
-    if (source)                p.set("source", source);
-    if (cpuBrand)              p.set("cpu_brand", cpuBrand);
-    if (gpuBrand)              p.set("gpu_brand", gpuBrand);
-    if (sort !== "price_asc")  p.set("sort", sort);
-    if (minPrice)              p.set("min_price", minPrice);
-    if (maxPrice)              p.set("max_price", maxPrice);
-    if (q)                     p.set("q", q);
-    if (newOffset > 0)         p.set("offset", String(newOffset));
-    const qs = p.toString();
-    return `/prebuilts${qs ? `?${qs}` : ""}`;
-  };
+  const pageUrl = (newOffset: number) =>
+    buildPageUrl({
+      basePath: "/prebuilts",
+      source,
+      cpu_brand: cpuBrand,
+      gpu_brand: gpuBrand,
+      sort,
+      min_price: minPrice,
+      max_price: maxPrice,
+      q,
+      offset: newOffset,
+    });
 
   const hasPrev = offset > 0;
   const hasNext = offset + LIMIT < total;
@@ -91,7 +91,7 @@ async function PrebuiltGrid({
       {!failed && (hasPrev || hasNext) && (
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "32px" }}>
           <Link
-            href={hasPrev ? buildPageUrl(offset - LIMIT) : "#"}
+            href={hasPrev ? pageUrl(offset - LIMIT) : "#"}
             style={{
               padding: "8px 18px",
               border: "2px solid #111112",
@@ -129,7 +129,7 @@ async function PrebuiltGrid({
           </span>
 
           <Link
-            href={hasNext ? buildPageUrl(offset + LIMIT) : "#"}
+            href={hasNext ? pageUrl(offset + LIMIT) : "#"}
             style={{
               padding: "8px 18px",
               border: "2px solid #111112",

@@ -6,6 +6,7 @@ import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import { ToggleChip } from "@/components/ui/ToggleChip";
 import { monoFont } from "@/lib/tokens";
 import { useScrollHide } from "@/lib/hooks/useScrollHide";
+import { DEFAULT_SORT } from "@/lib/constants";
 
 const SOURCES = ["zestrogaming.com", "redtech.pk", "techmatched.pk"];
 const CPU_BRANDS  = ["ALL", "AMD", "INTEL"] as const;
@@ -39,7 +40,7 @@ export default function PrebuiltFilterBar() {
   const source    = searchParams.get("source")    ?? undefined;
   const cpuBrand  = searchParams.get("cpu_brand") ?? undefined;
   const gpuBrand  = searchParams.get("gpu_brand") ?? undefined;
-  const sort      = searchParams.get("sort")      ?? "price_asc";
+  const sort      = searchParams.get("sort")      ?? DEFAULT_SORT;
   const q         = searchParams.get("q")         ?? "";
   const minPrice  = searchParams.get("min_price") ?? "";
   const maxPrice  = searchParams.get("max_price") ?? "";
@@ -210,10 +211,10 @@ export default function PrebuiltFilterBar() {
         {/* Sort */}
         <ComicDropdown
           label="SORT"
-          active={sort}
+          active={sort === DEFAULT_SORT ? "" : sort}
           options={SORT_OPTIONS}
           onSelect={v => push({ sort: v })}
-          onClear={() => push({ sort: "price_asc" })}
+          onClear={() => push({ sort: DEFAULT_SORT })}
         />
       </div>
       </div>

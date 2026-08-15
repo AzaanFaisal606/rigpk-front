@@ -8,7 +8,7 @@ import JsonLd from "@/components/JsonLd";
 import { getParts } from "@/lib/api";
 import { str } from "@/lib/utils";
 import { monoFont } from "@/lib/tokens";
-import { SPEC_KEYS } from "@/lib/constants";
+import { DEFAULT_SORT, SPEC_KEYS } from "@/lib/constants";
 import Footer from "@/components/Footer";
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rigpk.vercel.app";
@@ -66,7 +66,7 @@ async function PartsList({
   searchParams: Record<string, string | string[] | undefined>;
 }) {
   const source   = str(searchParams.source);
-  const sort     = (str(searchParams.sort) as "price_asc" | "price_desc") ?? "price_asc";
+  const sort     = (str(searchParams.sort) as "price_asc" | "price_desc") ?? DEFAULT_SORT;
   const minPrice = str(searchParams.min_price);
   const maxPrice = str(searchParams.max_price);
   const offset   = Number(str(searchParams.offset) ?? "0");

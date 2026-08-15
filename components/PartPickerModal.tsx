@@ -7,6 +7,7 @@ import { getParts, getFilterOptions } from "@/lib/api";
 import type { Part, FilterOptions } from "@/lib/api";
 import type { SlotKey } from "@/app/build/page";
 import { SLOT_LABELS, SLOT_CATEGORY } from "@/app/build/page";
+import { DEFAULT_SORT } from "@/lib/constants";
 
 // Spec filter keys relevant per category
 const CATEGORY_FILTERS: Record<string, (keyof FilterOptions)[]> = {
@@ -32,7 +33,7 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
   const [parts, setParts] = useState<Part[]>([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<"price_asc" | "price_desc">("price_asc");
+  const [sort, setSort] = useState<"price_asc" | "price_desc">(DEFAULT_SORT);
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);

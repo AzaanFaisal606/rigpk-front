@@ -1,3 +1,36 @@
+/**
+ * Default result order. Descending: the expensive-first view is what people
+ * browsing a parts catalogue actually want to see first.
+ *
+ * Every read, every pagination helper and both clear handlers import this.
+ * They previously each hardcoded "price_asc", and three of them encoded it as
+ * an omission rule ("only add ?sort= when it differs from the default"), so a
+ * changed default silently broke page 2.
+ */
+export const DEFAULT_SORT = "price_desc" as const;
+
+/**
+ * Builds a pagination/filter URL from a base path and a flat param bag.
+ * Always emits every provided param (including `sort`) — the "only add
+ * ?sort= when it differs from the default" optimisation is exactly what let
+ * page 2 silently re-sort under the old default. `offset` is only appended
+ * when non-zero (page 1 has no offset param).
+ */
+export function buildPageUrl(
+  params: { basePath?: string; offset?: number } & Record<string, string | number | undefined>
+): string {
+  const { basePath = "/market", offset, ...rest } = params;
+  const p = new URLSearchParams();
+  for (const [key, value] of Object.entries(rest)) {
+    if (value !== undefined && value !== null && value !== "") {
+      p.set(key, String(value));
+    }
+  }
+  if (offset) p.set("offset", String(offset));
+  const qs = p.toString();
+  return `${basePath}${qs ? `?${qs}` : ""}`;
+}
+
 export const CATEGORIES = [
   "gpu", "cpu", "ram", "ssd", "hdd",
   "psu", "case", "motherboard", "cooling", "monitor",
