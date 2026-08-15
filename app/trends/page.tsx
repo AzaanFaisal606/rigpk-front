@@ -35,9 +35,9 @@ export default async function TrendsPage() {
       </div>
 
       <div className="trends-grid">
-        <TrendListPanel category="gpu" groups={gpu} />
-        <TrendListPanel category="cpu" groups={cpu} />
-        <TrendListPanel category="ram" groups={ram} />
+        <TrendListPanel category="gpu" result={gpu} />
+        <TrendListPanel category="cpu" result={cpu} />
+        <TrendListPanel category="ram" result={ram} />
       </div>
       </main>
     </>

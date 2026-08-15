@@ -36,6 +36,19 @@ export const CATEGORIES = [
   "psu", "case", "motherboard", "cooling", "monitor",
 ] as const;
 
+/**
+ * Categories that have a real /market/[category] page. proxy.ts 404s anything
+ * outside this list, so it MUST cover every category the UI can navigate to —
+ * FilterBar's category dropdown pushes `/market/${value}` straight from
+ * CATEGORIES above, so if the two drift a dropdown entry becomes a dead link.
+ * hdd and monitor are here for exactly that reason. Keep in sync with
+ * CATEGORY_META in app/market/[category]/page.tsx, which is keyed off this.
+ */
+export const MARKET_ROUTE_CATEGORIES = [
+  "cpu", "gpu", "ram", "motherboard", "psu", "case", "ssd", "cooling",
+  "hdd", "monitor",
+] as const;
+
 export const SOURCES = [
   { key: "czone.com.pk",     label: "CZone" },
   { key: "zahcomputers.pk",  label: "Zah Computers" },

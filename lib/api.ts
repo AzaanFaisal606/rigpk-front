@@ -22,13 +22,18 @@ export interface Stats {
   sources?: Record<string, SourceHealth>;
 }
 
-export async function getStats(): Promise<Stats | null> {
+export type StatsResult =
+  | { ok: true; data: Stats }
+  | { ok: false; error: "network" | "http"; status?: number };
+
+export async function getStats(): Promise<StatsResult> {
   try {
     const res = await fetch(`${API_BASE}/api/stats`, { next: { revalidate: 60 } });
-    if (!res.ok) return null;
-    return res.json();
+    if (!res.ok) return { ok: false, error: "http", status: res.status };
+    const data = await res.json();
+    return { ok: true, data };
   } catch {
-    return null;
+    return { ok: false, error: "network" };
   }
 }
 
@@ -190,14 +195,19 @@ export async function shareBuild(
   }
 }
 
+export type SharedBuildResult =
+  | { ok: true; data: Partial<Record<SlotKey, Part>> }
+  | { ok: false; error: "network" | "http"; status?: number };
+
 export async function getSharedBuild(
   code: string
-): Promise<Partial<Record<SlotKey, Part>> | null> {
+): Promise<SharedBuildResult> {
   try {
     const res = await fetch(`${API_BASE}/api/builds/share/${code}`);
-    if (!res.ok) return null;
-    return res.json();
+    if (!res.ok) return { ok: false, error: "http", status: res.status };
+    const data = await res.json();
+    return { ok: true, data };
   } catch {
-    return null;
+    return { ok: false, error: "network" };
   }
 }

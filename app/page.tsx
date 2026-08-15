@@ -7,7 +7,8 @@ import { getStats } from "@/lib/api";
 import { monoFont } from "@/lib/tokens";
 
 export default async function Home() {
-  const stats = await getStats();
+  const statsResult = await getStats();
+  const stats = statsResult.ok ? statsResult.data : null;
 
   return (
     <div className="flex flex-col flex-1">

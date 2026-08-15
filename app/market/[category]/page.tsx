@@ -1,14 +1,19 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import PartsList from "@/components/PartsList";
 import JsonLd from "@/components/JsonLd";
 import Footer from "@/components/Footer";
+import { MARKET_ROUTE_CATEGORIES } from "@/lib/constants";
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rigpk.vercel.app";
 
-// Subset of lib/constants.ts CATEGORIES — hdd/monitor excluded as they lack CATEGORY_META entries
-const CATEGORIES = ["cpu", "gpu", "ram", "motherboard", "psu", "case", "ssd", "cooling"] as const;
+// Every category with a real page here. FilterBar's category dropdown pushes
+// /market/<value> for each entry in lib/constants CATEGORIES, so this list has
+// to cover all of them — anything missing becomes a 404 reachable straight
+// from the UI.
+const CATEGORIES = MARKET_ROUTE_CATEGORIES;
 type Category = (typeof CATEGORIES)[number];
 
 const CATEGORY_META: Record<Category, { title: string; description: string }> = {
@@ -20,11 +25,21 @@ const CATEGORY_META: Record<Category, { title: string; description: string }> = 
   case:        { title: "PC Case Prices in Pakistan | RigPK",     description: "PC cabinet prices from Pakistani retailers. ATX, mATX, ITX." },
   ssd:         { title: "SSD Prices in Pakistan | RigPK",         description: "NVMe and SATA SSD prices from Pakistani PC stores." },
   cooling:     { title: "CPU Cooler Prices in Pakistan | RigPK",  description: "Air and AIO liquid cooler prices from Pakistani retailers." },
+  hdd:         { title: "Hard Drive Prices in Pakistan | RigPK",  description: "Internal and external hard drive prices from Pakistani retailers." },
+  monitor:     { title: "Monitor Prices in Pakistan | RigPK",     description: "Gaming and office monitor prices from Pakistani PC retailers." },
 };
 
 export function generateStaticParams() {
   return CATEGORIES.map(c => ({ category: c }));
 }
+
+// Measured, not assumed: with this route dynamic (it reads searchParams) and
+// wrapped by a loading.tsx, `dynamicParams = false` and the notFound() below
+// both render the 404 UI but ship it with HTTP 200 — streaming locks the
+// status before either can change it. Verified by removing proxy.ts and
+// curling /market/banana: 200. proxy.ts is what produces the real 404; these
+// two are the belt to its braces, and matter in `next dev`.
+export const dynamicParams = false;
 
 export async function generateMetadata({
   params,
@@ -52,6 +67,7 @@ interface PageProps {
 
 export default async function CategoryPage({ params, searchParams }: PageProps) {
   const { category } = await params;
+  if (!CATEGORIES.includes(category as Category)) notFound();
   const resolvedParams = await searchParams;
   const meta = CATEGORY_META[category as Category];
 

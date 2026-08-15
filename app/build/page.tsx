@@ -48,9 +48,9 @@ function BuildPage() {
   useEffect(() => {
     const code = searchParams.get("share");
     if (!code) return;
-    getSharedBuild(code).then((sharedBuild) => {
-      if (!sharedBuild) return;
-      setBuild((prev) => ({ ...prev, ...sharedBuild }));
+    getSharedBuild(code).then((result) => {
+      if (!result.ok) return;
+      setBuild((prev) => ({ ...prev, ...result.data }));
     });
   }, []);
 
