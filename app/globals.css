@@ -84,6 +84,28 @@ body {
   transform: translateY(-1px);
 }
 
+/* ── Accessibility: focus rings + touch targets ──────────── */
+/* A visible focus ring in the site's own language: a hard offset, not a
+   glow. `:focus-visible` (not `:focus`) so mouse users never see it —
+   only keyboard/AT navigation triggers it. */
+/* !important is required — these controls set box-shadow inline for their
+   normal/active state, and an inline style always wins over a plain class
+   rule regardless of pseudo-class or selector specificity. */
+.comic-input:focus-visible,
+.comic-btn:focus-visible,
+.filter-chip:focus-visible,
+[role="option"]:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--purple) !important;
+}
+
+/* Touch targets: 44px minimum, mobile only — desktop density unchanged. */
+@media (max-width: 640px) {
+  .comic-btn, .filter-chip, .sort-chip {
+    min-height: 44px;
+  }
+}
+
 /* ── Mono label ──────────────────────────────────────────── */
 .mono {
   font-family: var(--mono);

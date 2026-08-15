@@ -18,6 +18,8 @@ export function ToggleChip({
       onClick={onClick}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      aria-pressed={active}
+      className="filter-chip"
       style={{
         padding: "5px 12px",
         border: active ? "2px solid var(--purple)" : "2px solid #111112",
@@ -32,6 +34,9 @@ export function ToggleChip({
         transform: "skewX(-8deg)",
         cursor: "pointer",
         transition: "background 0.1s",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
       <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>{label}</span>

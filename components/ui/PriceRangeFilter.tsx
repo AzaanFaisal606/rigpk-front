@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type KeyboardEvent } from "react";
 import { monoFont } from "@/lib/tokens";
 
 interface PriceRangeFilterProps {
@@ -57,6 +57,7 @@ export function PriceRangeFilter({
 }: PriceRangeFilterProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
   const isActive = !!minPrice || !!maxPrice;
 
   const [minValue, setMinValue] = useDebouncedField(minPrice, onMin);
@@ -72,10 +73,22 @@ export function PriceRangeFilter({
 
   const label = isActive ? `${minPrice || "0"} – ${maxPrice || "∞"}` : "Price";
 
+  function handleContainerKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    if (e.key === "Escape" && open) {
+      e.preventDefault();
+      setOpen(false);
+      btnRef.current?.focus();
+    }
+  }
+
   return (
-    <div ref={ref} style={{ position: "relative", flexShrink: 0 }}>
+    <div ref={ref} onKeyDown={handleContainerKeyDown} style={{ position: "relative", flexShrink: 0 }}>
       <button
+        ref={btnRef}
         onClick={() => setOpen(o => !o)}
+        className="comic-btn"
+        aria-haspopup="true"
+        aria-expanded={open}
         style={{
           padding: "5px 10px",
           border: isActive ? "2px solid var(--purple)" : "2px solid #111112",
@@ -120,6 +133,8 @@ export function PriceRangeFilter({
               placeholder="0"
               value={minValue}
               onChange={e => setMinValue(e.target.value)}
+              className="comic-input"
+              aria-label="Minimum price (PKR)"
               style={{
                 width: "100%",
                 padding: "6px 8px",
@@ -139,6 +154,8 @@ export function PriceRangeFilter({
               placeholder="Any"
               value={maxValue}
               onChange={e => setMaxValue(e.target.value)}
+              className="comic-input"
+              aria-label="Maximum price (PKR)"
               style={{
                 width: "100%",
                 padding: "6px 8px",
@@ -154,6 +171,7 @@ export function PriceRangeFilter({
           {isActive && (
             <button
               onClick={() => { onClear(); setOpen(false); }}
+              className="comic-btn"
               style={{
                 width: "100%",
                 padding: "5px 8px",

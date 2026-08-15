@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useId, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { getParts, getFilterOptions } from "@/lib/api";
@@ -37,6 +37,55 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const headingId = useId();
+
+  // Capture the element that opened the modal *during the initial render*,
+  // before the search input's `autoFocus` steals focus in the commit phase —
+  // an effect would run after that and capture the search input instead.
+  const previousFocusRef = useRef<HTMLElement | null>(
+    typeof document !== "undefined" ? (document.activeElement as HTMLElement) : null
+  );
+
+  // Restore focus to whatever opened the modal — a keyboard user should not
+  // be dropped back at the top of the page.
+  useEffect(() => {
+    return () => {
+      previousFocusRef.current?.focus?.();
+    };
+  }, []);
+
+  function getFocusable(): HTMLElement[] {
+    if (!dialogRef.current) return [];
+    return Array.from(
+      dialogRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(el => el.offsetParent !== null);
+  }
+
+  // Focus trap: Tab/Shift+Tab wrap within the dialog instead of escaping to
+  // the page behind the backdrop.
+  function handleDialogKeyDown(e: ReactKeyboardEvent<HTMLDivElement>) {
+    if (e.key !== "Tab") return;
+    const focusable = getFocusable();
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const activeInDialog = dialogRef.current?.contains(document.activeElement);
+    if (e.shiftKey) {
+      if (document.activeElement === first || !activeInDialog) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last || !activeInDialog) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
 
   // Load filter options once on open
   useEffect(() => {
@@ -110,6 +159,11 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
         }}
       >
         <motion.div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={headingId}
+          onKeyDown={handleDialogKeyDown}
           initial={{ opacity: 0, scale: 0.97, y: 8 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.97 }}
@@ -133,6 +187,7 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
             }}
           >
             <span
+              id={headingId}
               className="mono"
               style={{ fontSize: "12px", fontWeight: 800, letterSpacing: "2px", textTransform: "uppercase" }}
             >
@@ -140,7 +195,13 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
             </span>
             <button
               onClick={onClose}
-              style={{ background: "none", border: "none", color: "white", fontSize: "18px", fontWeight: 800, cursor: "pointer", lineHeight: 1 }}
+              aria-label="Close"
+              className="comic-btn"
+              style={{
+                background: "none", border: "none", color: "white", fontSize: "18px", fontWeight: 800,
+                cursor: "pointer", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
+                padding: "0 4px",
+              }}
             >
               ✕
             </button>
@@ -153,20 +214,14 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={`Search ${SLOT_LABELS[slot]}s...`}
+              aria-label={`Search ${SLOT_LABELS[slot]}s`}
+              className="comic-input"
               style={{
                 width: "100%", padding: "10px 14px",
                 border: "2px solid #111112",
                 background: "white", fontSize: "13px", outline: "none",
                 boxShadow: "2px 2px 0 #111112",
                 fontFamily: "inherit",
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = "var(--purple)";
-                e.target.style.boxShadow = "2px 2px 0 var(--purple)";
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = "#111112";
-                e.target.style.boxShadow = "2px 2px 0 #111112";
               }}
             />
           </div>
