@@ -30,7 +30,7 @@ export default async function TrendsPage() {
           className="mono mt-1"
           style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)" }}
         >
-          Average market price per model over time — hover the chart for exact figures &amp; range.
+          Average market price per model over time — tap or hover the chart for exact figures &amp; range.
         </p>
       </div>
 
