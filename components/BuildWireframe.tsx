@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import type { BuildState, SlotKey } from "@/app/build/page";
 import { SLOT_LABELS, SLOT_SUB } from "@/app/build/page";
@@ -313,21 +312,10 @@ function LabelCard({
 }
 
 export default function BuildWireframe({ build, onSlotClick }: Props) {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  if (isMobile) return null;
-
   return (
     <section
+      className="build-wireframe"
       style={{
-        display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
         padding: "32px 32px 24px",

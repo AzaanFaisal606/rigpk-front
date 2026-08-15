@@ -44,14 +44,6 @@ function BuildPage() {
   const searchParams = useSearchParams();
   const [build, setBuild] = useState<BuildState>(EMPTY_BUILD);
   const [activeSlot, setActiveSlot] = useState<SlotKey | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
 
   useEffect(() => {
     const code = searchParams.get("share");
@@ -78,19 +70,17 @@ function BuildPage() {
     <div className="flex flex-col min-h-screen" style={{ background: "var(--bg)" }}>
       <Navbar />
       <main
+        className="build-main"
         style={{
           display: "flex",
-          flexDirection: isMobile ? "column" : "row",
           flex: 1,
           alignItems: "flex-start",
-          gap: isMobile ? 0 : "24px",
-          padding: isMobile ? "0" : "0 16px 0 0",
         }}
       >
         {/* Left column — wireframe + cards + banner */}
-        <div style={{ flex: 1, minWidth: 0, width: isMobile ? "100%" : "auto" }}>
+        <div className="build-left" style={{ flex: 1, minWidth: 0 }}>
           <BuildWireframe build={build} onSlotClick={setActiveSlot} />
-          <section style={{ padding: isMobile ? "32px 24px 16px" : "32px 32px 16px" }}>
+          <section className="build-section-list">
             <div style={{ width: "100%" }}>
               <p className="section-label mb-1">Your Build</p>
               <h2
@@ -102,34 +92,19 @@ function BuildPage() {
               <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
                 Click any slot to browse and select parts from the marketplace.
               </p>
-              <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} isMobile={isMobile} />
+              <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} />
               <CompatibilityBanner issues={issues} />
             </div>
           </section>
-          <section style={{ padding: isMobile ? "24px 24px 48px" : "28px 32px 64px" }}>
+          <section className="build-section-bench">
             <GameBenchmarksPanel />
           </section>
         </div>
 
-        {/* Right column — sticky BuildSummary */}
-        {!isMobile && (
-          <div
-            style={{
-              position: "sticky",
-              top: "72px",
-              width: "431px",
-              flexShrink: 0,
-              marginTop: "127px",
-            }}
-          >
-            <BuildSummary build={build} />
-          </div>
-        )}
-        {isMobile && (
-          <div style={{ padding: "0 24px 48px", width: "100%" }}>
-            <BuildSummary build={build} />
-          </div>
-        )}
+        {/* Right column — BuildSummary, sticky on desktop / inline on mobile */}
+        <div className="build-summary-wrap">
+          <BuildSummary build={build} />
+        </div>
       </main>
 
       {activeSlot && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Heart, Share2 } from "lucide-react";
 import ComicFrame from "./ComicFrame";
 import PCThumb from "./PCThumb";
@@ -52,14 +52,6 @@ interface Props {
 export default function PrebuiltSpecPage({ prebuilt }: Props) {
   const [liked, setLiked] = useState(false);
   const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 768px)");
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
 
   function handleShare() {
     navigator.clipboard.writeText(window.location.href).then(() => {
@@ -84,8 +76,14 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
 
       {/* ── HERO ── */}
       <div className="pb-spec-hero" style={{ display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: "28px", alignItems: "start", marginBottom: "40px" }}>
-        {/* Left: ComicFrame thumbnail */}
-        <ComicFrame height={isMobile ? 260 : 460} sub={prebuilt.source}>
+        {/* Left: ComicFrame thumbnail. ComicFrame's own `height` prop always
+            renders as an inline pixel style, so a CSS class on this page
+            can't win against it without `!important`. Bridging through a
+            custom property lets the wrapper's media query pick the value
+            while ComicFrame just reads whatever `--pbsp-frame-h` resolves
+            to — no !important, and ComicFrame itself stays untouched. */}
+        <div className="pbsp-hero-frame">
+          <ComicFrame height={"var(--pbsp-frame-h)" as unknown as number} sub={prebuilt.source}>
           {prebuilt.thumbnail_url ? (
             <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <img
@@ -100,7 +98,8 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
               <PCThumb scale={1.6} />
             </div>
           )}
-        </ComicFrame>
+          </ComicFrame>
+        </div>
 
         {/* Right: info */}
         <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
@@ -174,13 +173,12 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
             {/* Body */}
             <div style={{ padding: "18px 20px 20px" }}>
               <div
+                className="pbsp-price"
                 style={{
                   fontFamily: monoFont,
                   fontWeight: 900,
-                  fontSize: isMobile ? "1.5rem" : "2.25rem",
                   color: "var(--purple)",
                   letterSpacing: "-0.02em",
-                  marginBottom: isMobile ? "8px" : "12px",
                 }}
               >
                 {prebuilt.price_pkr
@@ -194,18 +192,16 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                   href={prebuilt.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="pbsp-buy-btn"
                   style={{
                     flex: 1,
                     display: "block",
-                    padding: isMobile ? "9px 10px" : "14px 18px",
                     background: "var(--purple)",
                     color: "white",
                     border: "2px solid #111112",
                     boxShadow: "4px 4px 0 #111112",
                     fontFamily: monoFont,
-                    fontSize: isMobile ? "10px" : "12px",
                     fontWeight: 800,
-                    letterSpacing: isMobile ? "1px" : "2px",
                     textTransform: "uppercase",
                     textDecoration: "none",
                     textAlign: "center",
@@ -220,8 +216,8 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                 {/* Like */}
                 <button
                   onClick={() => setLiked(l => !l)}
+                  className="pbsp-icon-btn"
                   style={{
-                    width: isMobile ? "38px" : "52px", height: isMobile ? "38px" : "52px",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     border: "2px solid #111112", boxShadow: "4px 4px 0 #111112",
                     background: liked ? "#fef2f2" : "white", cursor: "pointer",
@@ -235,8 +231,8 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                 {/* Share */}
                 <button
                   onClick={handleShare}
+                  className="pbsp-icon-btn"
                   style={{
-                    width: isMobile ? "38px" : "52px", height: isMobile ? "38px" : "52px",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     border: "2px solid #111112",
                     boxShadow: "4px 4px 0 #111112",

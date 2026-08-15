@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { BuildState, SlotKey } from "@/app/build/page";
 import { SLOT_LABELS } from "@/app/build/page";
 import { shareBuild } from "@/lib/api";
@@ -16,14 +16,6 @@ interface Props {
 
 export default function BuildSummary({ build }: Props) {
   const [shareStatus, setShareStatus] = useState<"idle" | "loading" | "copied" | "error">("idle");
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
 
   const total = ALL_SLOTS.reduce((sum, slot) => {
     return sum + (build[slot]?.price_pkr ?? 0);

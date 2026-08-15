@@ -10,16 +10,15 @@ interface Props {
   build: BuildState;
   onSlotClick: (slot: SlotKey) => void;
   onRemove: (slot: SlotKey) => void;
-  isMobile?: boolean;
 }
 
-export default function BuildCards({ build, onSlotClick, onRemove, isMobile }: Props) {
+export default function BuildCards({ build, onSlotClick, onRemove }: Props) {
   return (
     <div
+      className="build-cards-grid"
       style={{
         flex: 1,
         display: "grid",
-        gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
         gap: "14px",
       }}
     >

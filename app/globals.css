@@ -369,3 +369,145 @@ html[data-filtering="1"] .pb-browser-wrapper {
     width: 110px;
   }
 }
+
+/* ── Part row (market list) ──────────────────────────────── */
+.part-row {
+  gap: 16px;
+}
+.part-row-thumb {
+  width: 48px;
+  height: 48px;
+}
+.part-row-thumb img {
+  width: 100%;
+  height: 100%;
+}
+.part-row-icon {
+  width: 20px;
+  height: 20px;
+}
+.part-row-name {
+  font-size: 0.875rem;
+}
+.part-row-price {
+  font-size: 1rem;
+}
+
+@media (max-width: 640px) {
+  .part-row {
+    gap: 10px;
+  }
+  .part-row-thumb {
+    width: 38px;
+    height: 38px;
+  }
+  .part-row-icon {
+    width: 16px;
+    height: 16px;
+  }
+  .part-row-name {
+    font-size: 0.78rem;
+  }
+  .part-row-price {
+    font-size: 0.78rem;
+  }
+}
+
+/* ── Build page (wireframe + cards + summary) ────────────── */
+/* Breakpoint is 767px to match the old `window.innerWidth < 768` checks
+   that drove these branches — matchMedia(max-width:768px) below (used by
+   PrebuiltSpecPage) is one pixel wider and intentionally different. */
+.build-main {
+  flex-direction: row;
+  gap: 24px;
+  padding: 0 16px 0 0;
+}
+.build-left {
+  width: auto;
+}
+.build-section-list {
+  padding: 32px 32px 16px;
+}
+.build-section-bench {
+  padding: 28px 32px 64px;
+}
+.build-cards-grid {
+  grid-template-columns: 1fr 1fr;
+}
+.build-wireframe {
+  display: flex;
+}
+.build-summary-wrap {
+  position: sticky;
+  top: 72px;
+  width: 431px;
+  flex-shrink: 0;
+  margin-top: 127px;
+}
+
+@media (max-width: 767px) {
+  .build-main {
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+  }
+  .build-left {
+    width: 100%;
+  }
+  .build-section-list {
+    padding: 32px 24px 16px;
+  }
+  .build-section-bench {
+    padding: 24px 24px 48px;
+  }
+  .build-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .build-wireframe {
+    display: none;
+  }
+  .build-summary-wrap {
+    position: static;
+    width: 100%;
+    margin-top: 0;
+    padding: 0 24px 48px;
+  }
+}
+
+/* ── Prebuilt spec page hero (price card + CTA row) ──────── */
+/* Same 768px breakpoint as the matchMedia the old isMobile hook used here. */
+.pbsp-hero-frame {
+  --pbsp-frame-h: 460px;
+}
+.pbsp-price {
+  font-size: 2.25rem;
+  margin-bottom: 12px;
+}
+.pbsp-buy-btn {
+  padding: 14px 18px;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+.pbsp-icon-btn {
+  width: 52px;
+  height: 52px;
+}
+
+@media (max-width: 768px) {
+  .pbsp-hero-frame {
+    --pbsp-frame-h: 260px;
+  }
+  .pbsp-price {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+  .pbsp-buy-btn {
+    padding: 9px 10px;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .pbsp-icon-btn {
+    width: 38px;
+    height: 38px;
+  }
+}
