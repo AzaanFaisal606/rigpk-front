@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import BuildWireframe from "@/components/BuildWireframe";
 import BuildCards from "@/components/BuildCards";
@@ -130,14 +131,16 @@ function BuildPage() {
         </div>
       </main>
 
-      {activeSlot && (
-        <PartPickerModal
-          slot={activeSlot}
-          currentPart={build[activeSlot]?.part ?? null}
-          onSelect={selectPart}
-          onClose={() => setActiveSlot(null)}
-        />
-      )}
+      <AnimatePresence>
+        {activeSlot && (
+          <PartPickerModal
+            slot={activeSlot}
+            currentPart={build[activeSlot]?.part ?? null}
+            onSelect={selectPart}
+            onClose={() => setActiveSlot(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
