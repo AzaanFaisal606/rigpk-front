@@ -141,7 +141,11 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
   }, [category, sort, activeFilters, debouncedSearch]);
 
   useEffect(() => {
-    loadParts();
+    // `loadParts` calls `setLoading(true)` before its first `await`, which
+    // would otherwise run synchronously inside this effect's body
+    // (react-hooks/set-state-in-effect). Deferring the call to a microtask
+    // keeps it out of the effect's own call stack without any visible delay.
+    queueMicrotask(loadParts);
     return () => abortRef.current?.abort();
   }, [loadParts]);
 
@@ -162,8 +166,6 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
       return { ...prev, [key]: value };
     });
   }
-
-  const filteredParts = parts;
 
   const relevantFilterKeys = CATEGORY_FILTERS[category] ?? [];
 
@@ -305,12 +307,12 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
             <div style={{ padding: "40px", textAlign: "center", color: "var(--text-dim)" }} className="mono">
               Loading…
             </div>
-          ) : filteredParts.length === 0 ? (
+          ) : parts.length === 0 ? (
             <div style={{ padding: "40px", textAlign: "center", color: "var(--text-dim)" }} className="mono">
               No parts found
             </div>
           ) : (
-            filteredParts.map((part) => {
+            parts.map((part) => {
               const isCurrent = currentPart?.id === part.id;
               return (
                 <div

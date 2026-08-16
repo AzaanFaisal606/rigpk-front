@@ -183,12 +183,21 @@ export default function Sources({ stats }: SourcesProps) {
             <div
               ref={trackRef}
               role="scrollbar"
+              tabIndex={0}
               aria-controls="sources-cards"
+              aria-label="Scroll retailer cards"
               aria-orientation="horizontal"
               aria-valuenow={Math.round(scrollProgress * 100)}
               aria-valuemin={0}
               aria-valuemax={100}
               onPointerDown={handleTrackPointerDown}
+              onKeyDown={(e) => {
+                const step = 0.1;
+                if (e.key === "ArrowRight") { e.preventDefault(); scrollContainerToProgress(scrollProgress + step, true); }
+                if (e.key === "ArrowLeft")  { e.preventDefault(); scrollContainerToProgress(scrollProgress - step, true); }
+                if (e.key === "Home")       { e.preventDefault(); scrollContainerToProgress(0, true); }
+                if (e.key === "End")        { e.preventDefault(); scrollContainerToProgress(1, true); }
+              }}
               style={{
                 position: "relative",
                 flex: 1,

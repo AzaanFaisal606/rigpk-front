@@ -268,6 +268,11 @@ export function ComicDropdown({
         onClick={handleOpen}
         onKeyDown={handleTriggerKeyDown}
         className="comic-btn"
+        // role="combobox" (not the implicit button role) is what makes
+        // aria-activedescendant legal here — this is the WAI-ARIA
+        // select-only combobox pattern: a trigger that keeps focus while
+        // pointing at the active option inside a separate listbox.
+        role="combobox"
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
