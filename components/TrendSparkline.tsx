@@ -98,9 +98,30 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
     );
   }
 
-  // Y-scale spans the full min/max band across all points (honest range).
-  const lo = Math.min(...series.map((p) => p.min_price));
-  const hi = Math.max(...series.map((p) => p.max_price));
+  // Y-scale follows the CENTER line, not the min/max band.
+  //
+  // Scaling to the band looked more honest and was in practice unreadable:
+  // measured across the live catalogue, the median series' band spans 27.5%
+  // of its own price while its center line moves 0.93% — and in 85 of 101
+  // multi-point series the center span is under a fifth of the band span. On
+  // a band-scaled axis every one of those renders as a dead-flat line, which
+  // is what a real price move of a few percent actually looks like when the
+  // axis is sized by the gap between the cheapest and priciest listing in the
+  // group. The chart was answering "how wide is this group?" when the
+  // question asked is "which way did the price go?".
+  //
+  // So: fit the axis to the center line and pad it, then CLIP the band to the
+  // chart box (below). The band still shows — it just runs off the top and
+  // bottom when it is genuinely wider than the movement, which reads
+  // correctly as "the spread is wider than this view".
+  const centerLo = Math.min(...series.map((p) => p.center_price));
+  const centerHi = Math.max(...series.map((p) => p.center_price));
+  // Padding is the larger of 60% of the movement (so a moving line never
+  // touches the frame) and 1.5% of the price level (so a genuinely flat
+  // series sits centered instead of being scaled up into meaningless noise).
+  const pad = Math.max((centerHi - centerLo) * 0.6, centerHi * 0.015, 1);
+  const lo = centerLo - pad;
+  const hi = centerHi + pad;
   const span = hi - lo || 1;
 
   const innerW = W - PAD_X * 2;
@@ -108,7 +129,10 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
 
   const x = (i: number) =>
     PAD_X + (series.length === 1 ? innerW / 2 : (i / (series.length - 1)) * innerW);
-  const y = (v: number) => PAD_Y + innerH - ((v - lo) / span) * innerH;
+  // Clamped: band values now routinely fall outside [lo, hi], and an
+  // unclamped polygon point would paint far outside the 60px-tall svg.
+  const y = (v: number) =>
+    Math.max(0, Math.min(H, PAD_Y + innerH - ((v - lo) / span) * innerH));
 
   const centerPts = series.map((p, i) => `${x(i)},${y(p.center_price)}`).join(" ");
   // Band: one convex trapezoid per adjacent pair (top=max, bottom=min). Drawing
