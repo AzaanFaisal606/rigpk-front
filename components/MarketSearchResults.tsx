@@ -87,7 +87,15 @@ export default function MarketSearchResults({
 
   useEffect(() => {
     if (!clientPathActive) return;
-    return subscribeSearch(({ q }) => {
+    // The client path has no `isPending` — it never navigates — so FilterBar's
+    // transition can't flag the document for it. Set the same attribute here
+    // instead, so globals.css dims the list during a client query exactly as
+    // it does during a server one. Without this the two paths looked like
+    // different features: the unfiltered page faded while resolving, the
+    // category page just snapped.
+    const flagOn = () => { document.documentElement.dataset.filtering = "1"; };
+    const flagOff = () => { delete document.documentElement.dataset.filtering; };
+    const unsubscribe = subscribeSearch(({ q }) => {
       const index = indexRef.current;
       if (!index) return;
 
@@ -104,8 +112,12 @@ export default function MarketSearchResults({
       // Monotonic sequence: a slow response for an earlier query must never
       // overwrite a newer one. This is the flip-flop the user reported.
       const seq = ++seqRef.current;
+      flagOn();
       getPartsByIds(ids).then((res) => {
-        if (seq !== seqRef.current) return;   // superseded, discard
+        // A superseded response must not lift the flag — the newer one is
+        // still in flight and still owns it.
+        if (seq !== seqRef.current) return;
+        flagOff();
         if (!res.ok) { setFailed(true); return; }
         setFailed(false);
         // Only commit non-empty results, or a genuinely empty match. Never
@@ -116,6 +128,11 @@ export default function MarketSearchResults({
         publishTotal(total);
       });
     });
+    return () => {
+      unsubscribe();
+      // Unmounting mid-flight would otherwise leave the whole page dimmed.
+      flagOff();
+    };
   }, [clientPathActive, source, minPrice, maxPrice, sort, offset, limit]);
 
   // Only a live client-path failure counts. `failed` persists in state, so

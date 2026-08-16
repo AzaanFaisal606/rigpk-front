@@ -278,7 +278,12 @@ export function ComicDropdown({
         aria-controls={open ? listId : undefined}
         aria-activedescendant={activeOptionId}
         style={{
-          padding: "5px 10px",
+          // Horizontal padding absorbs the shear the skew adds: a 24px-tall
+          // chip skewed 8deg pushes its top/bottom corners ~1.7px past the
+          // unskewed box on each side, and at 44px (the mobile min-height)
+          // that grows past 3px. 14px leaves room for it plus the 2px shadow
+          // so the last chip in the row isn't clipped by the scroll wrapper.
+          padding: "5px 14px",
           border: isActive ? "2px solid var(--purple)" : "2px solid #111112",
           background: isActive ? "var(--purple)" : "white",
           color: isActive ? "white" : "#111112",
@@ -297,8 +302,13 @@ export function ComicDropdown({
           transition: "background 0.1s, border-color 0.1s",
         }}
       >
-        <span>{displayLabel}</span>
-        <span style={{ opacity: 0.6, fontSize: "8px" }}>{open ? "▲" : "▼"}</span>
+        {/* Counter-skew the contents so the text reads upright inside the
+            skewed chip — same idiom as ToggleChip. Without it the glyphs lean
+            and the trailing caret drifts outside the border. */}
+        <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>{displayLabel}</span>
+        <span style={{ display: "inline-block", transform: "skewX(8deg)", opacity: 0.6, fontSize: "8px" }}>
+          {open ? "▲" : "▼"}
+        </span>
       </button>
       {panel}
     </div>
