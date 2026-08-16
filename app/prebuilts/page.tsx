@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import PrebuiltCard from "@/components/PrebuiltCard";
 import PrebuiltFilterBar from "@/components/PrebuiltFilterBar";
 import { getPrebuilts } from "@/lib/prebuilts-api";
@@ -182,6 +183,7 @@ export default async function PrebuiltsPage({ searchParams }: PageProps) {
           <PrebuiltGrid searchParams={resolvedParams} />
         </Suspense>
       </main>
+      <Footer />
     </>
   );
 }

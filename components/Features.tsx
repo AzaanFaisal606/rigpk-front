@@ -1,8 +1,4 @@
-"use client";
-
 import { Search, Cpu, TrendingUp } from "lucide-react";
-import { motion } from "framer-motion";
-import { useState } from "react";
 import Link from "next/link";
 import { monoFont } from "@/lib/tokens";
 
@@ -37,8 +33,8 @@ const FEATURES = [
       "View full price history graphs for any part. Know the best time to buy.",
     accent: "var(--purple-accent)",
     dark: false,
-    href: null,
-    cta: "COMING SOON →",
+    href: "/trends",
+    cta: "VIEW TRENDS →",
   },
 ];
 
@@ -86,28 +82,15 @@ function FeatureCard({
   f: (typeof FEATURES)[number];
   i: number;
 }) {
-  const [hovered, setHovered] = useState(false);
-
   const border = f.dark ? `2px solid var(--purple)` : "2px solid #111112";
-  const shadow = f.dark
-    ? hovered ? "7px 7px 0 var(--purple)" : "5px 5px 0 var(--purple)"
-    : hovered ? "7px 7px 0 #111112" : "5px 5px 0 #111112";
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.4, delay: i * 0.1 }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="overflow-hidden relative"
+    <div
+      className={`fade-up overflow-hidden relative feature-card ${f.dark ? "feature-card--dark" : "feature-card--light"}`}
       style={{
+        animationDelay: `${i * 0.1}s`,
         background: f.dark ? "#111112" : "var(--bg-card)",
         border,
-        boxShadow: shadow,
-        transform: hovered ? "translateY(-3px)" : "none",
-        transition: "box-shadow 0.1s, transform 0.1s",
         minHeight: "240px",
       }}
     >
@@ -174,6 +157,6 @@ function FeatureCard({
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

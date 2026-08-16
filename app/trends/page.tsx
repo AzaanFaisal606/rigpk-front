@@ -1,6 +1,7 @@
 import { getTrendGroups } from "@/lib/trends-api";
 import TrendListPanel from "@/components/TrendListPanel";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Price Trends — RigPK",
@@ -40,6 +41,7 @@ export default async function TrendsPage() {
         <TrendListPanel category="ram" result={ram} />
       </div>
       </main>
+      <Footer />
     </>
   );
 }
