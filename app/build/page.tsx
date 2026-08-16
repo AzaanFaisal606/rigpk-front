@@ -57,9 +57,20 @@ function BuildPage() {
   // re-runs the resolve. The old `[]` dependency array only ever fired once,
   // on the page's first mount (H15).
   const shareCode = searchParams.get("share");
+  // A share link that fails to resolve used to return silently, leaving the
+  // visitor on what looks like an ordinary empty build page with no hint
+  // their link was bad or the backend was down. getSharedBuild returns a
+  // discriminated result precisely so that failure is expressible — this is
+  // the same "a failure must never render as emptiness" rule the market page
+  // follows with // SEARCH FAILED.
+  const [shareFailed, setShareFailed] = useState(false);
   useEffect(() => {
     if (!shareCode) return;
     getSharedBuild(shareCode).then((result) => {
+      // Set from the outcome rather than clearing synchronously at the top of
+      // the effect — a synchronous setState in an effect body triggers
+      // cascading renders (react-hooks/set-state-in-effect).
+      setShareFailed(!result.ok);
       if (!result.ok) return;
       setBuild((prev) => {
         const next = { ...prev };
@@ -121,6 +132,34 @@ function BuildPage() {
               <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
                 Click any slot to browse and select parts from the marketplace.
               </p>
+              {shareFailed && (
+                <div
+                  style={{
+                    border: "2px solid #111112",
+                    boxShadow: "4px 4px 0 #111112",
+                    background: "var(--purple-pale)",
+                    padding: "14px 16px",
+                    marginBottom: "18px",
+                  }}
+                >
+                  <p
+                    className="mono"
+                    style={{
+                      fontSize: "0.78rem",
+                      fontWeight: 900,
+                      letterSpacing: "2px",
+                      textTransform: "uppercase",
+                      color: "var(--purple)",
+                    }}
+                  >
+                    {"// SHARED BUILD NOT FOUND"}
+                  </p>
+                  <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "6px" }}>
+                    That share link couldn&apos;t be resolved. It may have expired, or the
+                    server is unreachable — the empty build below is not what was shared.
+                  </p>
+                </div>
+              )}
               <BuildCards build={build} onSlotClick={setActiveSlot} onRemove={removePart} onQtyChange={setQty} />
               <CompatibilityBanner issues={issues} />
             </div>

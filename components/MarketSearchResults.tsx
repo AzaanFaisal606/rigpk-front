@@ -64,14 +64,29 @@ export default function MarketSearchResults({
     };
   }, [category, specFiltersActive, initialQ]);
 
+  // The fallback rule, applied literally: a spec filter the client index
+  // cannot evaluate hands control back to the server, exactly like a
+  // not-yet-loaded or failed index does.
+  //
+  // `ready` alone is not enough. PartsList keeps this component MOUNTED for
+  // every spec-filter change (it renders on `category`, not on
+  // `specFiltersActive`), so `ready` — set true once and never reset — stays
+  // true across the transition. Gating on it alone froze the rendered list on
+  // the last client-index match while MarketResultsMeta, which computes
+  // `clientIndexActive` as `!specFiltersActive` independently, correctly
+  // switched to the server's filtered total. The visible result was a row
+  // list that disagreed with its own count, and stayed stuck for every later
+  // interaction until the category changed or the page reloaded.
+  const clientPathActive = ready && !specFiltersActive;
+
   // Server render is authoritative until the index exists. Derived during
   // render (not synced via effect) so a fresh SSR payload — e.g. a filter
-  // change that remounts this instance with new initialItems — is reflected
+  // change that re-renders this instance with new initialItems — is reflected
   // immediately without an extra setState-in-effect render pass.
-  const displayedItems = ready ? items : initialItems;
+  const displayedItems = clientPathActive ? items : initialItems;
 
   useEffect(() => {
-    if (!ready) return;
+    if (!clientPathActive) return;
     return subscribeSearch(({ q }) => {
       const index = indexRef.current;
       if (!index) return;
@@ -101,9 +116,12 @@ export default function MarketSearchResults({
         publishTotal(total);
       });
     });
-  }, [ready, source, minPrice, maxPrice, sort, offset, limit]);
+  }, [clientPathActive, source, minPrice, maxPrice, sort, offset, limit]);
 
-  if (failed) {
+  // Only a live client-path failure counts. `failed` persists in state, so
+  // without this gate a spec filter applied after a failed getPartsByIds
+  // would keep showing SEARCH FAILED over a perfectly good server render.
+  if (clientPathActive && failed) {
     return (
       <div style={{ padding: "64px 24px", textAlign: "center",
                     background: "var(--bg-card)", borderTop: "1px solid #111112" }}>
