@@ -8,6 +8,7 @@ import { derivePrebuiltTags } from "@/lib/prebuilt-tags";
 import type { Prebuilt } from "@/lib/prebuilts-api";
 import { GameBenchmarksPanel } from "@/components/ui/GameBenchmarksPanel";
 import { monoFont } from "@/lib/tokens";
+import { isSafeHref } from "@/lib/safe-url";
 
 function PB_Chip({ label }: { label: string }) {
   return (
@@ -61,6 +62,8 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
   }
   const c = prebuilt.components ?? {};
   const tags = derivePrebuiltTags(c);
+  // Scraped url — reject anything that isn't http(s): before it reaches href (L7).
+  const buyHref = isSafeHref(prebuilt.url) ? prebuilt.url : undefined;
 
   const specRows = SPEC_ORDER.filter(key => c[key]);
   const scrapedDate = prebuilt.scraped_at
@@ -90,7 +93,9 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                 src={prebuilt.thumbnail_url}
                 referrerPolicy="no-referrer"
                 alt={prebuilt.name}
-                style={{ maxWidth: "85%", maxHeight: "85%", width: "auto", height: "auto", objectFit: "contain", display: "block" }}
+                width={400}
+                height={300}
+                style={{ maxWidth: "85%", maxHeight: "85%", width: "auto", height: "auto", aspectRatio: "4 / 3", objectFit: "contain", display: "block" }}
               />
             </div>
           ) : (
@@ -110,7 +115,7 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
 
           {/* Source */}
           <div style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 700, color: "#3f3f46", marginBottom: "2px" }}>
-            {prebuilt.source} //
+            {prebuilt.source} {"//"}
           </div>
 
           {/* Title — max 2 lines */}
@@ -189,9 +194,9 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
               <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                 {/* Buy Now */}
                 <a
-                  href={prebuilt.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={buyHref}
+                  target={buyHref ? "_blank" : undefined}
+                  rel={buyHref ? "noopener noreferrer" : undefined}
                   className="pbsp-buy-btn"
                   style={{
                     flex: 1,

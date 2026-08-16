@@ -8,7 +8,7 @@ import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import type { DropdownOption } from "@/components/ui/ComicDropdown";
 import { PriceRangeFilter } from "@/components/ui/PriceRangeFilter";
 import { monoFont } from "@/lib/tokens";
-import { CATEGORIES, DEFAULT_SORT, SOURCES, SPEC_LABELS } from "@/lib/constants";
+import { CATEGORIES, DEFAULT_SORT, SOURCES, SPEC_KEYS, SPEC_LABELS } from "@/lib/constants";
 import { useScrollHide } from "@/lib/hooks/useScrollHide";
 import { publishSearch, subscribeIndexReady } from "@/lib/search-bus";
 
@@ -113,8 +113,15 @@ export default function FilterBar({
   const push = useCallback(
     (key: string, value: string) => {
       if (key === "category") {
+        // Keep source/sort/price/search — only strip spec keys, which don't
+        // necessarily mean the same thing (or exist at all) in the new
+        // category's filter options (M28).
+        const next = new URLSearchParams(params.toString());
+        for (const k of SPEC_KEYS) next.delete(k);
+        next.delete("offset");
+        const qs = next.toString();
         startTransition(() => {
-          router.push(value ? `/market/${value}` : "/market");
+          router.push(value ? `/market/${value}${qs ? `?${qs}` : ""}` : `/market${qs ? `?${qs}` : ""}`);
         });
         return;
       }
@@ -135,8 +142,12 @@ export default function FilterBar({
   );
 
   useEffect(() => {
+    // No setState call is synchronous in the effect body — the no-category
+    // reset is deferred to a microtask so it can't trigger a cascading
+    // render (react-hooks/set-state-in-effect); the fetched-options case was
+    // already async via `.then`.
     if (!category) {
-      setFilterOptions({});
+      queueMicrotask(() => setFilterOptions({}));
       return;
     }
     getFilterOptions(category).then(setFilterOptions);

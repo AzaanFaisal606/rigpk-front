@@ -42,7 +42,8 @@ export default function PrebuiltCard({ prebuilt }: Props) {
   const c = prebuilt.components;
 
   return (
-    <div
+    <Link
+      href={`/prebuilts/${prebuilt.id}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -56,6 +57,7 @@ export default function PrebuiltCard({ prebuilt }: Props) {
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
+        textDecoration: "none",
       }}
     >
       {/* Thumbnail */}
@@ -88,12 +90,17 @@ export default function PrebuiltCard({ prebuilt }: Props) {
             src={prebuilt.thumbnail_url}
             referrerPolicy="no-referrer"
             alt={prebuilt.name}
+            width={320}
+            height={240}
+            loading="lazy"
+            decoding="async"
             style={{
               position: "relative",
               maxWidth: "80%",
               maxHeight: "80%",
               width: "auto",
               height: "auto",
+              aspectRatio: "4 / 3",
               objectFit: "contain",
               display: "block",
             }}
@@ -169,9 +176,8 @@ export default function PrebuiltCard({ prebuilt }: Props) {
             : "—"}
         </div>
 
-        {/* CTA */}
-        <Link
-          href={`/prebuilts/${prebuilt.id}`}
+        {/* CTA — the whole card is the link (L46); this is now decorative */}
+        <span
           style={{
             display: "inline-block",
             textAlign: "center",
@@ -185,15 +191,14 @@ export default function PrebuiltCard({ prebuilt }: Props) {
             fontWeight: 800,
             letterSpacing: "1.2px",
             textTransform: "uppercase",
-            textDecoration: "none",
             transform: "skewX(-8deg)",
           }}
         >
           <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>
             VIEW SPECS →
           </span>
-        </Link>
+        </span>
       </div>
-    </div>
+    </Link>
   );
 }

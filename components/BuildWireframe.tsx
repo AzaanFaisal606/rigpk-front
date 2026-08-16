@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import type { BuildState, SlotKey } from "@/app/build/page";
 import { SLOT_LABELS, SLOT_SUB } from "@/app/build/page";
 
@@ -327,24 +326,18 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
     >
       <DiagLines />
 
-      <motion.p
-        className="section-label"
-        style={{ marginBottom: "6px", position: "relative" }}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+      <p
+        className="section-label fade-up"
+        style={{ marginBottom: "6px", position: "relative", animationDelay: "0.2s" }}
       >
         Configure your build
-      </motion.p>
-      <motion.h1
-        className="font-black"
-        style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "var(--text)", marginBottom: "20px", position: "relative" }}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+      </p>
+      <h1
+        className="font-black fade-up"
+        style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "var(--text)", marginBottom: "20px", position: "relative", animationDelay: "0.3s" }}
       >
         Build a PC
-      </motion.h1>
+      </h1>
 
       {/* Framed container — full left column width */}
       <div style={{

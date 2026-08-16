@@ -2,17 +2,22 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import BuildWireframe from "@/components/BuildWireframe";
 import BuildCards from "@/components/BuildCards";
 import BuildSummary from "@/components/BuildSummary";
-import PartPickerModal from "@/components/PartPickerModal";
 import CompatibilityBanner from "@/components/CompatibilityBanner";
 import { GameBenchmarksPanel } from "@/components/ui/GameBenchmarksPanel";
 import { checkCompatibility } from "@/lib/compatibility";
 import type { Part } from "@/lib/api";
 import { getSharedBuild } from "@/lib/api";
+
+// Keeps framer-motion (AnimatePresence + PartPickerModal's transitions) out
+// of /build's initial bundle — it only loads once a slot is clicked (Perf #8).
+const PartPickerModalGate = dynamic(() => import("@/components/PartPickerModalGate"), {
+  ssr: false,
+});
 
 
 export type { SlotKey } from "@/lib/types";
@@ -131,16 +136,12 @@ function BuildPage() {
         </div>
       </main>
 
-      <AnimatePresence>
-        {activeSlot && (
-          <PartPickerModal
-            slot={activeSlot}
-            currentPart={build[activeSlot]?.part ?? null}
-            onSelect={selectPart}
-            onClose={() => setActiveSlot(null)}
-          />
-        )}
-      </AnimatePresence>
+      <PartPickerModalGate
+        activeSlot={activeSlot}
+        currentPart={activeSlot ? build[activeSlot]?.part ?? null : null}
+        onSelect={selectPart}
+        onClose={() => setActiveSlot(null)}
+      />
     </div>
   );
 }

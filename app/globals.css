@@ -42,8 +42,8 @@
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--text);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -104,7 +104,8 @@ body {
 .comic-input:focus-visible,
 .comic-btn:focus-visible,
 .filter-chip:focus-visible,
-[role="option"]:focus-visible {
+[role="option"]:focus-visible,
+[role="scrollbar"]:focus-visible {
   outline: none !important;
   box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--purple) !important;
 }
@@ -186,12 +187,87 @@ html[data-filtering="1"] .pb-browser-wrapper {
   pointer-events: none;
 }
 
-/* ── Hero CTA buttons: smaller padding on mobile ─────────── */
+/* ── Hero CTA buttons ─────────────────────────────────────── */
+/* Hover deltas used to be `useState(hovered)` in a client component purely
+   to swap two style values — CSS :hover does the same job for free and lets
+   Hero ship as a server component (M25). */
+.hero-cta {
+  border: 2px solid #111112;
+  box-shadow: 4px 4px 0 #111112;
+  transform: skewX(-8deg);
+  transition: background 0.1s, box-shadow 0.1s;
+}
+.hero-cta:hover {
+  box-shadow: 5px 5px 0 #111112;
+}
+.hero-cta--primary {
+  background: var(--purple);
+  color: white;
+}
+.hero-cta--primary:hover {
+  background: var(--purple-hover);
+}
+.hero-cta--secondary {
+  background: transparent;
+  color: #111112;
+}
+.hero-cta--secondary:hover {
+  background: color-mix(in srgb, var(--purple) 6%, transparent);
+}
+
 @media (max-width: 640px) {
   .hero-cta {
     padding: 9px 18px !important;
     font-size: 0.68rem !important;
   }
+}
+
+/* ── Hero / Features entrance animation ──────────────────── */
+/* Replaces framer-motion's mount-in animation so Hero and Features can be
+   server components (M25) — also keeps framer-motion out of "/"'s bundle
+   entirely (Perf #8). `animation-delay` is set per element via an inline
+   style since it's a static value, not state. */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-left {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.fade-up {
+  opacity: 0;
+  animation: fade-up 0.6s ease forwards;
+}
+.fade-left {
+  opacity: 0;
+  animation: fade-left 0.5s ease forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fade-up, .fade-left {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ── Feature cards ────────────────────────────────────────── */
+.feature-card {
+  transition: box-shadow 0.1s, transform 0.1s;
+}
+.feature-card:hover {
+  transform: translateY(-3px);
+}
+.feature-card--light {
+  box-shadow: 5px 5px 0 #111112;
+}
+.feature-card--light:hover {
+  box-shadow: 7px 7px 0 #111112;
+}
+.feature-card--dark {
+  box-shadow: 5px 5px 0 var(--purple);
+}
+.feature-card--dark:hover {
+  box-shadow: 7px 7px 0 var(--purple);
 }
 
 /* ── Navbar ──────────────────────────────────────────────── */
@@ -412,6 +488,19 @@ html[data-filtering="1"] .pb-browser-wrapper {
 /* ── Part row (market list) ──────────────────────────────── */
 .part-row {
   gap: 16px;
+  border-left: 4px solid transparent;
+  background: var(--bg-card);
+  transition: background 0.1s, border-left-color 0.1s;
+}
+.part-row:hover {
+  border-left-color: var(--purple);
+  background: var(--purple-pale);
+}
+.part-row:hover .part-row-name {
+  color: var(--purple);
+}
+.part-row-name {
+  transition: color 0.1s;
 }
 .part-row-thumb {
   width: 48px;

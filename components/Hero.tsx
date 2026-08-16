@@ -1,9 +1,5 @@
-"use client";
-
 import { ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState } from "react";
 import { type Stats } from "@/lib/api";
 import { monoFont } from "@/lib/tokens";
 import DiagLines from "./DiagLines";
@@ -52,24 +48,18 @@ export default function Hero({ stats }: HeroProps) {
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 md:py-28 w-full">
         {/* Top mono label */}
-        <motion.div
-          initial={{ opacity: 0, x: -12 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center gap-3 mb-8"
-        >
+        <div className="fade-left flex items-center gap-3 mb-8">
           <div style={{ width: "8px", height: "2px", background: "var(--purple)" }} />
           <span className="mono" style={{ color: "var(--purple)" }}>
             RIGPK // PC PARTS IN PAKISTAN
           </span>
-        </motion.div>
+        </div>
 
         {/* Main headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
+        <h1
+          className="fade-up"
           style={{
+            animationDelay: "0.1s",
             fontFamily: monoFont,
             fontSize: "clamp(2.3rem, 7vw, 5.5rem)",
             fontWeight: 900,
@@ -82,26 +72,21 @@ export default function Hero({ stats }: HeroProps) {
           Yahan <span style={{ color: "var(--purple)", fontStyle: "italic" }}>sab kuch</span>
           <br />
           milay ga.
-        </motion.h1>
+        </h1>
 
         {/* Subtext */}
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-6 max-w-lg leading-relaxed"
-          style={{ color: "#71717a", fontSize: "clamp(0.88rem, 3vw, 1.05rem)" }}
+        <p
+          className="fade-up mt-6 max-w-lg leading-relaxed"
+          style={{ animationDelay: "0.2s", color: "#71717a", fontSize: "clamp(0.88rem, 3vw, 1.05rem)" }}
         >
           Real-time prices scraped from Pakistan&apos;s top PC retailers.
           Compare, build, and track — all in one place.
-        </motion.p>
+        </p>
 
         {/* CTA row */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-10 flex flex-wrap items-center gap-4"
+        <div
+          className="fade-up mt-10 flex flex-wrap items-center gap-4"
+          style={{ animationDelay: "0.3s" }}
         >
           <CTAButton href="/market" primary>
             Browse Market <ArrowRight size={14} />
@@ -109,15 +94,13 @@ export default function Hero({ stats }: HeroProps) {
           <CTAButton href="/build" primary={false}>
             Build PC →
           </CTAButton>
-        </motion.div>
+        </div>
 
         {/* Stats row */}
         {totalParts !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            style={{ marginTop: "56px", display: "flex", maxWidth: "480px", flexWrap: "wrap" }}
+          <div
+            className="fade-up"
+            style={{ animationDelay: "0.5s", marginTop: "56px", display: "flex", maxWidth: "480px", flexWrap: "wrap" }}
           >
             {[
               { value: totalParts.toLocaleString(), label: "Parts Tracked" },
@@ -152,7 +135,7 @@ export default function Hero({ stats }: HeroProps) {
                 </div>
               </div>
             ))}
-          </motion.div>
+          </div>
         )}
       </div>
     </section>
@@ -168,32 +151,21 @@ function CTAButton({
   primary: boolean;
   children: React.ReactNode;
 }) {
-  const [hovered, setHovered] = useState(false);
   return (
     <Link
       href={href}
-      className="hero-cta"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className={`hero-cta ${primary ? "hero-cta--primary" : "hero-cta--secondary"}`}
       style={{
         display: "inline-flex",
         alignItems: "center",
         gap: "8px",
         padding: "12px 28px",
-        background: primary
-          ? hovered ? "var(--purple-hover)" : "var(--purple)"
-          : hovered ? "color-mix(in srgb, var(--purple) 6%, transparent)" : "transparent",
-        color: primary ? "white" : "#111112",
-        border: "2px solid #111112",
-        boxShadow: hovered ? "5px 5px 0 #111112" : "4px 4px 0 #111112",
-        transform: "skewX(-8deg)",
         fontFamily: monoFont,
         fontSize: "0.78rem",
         fontWeight: 800,
         letterSpacing: "1.5px",
         textTransform: "uppercase",
         textDecoration: "none",
-        transition: "background 0.1s, box-shadow 0.1s",
       }}
     >
       {children}

@@ -36,14 +36,18 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
   // its point. `capture: true` on window also catches scroll events fired
   // on the nested .trend-row-scroll container, since scroll doesn't bubble.
   useEffect(() => {
+    // setState is deferred to a microtask rather than called directly here —
+    // calling it synchronously in an effect body triggers cascading renders
+    // (react-hooks/set-state-in-effect); a microtask still resolves before
+    // the next paint, so there's no visible delay.
     if (hover == null) {
-      setAnchorRect(null);
+      queueMicrotask(() => setAnchorRect(null));
       return;
     }
     const update = () => {
       if (wrapRef.current) setAnchorRect(wrapRef.current.getBoundingClientRect());
     };
-    update();
+    queueMicrotask(update);
     window.addEventListener("scroll", update, { passive: true, capture: true });
     return () => window.removeEventListener("scroll", update, { capture: true });
   }, [hover]);

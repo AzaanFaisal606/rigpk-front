@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import PrebuiltSpecPage from "@/components/PrebuiltSpecPage";
 import { getPrebuilt } from "@/lib/prebuilts-api";
 import { monoFont } from "@/lib/tokens";
@@ -10,9 +11,17 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+// `/prebuilts/abc` would otherwise stringify Number(id) as NaN into the API
+// URL and rely on the backend 404ing it (M27).
+function parseId(id: string): number | null {
+  const n = Number(id);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const prebuilt = await getPrebuilt(Number(id));
+  const n = parseId(id);
+  const prebuilt = n === null ? null : await getPrebuilt(n);
   if (!prebuilt) return { title: "Pre-Built — RigPK" };
   return {
     title: `${prebuilt.name} — RigPK`,
@@ -22,7 +31,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PrebuiltDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const prebuilt = await getPrebuilt(Number(id));
+  const n = parseId(id);
+  const prebuilt = n === null ? null : await getPrebuilt(n);
   if (!prebuilt) notFound();
 
   return (
@@ -39,6 +49,7 @@ export default async function PrebuiltDetailPage({ params }: PageProps) {
       </div>
 
       <PrebuiltSpecPage prebuilt={prebuilt} />
+      <Footer />
     </>
   );
 }

@@ -1,8 +1,7 @@
-"use client";
-
 import { Cpu, HardDrive, MemoryStick, MonitorPlay, Zap, Box, CircuitBoard, Wind, Database, Monitor } from "lucide-react";
-import { useState } from "react";
 import type { Part } from "@/lib/api";
+import { SOURCES } from "@/lib/constants";
+import { isSafeHref } from "@/lib/safe-url";
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
   gpu:         MonitorPlay,
@@ -17,13 +16,9 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   monitor:     Monitor,
 };
 
-const SOURCE_SHORT: Record<string, string> = {
-  "czone.com.pk":      "CZone",
-  "zahcomputers.pk":   "Zah Computers",
-  "amdhouse.pk":       "AMD House",
-  "rbtechngames.com":  "RB Tech",
-  "junaidtech.pk":     "Junaid Tech",
-};
+const SOURCE_SHORT: Record<string, string> = Object.fromEntries(
+  SOURCES.map(s => [s.key, s.label])
+);
 
 function formatPrice(p: number | null): string {
   if (p === null) return "Out of stock";
@@ -32,22 +27,19 @@ function formatPrice(p: number | null): string {
 
 export default function PartRow({ part }: { part: Part }) {
   const Icon = CATEGORY_ICONS[part.category] ?? Cpu;
-  const [hovered, setHovered] = useState(false);
+  // Scraped urls are third-party content — a javascript: value must never
+  // reach an href. React 19 blocks that scheme too, but that protection is
+  // inherited from the framework rather than owned here (L7). An <a> with no
+  // href is inert (no navigation, not focusable) so this needs no fallback tag.
+  const href = isSafeHref(part.url) ? part.url : undefined;
 
   return (
     <a
-      href={part.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      href={href}
+      target={href ? "_blank" : undefined}
+      rel={href ? "noopener noreferrer" : undefined}
       className="flex items-center px-4 py-3 no-underline part-row"
-      style={{
-        borderBottom: "1px solid #111112",
-        borderLeft: hovered ? "4px solid var(--purple)" : "4px solid transparent",
-        background: hovered ? "var(--purple-pale)" : "var(--bg-card)",
-        transition: "background 0.1s, border-left-color 0.1s",
-      }}
+      style={{ borderBottom: "1px solid #111112" }}
     >
       {/* Thumbnail */}
       <div
@@ -64,6 +56,8 @@ export default function PartRow({ part }: { part: Part }) {
             alt={part.name}
             className="object-contain"
             referrerPolicy="no-referrer"
+            loading="lazy"
+            decoding="async"
           />
         ) : (
           <Icon className="part-row-icon" style={{ color: "var(--text-dim)" }} />
@@ -72,13 +66,7 @@ export default function PartRow({ part }: { part: Part }) {
 
       {/* Name + badges */}
       <div className="flex-1 min-w-0">
-        <p
-          className="font-medium truncate part-row-name"
-          style={{
-            color: hovered ? "var(--purple)" : "var(--text)",
-            transition: "color 0.1s",
-          }}
-        >
+        <p className="font-medium truncate part-row-name" style={{ color: "var(--text)" }}>
           {part.name}
         </p>
         <div className="flex items-center gap-2 mt-1">

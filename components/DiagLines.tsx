@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Animated diagonal dashed lines — bottom-right ~40% of hero.
  *
