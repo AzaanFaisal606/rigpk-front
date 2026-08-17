@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { TrendGroup, TrendCategory } from "@/lib/trends-api";
+import type { TrendGroup, TrendCategory, TrendGroupsResult } from "@/lib/trends-api";
 import { TREND_WHITELIST } from "@/lib/constants";
 import TrendRow from "@/components/TrendRow";
 import { monoFont } from "@/lib/tokens";
@@ -14,11 +14,13 @@ const TITLES: Record<TrendCategory, string> = {
 
 export default function TrendListPanel({
   category,
-  groups,
+  result,
 }: {
   category: TrendCategory;
-  groups: TrendGroup[];
+  result: TrendGroupsResult;
 }) {
+  const groups = result.ok ? result.data : [];
+
   // Filter to curated whitelist, keep whitelist order.
   const rows = useMemo(() => {
     const wl = TREND_WHITELIST[category];
@@ -65,7 +67,14 @@ export default function TrendListPanel({
           overflowX: "hidden",
         }}
       >
-        {rows.length === 0 ? (
+        {!result.ok ? (
+          <div
+            className="mono px-4 py-8 text-center"
+            style={{ fontSize: "0.72rem", color: "var(--purple)", fontWeight: 700 }}
+          >
+            {"// TRENDS TEMPORARILY UNAVAILABLE"}
+          </div>
+        ) : rows.length === 0 ? (
           <div
             className="mono px-4 py-8 text-center"
             style={{ fontSize: "0.72rem", color: "var(--text-dim)", fontWeight: 700 }}

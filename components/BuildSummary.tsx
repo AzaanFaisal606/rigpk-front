@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { BuildState, SlotKey } from "@/app/build/page";
 import { SLOT_LABELS } from "@/app/build/page";
 import { shareBuild } from "@/lib/api";
+import type { ShareSlotValue } from "@/lib/api";
+import { buildTotal } from "@/lib/build-total";
 
 const ALL_SLOTS: SlotKey[] = [
   "cpu", "gpu", "ram", "motherboard",
@@ -16,26 +18,19 @@ interface Props {
 
 export default function BuildSummary({ build }: Props) {
   const [shareStatus, setShareStatus] = useState<"idle" | "loading" | "copied" | "error">("idle");
-  const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  const total = ALL_SLOTS.reduce((sum, slot) => {
-    return sum + (build[slot]?.price_pkr ?? 0);
-  }, 0);
+  const total = buildTotal(build);
 
   function copyBuild() {
     const lines = ALL_SLOTS.map((slot) => {
-      const part = build[slot];
+      const entry = build[slot];
+      const part = entry?.part;
+      const qty = entry?.qty ?? 1;
       const price = part?.price_pkr != null
-        ? "Rs " + part.price_pkr.toLocaleString("en-PK")
+        ? "Rs " + (part.price_pkr * qty).toLocaleString("en-PK")
         : "—";
-      return `${SLOT_LABELS[slot]}: ${part?.name ?? "Not selected"} (${price})`;
+      const qtyLabel = entry && qty > 1 ? ` x${qty}` : "";
+      return `${SLOT_LABELS[slot]}: ${part?.name ?? "Not selected"}${qtyLabel} (${price})`;
     });
     lines.push(`\nTotal: Rs ${total.toLocaleString("en-PK")}`);
     navigator.clipboard.writeText(lines.join("\n"));
@@ -43,13 +38,14 @@ export default function BuildSummary({ build }: Props) {
 
   async function handleShare() {
     setShareStatus("loading");
-    const ids: Partial<Record<SlotKey, number>> = {};
+    const payload: Partial<Record<SlotKey, ShareSlotValue>> = {};
     for (const slot of ALL_SLOTS) {
-      if (build[slot] !== null) {
-        ids[slot] = build[slot]!.id;
+      const entry = build[slot];
+      if (entry) {
+        payload[slot] = { id: entry.part.id, qty: entry.qty };
       }
     }
-    const result = await shareBuild(ids);
+    const result = await shareBuild(payload);
     if (!result) {
       setShareStatus("error");
       setTimeout(() => setShareStatus("idle"), 3000);
@@ -91,7 +87,18 @@ export default function BuildSummary({ build }: Props) {
       {/* Rows */}
       <div style={{ padding: "16px" }}>
         {ALL_SLOTS.map((slot) => {
-          const part = build[slot];
+          const entry = build[slot];
+          const part = entry?.part;
+          const qty = entry?.qty ?? 1;
+          // is_active / price_at_share only exist on a part resolved from a
+          // shared-build code (see SharedPart) — a freshly picked part has
+          // neither, so these checks are no-ops outside that path.
+          const isDelisted = part != null && (
+            (part as { is_active?: boolean }).is_active === false || part.price_pkr == null
+          );
+          const priceAtShare = (part as { price_at_share?: number | null } | undefined)?.price_at_share;
+          const priceChanged =
+            priceAtShare != null && part?.price_pkr != null && priceAtShare !== part.price_pkr;
           return (
             <div
               key={slot}
@@ -108,20 +115,45 @@ export default function BuildSummary({ build }: Props) {
                 className="mono"
                 style={{ fontSize: "9px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px", flexShrink: 0 }}
               >
-                {SLOT_LABELS[slot]}
+                {SLOT_LABELS[slot]}{entry && qty > 1 ? ` x${qty}` : ""}
               </span>
-              <span
-                className="mono"
-                style={{
-                  fontSize: "10px",
-                  fontWeight: 600,
-                  color: part?.price_pkr != null ? "var(--text-2)" : "var(--text-dim)",
-                  textAlign: "right",
-                }}
-              >
-                {part?.price_pkr != null
-                  ? "Rs " + part.price_pkr.toLocaleString("en-PK")
-                  : "—"}
+              <span style={{ textAlign: "right" }}>
+                {isDelisted && (
+                  <span
+                    className="mono"
+                    style={{
+                      display: "block",
+                      fontSize: "8px",
+                      fontWeight: 800,
+                      color: "#dc2626",
+                      letterSpacing: "0.5px",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Unavailable
+                  </span>
+                )}
+                {priceChanged ? (
+                  <span
+                    className="mono"
+                    style={{ fontSize: "10px", fontWeight: 600, color: "var(--text-muted)" }}
+                  >
+                    {`shared at Rs ${(priceAtShare! * qty).toLocaleString("en-PK")} · now Rs ${(part!.price_pkr! * qty).toLocaleString("en-PK")}`}
+                  </span>
+                ) : (
+                  <span
+                    className="mono"
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: 600,
+                      color: part?.price_pkr != null ? "var(--text-2)" : "var(--text-dim)",
+                    }}
+                  >
+                    {part?.price_pkr != null
+                      ? "Rs " + (part.price_pkr * qty).toLocaleString("en-PK")
+                      : "—"}
+                  </span>
+                )}
               </span>
             </div>
           );

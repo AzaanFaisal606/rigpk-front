@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { API_BASE } from "@/lib/api";
 
 export interface PrebuiltComponents {
@@ -64,7 +65,14 @@ export async function getPrebuilts(
   }
 }
 
-export async function getPrebuilt(id: number): Promise<Prebuilt | null> {
+// Wrapped in React `cache()` so `generateMetadata` and the page component —
+// which both need the same prebuilt during one render pass — share a single
+// network call explicitly, rather than relying on Next's fetch-option-match
+// dedup (fragile: any future divergence in options silently doubles load on
+// the most-linked page type) (M27).
+export const getPrebuilt = cache(async function getPrebuilt(
+  id: number
+): Promise<Prebuilt | null> {
   try {
     const res = await fetch(`${API_BASE}/api/prebuilts/${id}`, {
       next: { revalidate: 60 },
@@ -74,4 +82,4 @@ export async function getPrebuilt(id: number): Promise<Prebuilt | null> {
   } catch {
     return null;
   }
-}
+});

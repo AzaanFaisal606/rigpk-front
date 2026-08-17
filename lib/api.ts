@@ -22,13 +22,18 @@ export interface Stats {
   sources?: Record<string, SourceHealth>;
 }
 
-export async function getStats(): Promise<Stats | null> {
+export type StatsResult =
+  | { ok: true; data: Stats }
+  | { ok: false; error: "network" | "http"; status?: number };
+
+export async function getStats(): Promise<StatsResult> {
   try {
     const res = await fetch(`${API_BASE}/api/stats`, { next: { revalidate: 60 } });
-    if (!res.ok) return null;
-    return res.json();
+    if (!res.ok) return { ok: false, error: "http", status: res.status };
+    const data = await res.json();
+    return { ok: true, data };
   } catch {
-    return null;
+    return { ok: false, error: "network" };
   }
 }
 
@@ -104,6 +109,9 @@ export interface PartsParams {
   fan_size?: string;
   interface?: string;
   capacity?: string;
+  include_specs?: boolean;
+  /** Aborts the underlying fetch — lets a caller cancel a stale in-flight request. */
+  signal?: AbortSignal;
 }
 
 export async function getParts(params: PartsParams = {}): Promise<PartsResult> {
@@ -112,6 +120,7 @@ export async function getParts(params: PartsParams = {}): Promise<PartsResult> {
     "category", "source", "min_price", "max_price", "sort", "limit", "offset", "q",
     "brand", "socket", "vram", "ddr_type", "speed", "chipset", "wattage",
     "rating", "form_factor", "type", "aio_size", "fan_size", "interface", "capacity",
+    "include_specs",
   ];
   for (const key of keys) {
     const val = params[key];
@@ -125,7 +134,9 @@ export async function getParts(params: PartsParams = {}): Promise<PartsResult> {
     // returning nothing — the "sometimes works, sometimes doesn't" report.
     const res = await fetch(
       `${API_BASE}/api/parts?${query}`,
-      params.q ? { cache: "no-store" } : { next: { revalidate: 30 } },
+      params.q
+        ? { cache: "no-store", signal: params.signal }
+        : { next: { revalidate: 30 }, signal: params.signal },
     );
     if (!res.ok) return { ok: false, error: "http", status: res.status };
     const data = await res.json();
@@ -174,8 +185,13 @@ export async function getFilterOptions(category: string): Promise<FilterOptions>
   }
 }
 
+export interface ShareSlotValue {
+  id: number;
+  qty: number;
+}
+
 export async function shareBuild(
-  build: Partial<Record<SlotKey, number>>
+  build: Partial<Record<SlotKey, ShareSlotValue>>
 ): Promise<{ code: string } | null> {
   try {
     const res = await fetch(`${API_BASE}/api/builds/share`, {
@@ -190,14 +206,29 @@ export async function shareBuild(
   }
 }
 
+/** A part as returned inside a resolved shared build: the usual Part fields
+ * plus quantity and delisting/price-snapshot metadata the share endpoint
+ * adds. `price_at_share` is null for codes shared before snapshots existed. */
+export interface SharedPart extends Part {
+  qty: number;
+  price_at_share: number | null;
+  is_active: boolean;
+  delisted_at: string | null;
+}
+
+export type SharedBuildResult =
+  | { ok: true; data: Partial<Record<SlotKey, SharedPart>> }
+  | { ok: false; error: "network" | "http"; status?: number };
+
 export async function getSharedBuild(
   code: string
-): Promise<Partial<Record<SlotKey, Part>> | null> {
+): Promise<SharedBuildResult> {
   try {
     const res = await fetch(`${API_BASE}/api/builds/share/${code}`);
-    if (!res.ok) return null;
-    return res.json();
+    if (!res.ok) return { ok: false, error: "http", status: res.status };
+    const data = await res.json();
+    return { ok: true, data };
   } catch {
-    return null;
+    return { ok: false, error: "network" };
   }
 }

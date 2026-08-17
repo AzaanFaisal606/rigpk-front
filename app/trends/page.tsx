@@ -1,6 +1,7 @@
 import { getTrendGroups } from "@/lib/trends-api";
 import TrendListPanel from "@/components/TrendListPanel";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Price Trends — RigPK",
@@ -30,16 +31,17 @@ export default async function TrendsPage() {
           className="mono mt-1"
           style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)" }}
         >
-          Average market price per model over time — hover the chart for exact figures &amp; range.
+          Average market price per model over time — tap or hover the chart for exact figures &amp; range.
         </p>
       </div>
 
       <div className="trends-grid">
-        <TrendListPanel category="gpu" groups={gpu} />
-        <TrendListPanel category="cpu" groups={cpu} />
-        <TrendListPanel category="ram" groups={ram} />
+        <TrendListPanel category="gpu" result={gpu} />
+        <TrendListPanel category="cpu" result={cpu} />
+        <TrendListPanel category="ram" result={ram} />
       </div>
       </main>
+      <Footer />
     </>
   );
 }

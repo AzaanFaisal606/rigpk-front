@@ -3,7 +3,6 @@ import { monoFont } from "@/lib/tokens";
 interface Props {
   sub?: string;
   height?: number;
-  accent?: string;
   className?: string;
   children: React.ReactNode;
 }
@@ -13,7 +12,6 @@ const FOLD = 20; // px for corner fold triangle
 export default function ComicFrame({
   sub,
   height = 300,
-  accent = "var(--purple)",
   className,
   children,
 }: Props) {

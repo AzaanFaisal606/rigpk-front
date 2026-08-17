@@ -19,9 +19,9 @@ const SOCKET_DDR: Record<string, string | null> = {
 export function checkCompatibility(build: BuildState): CompatIssue[] {
   const issues: CompatIssue[] = [];
 
-  const cpuSocket  = build.cpu?.specs?.socket;
-  const moboSocket = build.motherboard?.specs?.socket;
-  const ramDdr     = build.ram?.specs?.ddr_type;
+  const cpuSocket  = build.cpu?.part.specs?.socket;
+  const moboSocket = build.motherboard?.part.specs?.socket;
+  const ramDdr     = build.ram?.part.specs?.ddr_type;
 
   if (cpuSocket && moboSocket && cpuSocket !== moboSocket) {
     issues.push({

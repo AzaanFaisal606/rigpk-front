@@ -10,4 +10,13 @@ export type SlotKey =
   | "ssd"
   | "cooling";
 
-export type BuildState = Record<SlotKey, Part | null>;
+export interface BuildSlot {
+  part: Part;
+  qty: number;
+}
+
+export type BuildState = Record<SlotKey, BuildSlot | null>;
+
+/** Slots the qty stepper is shown on — matches the server's understanding
+ * of what makes sense to buy more than one of. */
+export const QTY_ELIGIBLE_SLOTS: readonly SlotKey[] = ["ram", "ssd"];

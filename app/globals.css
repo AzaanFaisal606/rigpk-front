@@ -22,8 +22,18 @@
   /* Text */
   --text:         #111112;
   --text-2:       #3f3f46;
-  --text-muted:   #71717a;
-  --text-dim:     #a1a1aa;
+  /* Both greys clear WCAG AA (4.5:1) against BOTH --bg (#f4f4f5) and
+     --bg-card (#f8f8f9) — --text-dim is used at 8px in places, so the old
+     #a1a1aa (2.33:1) was unreadable.
+
+     --text-dim is the lightest value that still passes: 4.53 / 4.69.
+     That left no room above it, so --text-muted had to move DOWN to keep
+     the hierarchy from collapsing — at its old #71717a it was both lighter
+     than dim (inverting the two roles) and itself failing on --bg at 4.40.
+     At #5a5a61 it reads 6.22 / 6.45: clearly darker than dim, clearly
+     lighter than --text (#111112). */
+  --text-muted:   #5a5a61;
+  --text-dim:     #6f6f78;
 
   /* Mono accent — JetBrains Mono loaded via next/font in app/layout.tsx */
   --mono: var(--font-jetbrains-mono), "JetBrains Mono", "Fira Code", monospace;
@@ -32,8 +42,8 @@
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--text);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -82,6 +92,53 @@ body {
   background: var(--purple-hover);
   box-shadow: 0 0 22px 4px color-mix(in srgb, var(--purple) 35%, transparent);
   transform: translateY(-1px);
+}
+
+/* ── Accessibility: focus rings + touch targets ──────────── */
+/* A visible focus ring in the site's own language: a hard offset, not a
+   glow. `:focus-visible` (not `:focus`) so mouse users never see it —
+   only keyboard/AT navigation triggers it. */
+/* !important is required — these controls set box-shadow inline for their
+   normal/active state, and an inline style always wins over a plain class
+   rule regardless of pseudo-class or selector specificity. */
+.comic-input:focus-visible,
+.comic-btn:focus-visible,
+.filter-chip:focus-visible,
+[role="option"]:focus-visible,
+[role="scrollbar"]:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--purple) !important;
+}
+
+/* Touch targets: 44px minimum, mobile only — desktop density unchanged. */
+@media (max-width: 640px) {
+  .comic-btn, .filter-chip, .sort-chip {
+    min-height: 44px;
+  }
+  /* The search field sits in the same row as those controls. Left at its
+     natural ~28px it made the bar look stretched: 44px chips around a short
+     input, with the row's height coming from the chips alone. Matching the
+     target height makes the row uniform AND gives the field the same 44px
+     touch target the rule exists for. */
+  .filter-search-input {
+    min-height: 44px;
+  }
+  /* With 44px controls, the desktop py-3/px-6 made the bar 68px tall and ate
+     48px of a 390px viewport's width. !important because these are Tailwind
+     utility classes on the same element. */
+  .filter-bar-pad {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  /* The quantity stepper is the one square control narrow enough to miss the
+     target on width as well as height — every other .comic-btn carries a text
+     label and is already wider than 44px. Scoped so widening it can't reflow
+     the filter bar. */
+  .qty-step {
+    min-width: 44px;
+  }
 }
 
 /* ── Mono label ──────────────────────────────────────────── */
@@ -147,12 +204,87 @@ html[data-filtering="1"] .pb-browser-wrapper {
   pointer-events: none;
 }
 
-/* ── Hero CTA buttons: smaller padding on mobile ─────────── */
+/* ── Hero CTA buttons ─────────────────────────────────────── */
+/* Hover deltas used to be `useState(hovered)` in a client component purely
+   to swap two style values — CSS :hover does the same job for free and lets
+   Hero ship as a server component (M25). */
+.hero-cta {
+  border: 2px solid #111112;
+  box-shadow: 4px 4px 0 #111112;
+  transform: skewX(-8deg);
+  transition: background 0.1s, box-shadow 0.1s;
+}
+.hero-cta:hover {
+  box-shadow: 5px 5px 0 #111112;
+}
+.hero-cta--primary {
+  background: var(--purple);
+  color: white;
+}
+.hero-cta--primary:hover {
+  background: var(--purple-hover);
+}
+.hero-cta--secondary {
+  background: transparent;
+  color: #111112;
+}
+.hero-cta--secondary:hover {
+  background: color-mix(in srgb, var(--purple) 6%, transparent);
+}
+
 @media (max-width: 640px) {
   .hero-cta {
     padding: 9px 18px !important;
     font-size: 0.68rem !important;
   }
+}
+
+/* ── Hero / Features entrance animation ──────────────────── */
+/* Replaces framer-motion's mount-in animation so Hero and Features can be
+   server components (M25) — also keeps framer-motion out of "/"'s bundle
+   entirely (Perf #8). `animation-delay` is set per element via an inline
+   style since it's a static value, not state. */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-left {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.fade-up {
+  opacity: 0;
+  animation: fade-up 0.6s ease forwards;
+}
+.fade-left {
+  opacity: 0;
+  animation: fade-left 0.5s ease forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fade-up, .fade-left {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ── Feature cards ────────────────────────────────────────── */
+.feature-card {
+  transition: box-shadow 0.1s, transform 0.1s;
+}
+.feature-card:hover {
+  transform: translateY(-3px);
+}
+.feature-card--light {
+  box-shadow: 5px 5px 0 #111112;
+}
+.feature-card--light:hover {
+  box-shadow: 7px 7px 0 #111112;
+}
+.feature-card--dark {
+  box-shadow: 5px 5px 0 var(--purple);
+}
+.feature-card--dark:hover {
+  box-shadow: 7px 7px 0 var(--purple);
 }
 
 /* ── Navbar ──────────────────────────────────────────────── */
@@ -367,5 +499,160 @@ html[data-filtering="1"] .pb-browser-wrapper {
   }
   .trend-range {
     width: 110px;
+  }
+}
+
+/* ── Part row (market list) ──────────────────────────────── */
+.part-row {
+  gap: 16px;
+  border-left: 4px solid transparent;
+  background: var(--bg-card);
+  transition: background 0.1s, border-left-color 0.1s;
+}
+.part-row:hover {
+  border-left-color: var(--purple);
+  background: var(--purple-pale);
+}
+.part-row:hover .part-row-name {
+  color: var(--purple);
+}
+.part-row-name {
+  transition: color 0.1s;
+}
+.part-row-thumb {
+  width: 48px;
+  height: 48px;
+}
+.part-row-thumb img {
+  width: 100%;
+  height: 100%;
+}
+.part-row-icon {
+  width: 20px;
+  height: 20px;
+}
+.part-row-name {
+  font-size: 0.875rem;
+}
+.part-row-price {
+  font-size: 1rem;
+}
+
+@media (max-width: 640px) {
+  .part-row {
+    gap: 10px;
+  }
+  .part-row-thumb {
+    width: 38px;
+    height: 38px;
+  }
+  .part-row-icon {
+    width: 16px;
+    height: 16px;
+  }
+  .part-row-name {
+    font-size: 0.78rem;
+  }
+  .part-row-price {
+    font-size: 0.78rem;
+  }
+}
+
+/* ── Build page (wireframe + cards + summary) ────────────── */
+/* Breakpoint is 767px to match the old `window.innerWidth < 768` checks
+   that drove these branches — matchMedia(max-width:768px) below (used by
+   PrebuiltSpecPage) is one pixel wider and intentionally different. */
+.build-main {
+  flex-direction: row;
+  gap: 24px;
+  padding: 0 16px 0 0;
+}
+.build-left {
+  width: auto;
+}
+.build-section-list {
+  padding: 32px 32px 16px;
+}
+.build-section-bench {
+  padding: 28px 32px 64px;
+}
+.build-cards-grid {
+  grid-template-columns: 1fr 1fr;
+}
+.build-wireframe {
+  display: flex;
+}
+.build-summary-wrap {
+  position: sticky;
+  top: 72px;
+  width: 431px;
+  flex-shrink: 0;
+  margin-top: 127px;
+}
+
+@media (max-width: 767px) {
+  .build-main {
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+  }
+  .build-left {
+    width: 100%;
+  }
+  .build-section-list {
+    padding: 32px 24px 16px;
+  }
+  .build-section-bench {
+    padding: 24px 24px 48px;
+  }
+  .build-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .build-wireframe {
+    display: none;
+  }
+  .build-summary-wrap {
+    position: static;
+    width: 100%;
+    margin-top: 0;
+    padding: 0 24px 48px;
+  }
+}
+
+/* ── Prebuilt spec page hero (price card + CTA row) ──────── */
+/* Same 768px breakpoint as the matchMedia the old isMobile hook used here. */
+.pbsp-hero-frame {
+  --pbsp-frame-h: 460px;
+}
+.pbsp-price {
+  font-size: 2.25rem;
+  margin-bottom: 12px;
+}
+.pbsp-buy-btn {
+  padding: 14px 18px;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+.pbsp-icon-btn {
+  width: 52px;
+  height: 52px;
+}
+
+@media (max-width: 768px) {
+  .pbsp-hero-frame {
+    --pbsp-frame-h: 260px;
+  }
+  .pbsp-price {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+  .pbsp-buy-btn {
+    padding: 9px 10px;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .pbsp-icon-btn {
+    width: 38px;
+    height: 38px;
   }
 }

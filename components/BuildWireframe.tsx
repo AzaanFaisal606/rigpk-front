@@ -1,7 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import type { BuildState, SlotKey } from "@/app/build/page";
 import { SLOT_LABELS, SLOT_SUB } from "@/app/build/page";
 
@@ -53,7 +51,7 @@ function DiagLines() {
   for (let i = 0; i < 40; i++) {
     const x = (i * 63) % 1400;
     const len = 40 + ((i * 37) % 120);
-    const col = i % 3 === 0 ? "#c4b5fd" : i % 3 === 1 ? "#e4e4e7" : "#ddd6fe";
+    const col = i % 3 === 0 ? "var(--purple-pale)" : i % 3 === 1 ? "#e4e4e7" : "var(--purple-pale)";
     const thick = i % 5 === 0 ? 2.5 : 1.5;
     lines.push(
       <line key={i} x1={x} y1={-20} x2={x - len} y2={len + 20}
@@ -199,7 +197,7 @@ function CalloutLines({ build }: { build: BuildState }) {
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
     >
       {SLOT_ANCHORS.map(({ slot, side, caseX, caseY, railY }) => {
-        const selected = build[slot] !== null;
+        const selected = build[slot] != null;
         const color = selected ? PURPLE : INK;
         const strokeWidth = selected ? 2 : 1.5;
         const strokeDasharray = selected ? "none" : "4 3";
@@ -237,8 +235,9 @@ function LabelCard({
   onSlotClick: (slot: SlotKey) => void;
 }) {
   const { slot, side, railY } = anchor;
-  const part = build[slot];
-  const selected = part !== null;
+  const entry = build[slot];
+  const part = entry?.part ?? null;
+  const selected = entry != null;
   const color = selected ? PURPLE : INK;
 
   const topPct = (railY / 540) * 100;
@@ -313,21 +312,10 @@ function LabelCard({
 }
 
 export default function BuildWireframe({ build, onSlotClick }: Props) {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  if (isMobile) return null;
-
   return (
     <section
+      className="build-wireframe"
       style={{
-        display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
         padding: "32px 32px 24px",
@@ -338,24 +326,18 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
     >
       <DiagLines />
 
-      <motion.p
-        className="section-label"
-        style={{ marginBottom: "6px", position: "relative" }}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+      <p
+        className="section-label fade-up"
+        style={{ marginBottom: "6px", position: "relative", animationDelay: "0.2s" }}
       >
         Configure your build
-      </motion.p>
-      <motion.h1
-        className="font-black"
-        style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "var(--text)", marginBottom: "20px", position: "relative" }}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+      </p>
+      <h1
+        className="font-black fade-up"
+        style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "var(--text)", marginBottom: "20px", position: "relative", animationDelay: "0.3s" }}
       >
         Build a PC
-      </motion.h1>
+      </h1>
 
       {/* Framed container — full left column width */}
       <div style={{

@@ -22,18 +22,22 @@ export interface TrendGroup {
 
 export type TrendCategory = "gpu" | "cpu" | "ram";
 
+export type TrendGroupsResult =
+  | { ok: true; data: TrendGroup[] }
+  | { ok: false; error: "network" | "http"; status?: number };
+
 export async function getTrendGroups(
   category: TrendCategory
-): Promise<TrendGroup[]> {
+): Promise<TrendGroupsResult> {
   try {
     const res = await fetch(
       `${API_BASE}/api/trends/groups?category=${category}`,
       { next: { revalidate: 300 } }
     );
-    if (!res.ok) return [];
+    if (!res.ok) return { ok: false, error: "http", status: res.status };
     const data = await res.json();
-    return data.groups ?? [];
+    return { ok: true, data: data.groups ?? [] };
   } catch {
-    return [];
+    return { ok: false, error: "network" };
   }
 }

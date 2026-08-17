@@ -1,20 +1,19 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import FilterBar from "@/components/FilterBar";
-import MarketSearchResults from "@/components/MarketSearchResults";
-import MarketResultsMeta from "@/components/MarketResultsMeta";
+import PartsList from "@/components/PartsList";
 import JsonLd from "@/components/JsonLd";
-import { getParts } from "@/lib/api";
-import { str } from "@/lib/utils";
-import { monoFont } from "@/lib/tokens";
-import { SPEC_KEYS } from "@/lib/constants";
 import Footer from "@/components/Footer";
+import { MARKET_ROUTE_CATEGORIES } from "@/lib/constants";
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rigpk.vercel.app";
 
-// Subset of lib/constants.ts CATEGORIES — hdd/monitor excluded as they lack CATEGORY_META entries
-const CATEGORIES = ["cpu", "gpu", "ram", "motherboard", "psu", "case", "ssd", "cooling"] as const;
+// Every category with a real page here. FilterBar's category dropdown pushes
+// /market/<value> for each entry in lib/constants CATEGORIES, so this list has
+// to cover all of them — anything missing becomes a 404 reachable straight
+// from the UI.
+const CATEGORIES = MARKET_ROUTE_CATEGORIES;
 type Category = (typeof CATEGORIES)[number];
 
 const CATEGORY_META: Record<Category, { title: string; description: string }> = {
@@ -26,11 +25,21 @@ const CATEGORY_META: Record<Category, { title: string; description: string }> = 
   case:        { title: "PC Case Prices in Pakistan | RigPK",     description: "PC cabinet prices from Pakistani retailers. ATX, mATX, ITX." },
   ssd:         { title: "SSD Prices in Pakistan | RigPK",         description: "NVMe and SATA SSD prices from Pakistani PC stores." },
   cooling:     { title: "CPU Cooler Prices in Pakistan | RigPK",  description: "Air and AIO liquid cooler prices from Pakistani retailers." },
+  hdd:         { title: "Hard Drive Prices in Pakistan | RigPK",  description: "Internal and external hard drive prices from Pakistani retailers." },
+  monitor:     { title: "Monitor Prices in Pakistan | RigPK",     description: "Gaming and office monitor prices from Pakistani PC retailers." },
 };
 
 export function generateStaticParams() {
   return CATEGORIES.map(c => ({ category: c }));
 }
+
+// Measured, not assumed: with this route dynamic (it reads searchParams) and
+// wrapped by a loading.tsx, `dynamicParams = false` and the notFound() below
+// both render the 404 UI but ship it with HTTP 200 — streaming locks the
+// status before either can change it. Verified by removing proxy.ts and
+// curling /market/banana: 200. proxy.ts is what produces the real 404; these
+// two are the belt to its braces, and matter in `next dev`.
+export const dynamicParams = false;
 
 export async function generateMetadata({
   params,
@@ -56,205 +65,9 @@ interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-const LIMIT = 50;
-
-async function PartsList({
-  category,
-  searchParams,
-}: {
-  category: string;
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
-  const source   = str(searchParams.source);
-  const sort     = (str(searchParams.sort) as "price_asc" | "price_desc") ?? "price_asc";
-  const minPrice = str(searchParams.min_price);
-  const maxPrice = str(searchParams.max_price);
-  const offset   = Number(str(searchParams.offset) ?? "0");
-  const q        = str(searchParams.q);
-
-  const specParams: Record<string, string> = {};
-  for (const key of SPEC_KEYS) {
-    const val = str(searchParams[key]);
-    if (val) specParams[key] = val;
-  }
-
-  const result = await getParts({
-    category,
-    source,
-    min_price: minPrice ? Number(minPrice) : undefined,
-    max_price: maxPrice ? Number(maxPrice) : undefined,
-    sort,
-    limit: LIMIT,
-    offset,
-    q,
-    ...specParams,
-  });
-  const failed = !result.ok;
-  const items  = result.ok ? result.items : [];
-  const total  = result.ok ? result.total : 0;
-  const specFiltersActive = Object.keys(specParams).length > 0;
-
-  const heading = category.toUpperCase() + "S";
-
-  return (
-    <>
-      <Suspense>
-        <FilterBar total={total} activeCategory={category} clientIndexActive={!specFiltersActive} />
-      </Suspense>
-
-      <div className="max-w-6xl mx-auto px-6 py-6 w-full market-list-wrap">
-        <div className="flex items-end justify-between mb-5">
-          <div>
-            <p className="section-label mb-1">Browse Parts</p>
-            <h1
-              style={{
-                fontFamily: monoFont,
-                fontSize: "clamp(1.2rem, 2.5vw, 1.6rem)",
-                fontWeight: 900,
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-                color: "var(--text)",
-                lineHeight: 1,
-              }}
-            >
-              {heading}
-            </h1>
-          </div>
-          {total > 0 && (
-            <MarketResultsMeta
-              part="range"
-              serverTotal={total}
-              offset={offset}
-              limit={LIMIT}
-              clientIndexActive={!specFiltersActive}
-              category={category}
-              source={source}
-              sort={sort}
-              minPrice={minPrice}
-              maxPrice={maxPrice}
-              q={q}
-              specParams={specParams}
-              failed={failed}
-            />
-          )}
-        </div>
-
-        <div
-          style={{
-            border: "2px solid #111112",
-            boxShadow: "10px 10px 0 #111112",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              background: "#111112",
-              color: "white",
-              padding: "12px 20px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <span
-              style={{
-                fontFamily: monoFont,
-                fontSize: "11px",
-                fontWeight: 800,
-                letterSpacing: "2px",
-                textTransform: "uppercase",
-              }}
-            >
-              {heading} — Parts List
-            </span>
-            <MarketResultsMeta
-              part="count"
-              serverTotal={total}
-              offset={offset}
-              limit={LIMIT}
-              clientIndexActive={!specFiltersActive}
-              category={category}
-              source={source}
-              sort={sort}
-              minPrice={minPrice}
-              maxPrice={maxPrice}
-              q={q}
-              specParams={specParams}
-              failed={failed}
-            />
-          </div>
-
-          {failed ? (
-            // SSR-level failure (e.g. the backend is unreachable on first
-            // paint). MarketSearchResults has no way to know about this — its
-            // own `failed` state only tracks client-side getPartsByIds
-            // failures — so this stays a server-rendered branch rather than
-            // folding into the client component. Typing while this is up
-            // still server-navigates (FilterBar's clientPathActive is false
-            // until the index actually loads), and a failed re-fetch lands
-            // right back here.
-            <div
-              style={{
-                padding: "64px 24px",
-                textAlign: "center",
-                background: "var(--bg-card)",
-                borderTop: "1px solid #111112",
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: monoFont,
-                  fontSize: "0.9rem",
-                  fontWeight: 900,
-                  color: "var(--purple)",
-                  letterSpacing: "3px",
-                  textTransform: "uppercase",
-                }}
-              >
-                {"// SEARCH FAILED"}
-              </p>
-              <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "8px" }}>
-                Couldn&apos;t reach the server. Reload to try again.
-              </p>
-            </div>
-          ) : (
-            <MarketSearchResults
-              category={category}
-              initialItems={items}
-              initialQ={q}
-              specFiltersActive={specFiltersActive}
-              source={source}
-              minPrice={minPrice ? Number(minPrice) : undefined}
-              maxPrice={maxPrice ? Number(maxPrice) : undefined}
-              sort={sort}
-              limit={LIMIT}
-              offset={offset}
-            />
-          )}
-        </div>
-
-        <MarketResultsMeta
-          part="pagination"
-          serverTotal={total}
-          offset={offset}
-          limit={LIMIT}
-          clientIndexActive={!specFiltersActive}
-          category={category}
-          source={source}
-          sort={sort}
-          minPrice={minPrice}
-          maxPrice={maxPrice}
-          q={q}
-          specParams={specParams}
-          failed={failed}
-        />
-      </div>
-    </>
-  );
-}
-
 export default async function CategoryPage({ params, searchParams }: PageProps) {
   const { category } = await params;
+  if (!CATEGORIES.includes(category as Category)) notFound();
   const resolvedParams = await searchParams;
   const meta = CATEGORY_META[category as Category];
 

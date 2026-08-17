@@ -64,15 +64,38 @@ export default function MarketSearchResults({
     };
   }, [category, specFiltersActive, initialQ]);
 
+  // The fallback rule, applied literally: a spec filter the client index
+  // cannot evaluate hands control back to the server, exactly like a
+  // not-yet-loaded or failed index does.
+  //
+  // `ready` alone is not enough. PartsList keeps this component MOUNTED for
+  // every spec-filter change (it renders on `category`, not on
+  // `specFiltersActive`), so `ready` — set true once and never reset — stays
+  // true across the transition. Gating on it alone froze the rendered list on
+  // the last client-index match while MarketResultsMeta, which computes
+  // `clientIndexActive` as `!specFiltersActive` independently, correctly
+  // switched to the server's filtered total. The visible result was a row
+  // list that disagreed with its own count, and stayed stuck for every later
+  // interaction until the category changed or the page reloaded.
+  const clientPathActive = ready && !specFiltersActive;
+
   // Server render is authoritative until the index exists. Derived during
   // render (not synced via effect) so a fresh SSR payload — e.g. a filter
-  // change that remounts this instance with new initialItems — is reflected
+  // change that re-renders this instance with new initialItems — is reflected
   // immediately without an extra setState-in-effect render pass.
-  const displayedItems = ready ? items : initialItems;
+  const displayedItems = clientPathActive ? items : initialItems;
 
   useEffect(() => {
-    if (!ready) return;
-    return subscribeSearch(({ q }) => {
+    if (!clientPathActive) return;
+    // The client path has no `isPending` — it never navigates — so FilterBar's
+    // transition can't flag the document for it. Set the same attribute here
+    // instead, so globals.css dims the list during a client query exactly as
+    // it does during a server one. Without this the two paths looked like
+    // different features: the unfiltered page faded while resolving, the
+    // category page just snapped.
+    const flagOn = () => { document.documentElement.dataset.filtering = "1"; };
+    const flagOff = () => { delete document.documentElement.dataset.filtering; };
+    const unsubscribe = subscribeSearch(({ q }) => {
       const index = indexRef.current;
       if (!index) return;
 
@@ -89,8 +112,12 @@ export default function MarketSearchResults({
       // Monotonic sequence: a slow response for an earlier query must never
       // overwrite a newer one. This is the flip-flop the user reported.
       const seq = ++seqRef.current;
+      flagOn();
       getPartsByIds(ids).then((res) => {
-        if (seq !== seqRef.current) return;   // superseded, discard
+        // A superseded response must not lift the flag — the newer one is
+        // still in flight and still owns it.
+        if (seq !== seqRef.current) return;
+        flagOff();
         if (!res.ok) { setFailed(true); return; }
         setFailed(false);
         // Only commit non-empty results, or a genuinely empty match. Never
@@ -101,9 +128,17 @@ export default function MarketSearchResults({
         publishTotal(total);
       });
     });
-  }, [ready, source, minPrice, maxPrice, sort, offset, limit]);
+    return () => {
+      unsubscribe();
+      // Unmounting mid-flight would otherwise leave the whole page dimmed.
+      flagOff();
+    };
+  }, [clientPathActive, source, minPrice, maxPrice, sort, offset, limit]);
 
-  if (failed) {
+  // Only a live client-path failure counts. `failed` persists in state, so
+  // without this gate a spec filter applied after a failed getPartsByIds
+  // would keep showing SEARCH FAILED over a perfectly good server render.
+  if (clientPathActive && failed) {
     return (
       <div style={{ padding: "64px 24px", textAlign: "center",
                     background: "var(--bg-card)", borderTop: "1px solid #111112" }}>

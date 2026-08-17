@@ -8,7 +8,7 @@ import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import type { DropdownOption } from "@/components/ui/ComicDropdown";
 import { PriceRangeFilter } from "@/components/ui/PriceRangeFilter";
 import { monoFont } from "@/lib/tokens";
-import { CATEGORIES, SOURCES, SPEC_LABELS } from "@/lib/constants";
+import { CATEGORIES, DEFAULT_SORT, SOURCES, SPEC_KEYS, SPEC_LABELS } from "@/lib/constants";
 import { useScrollHide } from "@/lib/hooks/useScrollHide";
 import { publishSearch, subscribeIndexReady } from "@/lib/search-bus";
 
@@ -88,7 +88,7 @@ export default function FilterBar({
 
   const category = activeCategory ?? params.get("category") ?? "";
   const source   = params.get("source")   ?? "";
-  const sort     = params.get("sort")     ?? "price_asc";
+  const sort     = params.get("sort")     ?? DEFAULT_SORT;
   const minPrice = params.get("min_price") ?? "";
   const maxPrice = params.get("max_price") ?? "";
   const q        = params.get("q")        ?? "";
@@ -113,8 +113,15 @@ export default function FilterBar({
   const push = useCallback(
     (key: string, value: string) => {
       if (key === "category") {
+        // Keep source/sort/price/search — only strip spec keys, which don't
+        // necessarily mean the same thing (or exist at all) in the new
+        // category's filter options (M28).
+        const next = new URLSearchParams(params.toString());
+        for (const k of SPEC_KEYS) next.delete(k);
+        next.delete("offset");
+        const qs = next.toString();
         startTransition(() => {
-          router.push(value ? `/market/${value}` : "/market");
+          router.push(value ? `/market/${value}${qs ? `?${qs}` : ""}` : `/market${qs ? `?${qs}` : ""}`);
         });
         return;
       }
@@ -135,8 +142,12 @@ export default function FilterBar({
   );
 
   useEffect(() => {
+    // No setState call is synchronous in the effect body — the no-category
+    // reset is deferred to a microtask so it can't trigger a cascading
+    // render (react-hooks/set-state-in-effect); the fetched-options case was
+    // already async via `.then`.
     if (!category) {
-      setFilterOptions({});
+      queueMicrotask(() => setFilterOptions({}));
       return;
     }
     getFilterOptions(category).then(setFilterOptions);
@@ -169,36 +180,35 @@ export default function FilterBar({
   const pushRef = useRef(push);
   useEffect(() => { pushRef.current = push; }, [push]);
 
-  // Debounce search.
+  // Search is submit-gated: Enter, or the button beside the field. Nothing
+  // fires while typing.
   //
-  // `q` must NOT be a dependency here. It is derived from the URL, so every
-  // arriving response used to re-run this effect, clear the pending timer and
-  // re-arm a fresh one — typing "5060 ti" fired a navigation for "5060", whose
-  // response restarted the clock and issued a second one, so the list visibly
-  // flipped back to the earlier query's results. Comparing against a ref keeps
-  // the timer owned solely by keystrokes. Still load-bearing for the fallback
-  // path below.
-  useEffect(() => {
-    if (searchInput === lastPushedQ.current) return;
-    const t = setTimeout(() => {
-      lastPushedQ.current = searchInput;
-
+  // This replaces a per-keystroke debounce. The debounce was two racing
+  // timers — one owned by keystrokes, one implicitly re-armed by the URL `q`
+  // it wrote — and on the client-index path the 60ms window made the race
+  // tight enough to lose: a fast typist could land a publishSearch for a
+  // prefix after the full query's, and the list would sit on the wrong
+  // results until the next keystroke. Submitting explicitly means exactly
+  // one publish per user intent, and `q` can never re-arm anything.
+  const submitSearch = useCallback(
+    (value: string) => {
+      if (value === lastPushedQ.current) return;
+      lastPushedQ.current = value;
       if (clientPathActive) {
-        // No network cost per keystroke, so the debounce exists only to avoid
-        // re-rendering the list on every character. Update the address bar
-        // without an RSC round trip so links stay shareable.
+        // Update the address bar without an RSC round trip so links stay
+        // shareable, then hand the query to the in-browser index.
         const next = new URLSearchParams(params.toString());
-        if (searchInput) next.set("q", searchInput);
+        if (value) next.set("q", value);
         else next.delete("q");
         next.delete("offset");
         window.history.replaceState(null, "", `${pathname}?${next.toString()}`);
-        publishSearch({ q: searchInput });
+        publishSearch({ q: value });
       } else {
-        pushRef.current("q", searchInput);
+        pushRef.current("q", value);
       }
-    }, clientPathActive ? 60 : 300);
-    return () => clearTimeout(t);
-  }, [searchInput, clientPathActive, params, pathname]);
+    },
+    [clientPathActive, params, pathname]
+  );
 
   const specEntries = Object.entries(filterOptions).filter(
     ([, values]) => values && values.length > 0
@@ -263,7 +273,7 @@ export default function FilterBar({
         transition: "transform 0.25s ease",
       }}
     >
-      <div className="max-w-6xl mx-auto px-6 py-3">
+      <div className="max-w-6xl mx-auto px-6 py-3 filter-bar-pad">
         <div
           className="filter-inner-scroll"
           style={{
@@ -273,7 +283,10 @@ export default function FilterBar({
             scrollbarWidth: "none",
           }}
         >
-        <div className="flex items-center gap-2" style={{ minWidth: "max-content" }}>
+        {/* paddingRight leaves room for the last chip's skew overhang + its
+            2px hard shadow, which the overflow:auto wrapper would otherwise
+            clip at the right edge. */}
+        <div className="flex items-center gap-2" style={{ minWidth: "max-content", paddingRight: "6px" }}>
 
           {/* Parts count */}
           <span
@@ -283,71 +296,108 @@ export default function FilterBar({
             {total.toLocaleString()} parts
           </span>
 
-          {/* Search */}
-          <div
+          {/* Search — submit-gated (Enter or the button); typing alone does
+              nothing, so there is no keystroke race to lose. */}
+          <form
+            onSubmit={e => { e.preventDefault(); submitSearch(searchInput); }}
             style={{
-              position: "relative",
-              flex: "1 1 140px",
-              minWidth: "120px",
-              maxWidth: "220px",
+              flex: "1 1 180px",
+              minWidth: "150px",
+              maxWidth: "260px",
               display: "flex",
               alignItems: "center",
+              gap: "10px",
             }}
           >
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              enterKeyHint="search"
-              style={{
-                width: "100%",
-                padding: "6px 26px 6px 10px",
-                border: searchFocused ? "2px solid var(--purple)" : "2px solid #111112",
-                background: "white",
-                outline: "none",
-                boxShadow: searchFocused ? "2px 2px 0 var(--purple)" : "2px 2px 0 #111112",
-                fontFamily: monoFont,
-                fontSize: "11px",
-                color: "var(--text)",
-                transition: "border-color 0.1s, box-shadow 0.1s",
-              }}
-            />
-            {searchInput && !isPending && (
-              <button
-                aria-label="Clear search"
-                onClick={() => setSearchInput("")}
+            <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", alignItems: "center" }}>
+              <input
+                type="search"
+                className="filter-search-input"
+                placeholder="Search..."
+                value={searchInput}
+                onChange={e => setSearchInput(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                enterKeyHint="search"
                 style={{
-                  position: "absolute",
-                  right: "8px",
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  lineHeight: 1,
-                  cursor: "pointer",
+                  width: "100%",
+                  padding: "6px 26px 6px 10px",
+                  border: searchFocused ? "2px solid var(--purple)" : "2px solid #111112",
+                  background: "white",
+                  outline: "none",
+                  boxShadow: searchFocused ? "2px 2px 0 var(--purple)" : "2px 2px 0 #111112",
                   fontFamily: monoFont,
                   fontSize: "11px",
-                  fontWeight: 800,
-                  color: "var(--text-muted)",
+                  color: "var(--text)",
+                  transition: "border-color 0.1s, box-shadow 0.1s",
+                  // Safari draws its own clear affordance on type=search and
+                  // it would sit on top of ours.
+                  WebkitAppearance: "none",
+                  appearance: "none",
                 }}
-              >
-                ✕
-              </button>
-            )}
-            {isPending && (
-              <span
-                aria-hidden
-                className="filter-pending-dot"
-                style={{ position: "absolute", right: "9px" }}
               />
-            )}
-          </div>
+              {searchInput && !isPending && (
+                <button
+                  type="button"
+                  aria-label="Clear search"
+                  // Clearing is itself a submit — an empty field that still
+                  // shows the previous query's results is the same "stuck"
+                  // state the debounce used to produce.
+                  onClick={() => { setSearchInput(""); submitSearch(""); }}
+                  style={{
+                    position: "absolute",
+                    right: "8px",
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    lineHeight: 1,
+                    cursor: "pointer",
+                    fontFamily: monoFont,
+                    fontSize: "11px",
+                    fontWeight: 800,
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+              {isPending && (
+                <span
+                  aria-hidden
+                  className="filter-pending-dot"
+                  style={{ position: "absolute", right: "9px" }}
+                />
+              )}
+            </div>
+            <button
+              type="submit"
+              aria-label="Search"
+              className="comic-btn"
+              style={{
+                flexShrink: 0,
+                padding: "5px 12px",
+                border: "2px solid #111112",
+                background: "var(--purple)",
+                color: "white",
+                boxShadow: "2px 2px 0 #111112",
+                transform: "skewX(-8deg)",
+                fontFamily: monoFont,
+                fontSize: "10px",
+                fontWeight: 800,
+                letterSpacing: "0.8px",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                lineHeight: 1.6,
+              }}
+            >
+              <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>Go</span>
+            </button>
+          </form>
 
           {/* Category */}
           <ComicDropdown
@@ -391,11 +441,15 @@ export default function FilterBar({
           {/* Sort — pushed to far right */}
           <div style={{ marginLeft: "auto" }}>
             <ComicDropdown
-              label={sort === "price_asc" ? "Price ↑" : "Price ↓"}
+              label="Sort"
+              // Always the resolved value, never "" — sort is never absent
+              // (it falls back to DEFAULT_SORT), so the chip should always
+              // read "Price ↑"/"Price ↓" accented rather than showing a
+              // neutral "Sort" that misrepresents an ordering that IS applied.
               active={sort}
               options={sortOptions}
               onSelect={v => push("sort", v)}
-              onClear={() => push("sort", "price_asc")}
+              onClear={() => push("sort", DEFAULT_SORT)}
             />
           </div>
         </div>
