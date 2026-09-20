@@ -28,7 +28,11 @@ export type StatsResult =
 
 export async function getStats(): Promise<StatsResult> {
   try {
-    const res = await fetch(`${API_BASE}/api/stats`, { next: { revalidate: 60 } });
+    // Stats change once a week, when the scrape runs. A 60s window meant any
+    // crawler hitting the homepage re-fetched it up to 1,440 times a day, each
+    // one a real query against a row-read-billed database. An hour is still far
+    // fresher than the data itself.
+    const res = await fetch(`${API_BASE}/api/stats`, { next: { revalidate: 3600 } });
     if (!res.ok) return { ok: false, error: "http", status: res.status };
     const data = await res.json();
     return { ok: true, data };
