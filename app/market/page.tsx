@@ -3,15 +3,22 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import PartsList from "@/components/PartsList";
 import Footer from "@/components/Footer";
-
-export const metadata: Metadata = {
-  title: "PC Parts Market — RigPK",
-  description:
-    "Browse all PC parts with live prices from Pakistani retailers. Filter by category, brand, price, and specs.",
-};
+import { hasQueryParams } from "@/lib/seo";
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const params = await searchParams;
+  return {
+    title: "PC Parts Prices in Pakistan",
+    description:
+      "Browse all PC parts with live prices from Pakistani retailers. Filter by category, brand, price, and specs.",
+    alternates: { canonical: "/market" },
+    // Sorted, paged, filtered and searched variants duplicate the clean page.
+    ...(hasQueryParams(params) && { robots: { index: false, follow: true } }),
+  };
 }
 
 export default async function MarketPage({ searchParams }: PageProps) {

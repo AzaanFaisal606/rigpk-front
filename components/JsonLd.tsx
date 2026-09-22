@@ -1,8 +1,11 @@
 export default function JsonLd({ data }: { data: Record<string, unknown> }) {
+  // Scraped strings end up in here; escaping "<" stops a "</script>" inside
+  // one from closing the tag early.
+  const json = JSON.stringify(data).replace(/</g, "\\u003c");
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: json }}
     />
   );
 }

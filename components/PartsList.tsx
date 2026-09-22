@@ -4,10 +4,11 @@ import FilterBar from "@/components/FilterBar";
 import PartRow from "@/components/PartRow";
 import MarketSearchResults from "@/components/MarketSearchResults";
 import MarketResultsMeta from "@/components/MarketResultsMeta";
+import FacetLinks from "@/components/FacetLinks";
 import { getParts } from "@/lib/api";
 import { str } from "@/lib/utils";
 import { monoFont } from "@/lib/tokens";
-import { buildPageUrl, DEFAULT_SORT, SPEC_KEYS } from "@/lib/constants";
+import { buildPageUrl, CATEGORY_NAMES, DEFAULT_SORT, SPEC_KEYS } from "@/lib/constants";
 
 const LIMIT = 50;
 
@@ -20,9 +21,17 @@ interface Props {
    *  single category is known. */
   category?: string;
   searchParams: Record<string, string | string[] | undefined>;
+  /** Filters implied by a clean facet path (/market/ram/ddr5), already merged
+   *  into `searchParams`; FilterBar needs them separately to show them as
+   *  set and to carry them into query-string URLs when they change. */
+  baseParams?: Record<string, string>;
+  /** H1 override for facet pages. */
+  heading?: string;
+  /** Slug of the facet page being shown, highlighted in the popular chips. */
+  activeFacet?: string;
 }
 
-export default async function PartsList({ category, searchParams }: Props) {
+export default async function PartsList({ category, searchParams, baseParams, heading: headingOverride, activeFacet }: Props) {
   const resolvedCategory = category ?? str(searchParams.category);
   const source   = str(searchParams.source);
   const sort     = (str(searchParams.sort) as "price_asc" | "price_desc") ?? DEFAULT_SORT;
@@ -53,7 +62,14 @@ export default async function PartsList({ category, searchParams }: Props) {
   const items  = result.ok ? result.items : [];
   const total  = result.ok ? result.total : 0;
 
-  const heading = resolvedCategory ? resolvedCategory.toUpperCase() + "S" : "ALL PARTS";
+  const shortLabel = resolvedCategory ? resolvedCategory.toUpperCase() + "S" : "ALL PARTS";
+  // Keyword-bearing H1 ("GPU Prices in Pakistan"); the short label stays for
+  // the compact list header below.
+  const categoryName = resolvedCategory
+    ? CATEGORY_NAMES[resolvedCategory as keyof typeof CATEGORY_NAMES] ?? resolvedCategory.toUpperCase()
+    : null;
+  const heading = headingOverride
+    ?? (categoryName ? `${categoryName} Prices in Pakistan` : "PC Part Prices in Pakistan");
   const totalPages = Math.ceil(total / LIMIT);
   const currentPage = Math.floor(offset / LIMIT) + 1;
   const hasPrev = offset > 0;
@@ -83,6 +99,7 @@ export default async function PartsList({ category, searchParams }: Props) {
           total={total}
           activeCategory={category}
           clientIndexActive={category ? !specFiltersActive : false}
+          baseParams={baseParams}
         />
       </Suspense>
 
@@ -132,6 +149,8 @@ export default async function PartsList({ category, searchParams }: Props) {
           )}
         </div>
 
+        {category && <FacetLinks category={category} activeFacet={activeFacet} />}
+
         {/* Parts list card — bigger shadow like PartPickerModal */}
         <div
           style={{
@@ -160,7 +179,7 @@ export default async function PartsList({ category, searchParams }: Props) {
                 textTransform: "uppercase",
               }}
             >
-              {heading} — Parts List
+              {shortLabel} — Parts List
             </span>
             {category ? (
               <MarketResultsMeta

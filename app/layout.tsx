@@ -70,6 +70,18 @@ export default function RootLayout({
             }),
           }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "RigPK",
+              url: "https://rigpk.vercel.app",
+              logo: "https://rigpk.vercel.app/logo.png",
+            }),
+          }}
+        />
         {children}
       </body>
     </html>

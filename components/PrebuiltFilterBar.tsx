@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import { ToggleChip } from "@/components/ui/ToggleChip";
@@ -16,7 +16,13 @@ const SORT_OPTIONS = [
   { value: "price_desc", label: "PRICE ↓" },
 ];
 
-export default function PrebuiltFilterBar() {
+interface Props {
+  /** Rendered hanging off the bar's bottom edge, under the search input —
+   *  outside the horizontal scroll wrapper so it isn't clipped. */
+  pulldown?: ReactNode;
+}
+
+export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -218,6 +224,7 @@ export default function PrebuiltFilterBar() {
         />
       </div>
       </div>
+      {pulldown}
     </div>
   );
 }

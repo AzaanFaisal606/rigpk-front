@@ -5,15 +5,23 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PrebuiltCard from "@/components/PrebuiltCard";
 import PrebuiltFilterBar from "@/components/PrebuiltFilterBar";
+import BudgetPulldown from "@/components/BudgetPulldown";
 import { getPrebuilts } from "@/lib/prebuilts-api";
 import { str } from "@/lib/utils";
 import { monoFont } from "@/lib/tokens";
 import { buildPageUrl, DEFAULT_SORT } from "@/lib/constants";
+import { hasQueryParams } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Pre-Built PCs — RigPK",
-  description: "Browse pre-built gaming PCs from Pakistani retailers. Filter by CPU, GPU, price and more.",
-};
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const params = await searchParams;
+  return {
+    title: "Pre-Built Gaming PCs in Pakistan",
+    description: "Browse pre-built gaming PCs from Pakistani retailers. Filter by CPU, GPU, price and more.",
+    alternates: { canonical: "/prebuilts" },
+    // Sorted, paged, filtered and searched variants duplicate the clean page.
+    ...(hasQueryParams(params) && { robots: { index: false, follow: true } }),
+  };
+}
 
 const LIMIT = 24;
 
@@ -162,7 +170,7 @@ export default async function PrebuiltsPage({ searchParams }: PageProps) {
     <>
       <Navbar />
       <Suspense>
-        <PrebuiltFilterBar />
+        <PrebuiltFilterBar pulldown={<Suspense fallback={null}><BudgetPulldown /></Suspense>} />
       </Suspense>
 
       <main className="pb-browser-wrapper" style={{ maxWidth: "80rem", margin: "0 auto", padding: "32px 24px" }}>

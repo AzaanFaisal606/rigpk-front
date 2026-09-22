@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { FilterOptions } from "@/lib/api";
 import { getFilterOptions } from "@/lib/api";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
@@ -80,11 +80,33 @@ function bucketValues(key: string, rawValues: string[]): Bucket[] | null {
 }
 
 export default function FilterBar({
-  total, activeCategory, clientIndexActive = false,
-}: { total: number; activeCategory?: string; clientIndexActive?: boolean }) {
+  total, activeCategory, clientIndexActive = false, baseParams,
+}: {
+  total: number;
+  activeCategory?: string;
+  clientIndexActive?: boolean;
+  /** Filters implied by a clean facet path (/market/ram/ddr5). */
+  baseParams?: Record<string, string>;
+}) {
   const router = useRouter();
-  const pathname = usePathname();
-  const params = useSearchParams();
+  const currentPath = usePathname();
+  const urlParams = useSearchParams();
+
+  // On a facet page the path carries one filter the query string doesn't.
+  // Fold it in so the bar shows it as set, and navigate from the category
+  // path so any change turns it back into an ordinary query parameter
+  // (proxy.ts sends the result back to a clean path when it still is one).
+  const baseKey = baseParams ? JSON.stringify(baseParams) : "";
+  const params = useMemo(() => {
+    const merged = new URLSearchParams(urlParams.toString());
+    if (baseKey) {
+      for (const [k, v] of Object.entries(JSON.parse(baseKey) as Record<string, string>)) {
+        merged.set(k, v); // the path wins, as it does in PartsList
+      }
+    }
+    return merged;
+  }, [urlParams, baseKey]);
+  const pathname = baseParams && activeCategory ? `/market/${activeCategory}` : currentPath;
 
   const category = activeCategory ?? params.get("category") ?? "";
   const source   = params.get("source")   ?? "";

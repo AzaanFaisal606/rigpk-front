@@ -108,6 +108,10 @@ function BuildPage() {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: "var(--bg)" }}>
+      {/* A layout can't read searchParams and this page is client-rendered
+          below its Suspense boundary, so shared-build noindex can only be
+          added here — React hoists the tag into <head> once it renders. */}
+      {shareCode && <meta name="robots" content="noindex, follow" />}
       <Navbar />
       <main
         className="build-main"

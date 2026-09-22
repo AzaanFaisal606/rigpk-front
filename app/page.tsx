@@ -5,6 +5,11 @@ import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import { getStats } from "@/lib/api";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default async function Home() {
   const statsResult = await getStats();

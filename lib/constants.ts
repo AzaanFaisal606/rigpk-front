@@ -49,6 +49,12 @@ export const MARKET_ROUTE_CATEGORIES = [
   "hdd", "monitor",
 ] as const;
 
+/** Display name per category, as used in "<name> Prices in Pakistan" headings. */
+export const CATEGORY_NAMES: Record<(typeof MARKET_ROUTE_CATEGORIES)[number], string> = {
+  cpu: "CPU", gpu: "GPU", ram: "RAM", motherboard: "Motherboard", psu: "PSU",
+  case: "PC Case", ssd: "SSD", cooling: "CPU Cooler", hdd: "Hard Drive", monitor: "Monitor",
+};
+
 export const SOURCES = [
   { key: "czone.com.pk",     label: "CZone" },
   { key: "zahcomputers.pk",  label: "Zah Computers" },

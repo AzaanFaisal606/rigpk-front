@@ -4,7 +4,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Price Trends — RigPK",
+  title: "PC Part Price Trends in Pakistan",
+  alternates: { canonical: "/trends" },
   description: "Average market prices for popular GPUs, CPUs and RAM in Pakistan over time.",
 };
 
