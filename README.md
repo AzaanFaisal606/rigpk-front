@@ -1,14 +1,18 @@
 # rigpk-front
 
-Frontend for [RigPK](https://github.com/AzaanFaisal606/rigpk) — a PCPartPicker-style site for Pakistan. Built with Next.js 16 App Router, featuring a custom techy-comic design system, a PC builder with live compatibility checking, a parts market, and a prebuilt PC browser.
+Frontend for [RigPK](https://github.com/AzaanFaisal606/rigpk), a PCPartPicker-style site for
+Pakistan. Built with Next.js 16 (App Router) and a custom "techy comic" design system.
 
 ---
 
 ## What It Does
 
-- **Market** — Browse ~9,300 PC parts from 9 Pakistani retailers with filtering by category, specs, and price
-- **PC Builder** — Pick components slot by slot; live compatibility checker catches socket and DDR mismatches; shareable build links
-- **Prebuilts** — Browse 121 prebuilt PCs from 3 retailers with price and brand filters
+- **Market:** browse ~8,000 in-stock PC parts from 9 Pakistani retailers, filtered by category,
+  specs, retailer and price. Search runs in the browser against a per-category index.
+- **PC Builder:** pick parts slot by slot, with quantities. A live compatibility check catches
+  CPU↔motherboard socket and DDR mismatches, and builds can be shared as links.
+- **Prebuilts:** browse ~250 prebuilt PCs from 3 retailers, plus "gaming PC under X" budget pages.
+- **Trends:** weekly price trends per GPU/CPU model and RAM spec.
 
 ## Tech Stack
 
@@ -16,67 +20,53 @@ Frontend for [RigPK](https://github.com/AzaanFaisal606/rigpk) — a PCPartPicker
 |---|---|
 | Framework | Next.js 16 (App Router) |
 | Language | TypeScript |
-| Styling | Inline styles + CSS variables |
+| Styling | CSS variables + inline styles, no border-radius anywhere |
+| Search | MiniSearch (in-browser index) |
 | Animation | Framer Motion (build page wireframe) |
-| Data fetching | Server components with `fetch` + `revalidate` |
+| Tests | Vitest |
 
 ## Design System
 
-Custom "techy-comic" aesthetic — sharp corners, hard offset shadows, skewed buttons, monospace typography, purple accent. No border-radius anywhere. Every interactive element follows a consistent shadow + border + skew pattern that gives the UI a hand-drawn comic feel while staying fully functional.
-
-Key tokens:
-- Background: `#f4f4f5`
-- Accent: `#7c3aed` (purple)
-- Hard shadow: `Npx Npx 0 #111112`
-- Font: JetBrains Mono / Fira Code for all labels, prices, and badges
+Sharp corners, hard offset shadows (`Npx Npx 0 #111112`), skewed mono uppercase buttons, and a
+maroon accent (`--purple: #873260`). The tokens live in `app/globals.css`.
 
 ## Pages
 
 | Route | Description |
 |---|---|
-| `/` | Landing — hero, stat counters, retailer cards, feature highlights |
-| `/market` | Parts browser — filter bar, paginated list, search |
-| `/build` | PC builder — SVG wireframe hero, component slots, compatibility banner, share button |
-| `/prebuilts` | Prebuilt browser — card grid, sticky filter bar with hide-on-scroll |
-| `/prebuilts/[id]` | Prebuilt detail — full spec breakdown, component list, tags |
+| `/` | Landing: hero, stats, retailer cards with scrape-health ribbons |
+| `/market` · `/market/[category]` · `/market/[category]/[facet]` | Parts browser, category pages and SEO filter pages |
+| `/build` | PC builder with compatibility banner and share links |
+| `/prebuilts` · `/prebuilts/[id]` | Prebuilt browser and detail page |
+| `/gaming-pc-under/[budget]` | Budget pages (100k/150k/200k/300k) |
+| `/trends` | Price trend sparklines and drill-down |
+
+`proxy.ts` (Next 16's renamed middleware) turns unknown categories, filters and budgets into
+real 404s.
 
 ## Running Locally
 
-Requires the [rigpk-backend](https://github.com/AzaanFaisal606/rigpk-backend) running at `localhost:8000`.
+Needs the [rigpk-backend](https://github.com/AzaanFaisal606/rigpk-backend) API on `localhost:8000`.
 
 ```bash
 npm install
-npm run dev
-# → http://localhost:3000
+npm run dev      # → http://localhost:3000
+npm test
 ```
 
 ## Project Structure
 
 ```
-app/
-  page.tsx              # Landing (server component)
-  market/page.tsx       # Parts market
-  build/page.tsx        # PC builder ("use client")
-  prebuilts/page.tsx    # Prebuilt browser
-  prebuilts/[id]/       # Prebuilt detail page
-components/
-  Navbar.tsx
-  FilterBar.tsx         # ComicDropdown with bucketed filter options
-  PartRow.tsx
-  BuildWireframe.tsx    # Animated SVG PC wireframe (Framer Motion)
-  BuildCards.tsx        # 2-col component slot grid
-  BuildSummary.tsx      # Sticky summary + share button
-  PartPickerModal.tsx   # Floating part selector
-  CompatibilityBanner.tsx
-  PrebuiltCard.tsx
-  PrebuiltFilterBar.tsx # Sticky + hide-on-scroll filter bar
-  PrebuiltSpecPage.tsx
-lib/
-  api.ts                # All API calls + types
-  compatibility.ts      # CPU↔Mobo socket + DDR gen checks
-  prebuilts-api.ts
-  prebuilt-tags.ts      # Auto-tag derivation (Gaming, Streaming, etc.)
+app/            routes above, plus sitemap.ts, robots.ts, error/loading/not-found
+components/     FilterBar, PartsList/PartRow, MarketSearchResults, Build*, PartPickerModal,
+                Prebuilt*, Trend*, Sources, JsonLd; ui/ (ComicDropdown, PulldownTab, …)
+lib/            api.ts, types.ts, compatibility.ts, search-tokenize.ts, search-index.ts,
+                search-bus.ts, trends-api.ts, prebuilts-api.ts, seo.ts, facets.ts, budgets.ts
+lib/__tests__/  Vitest suites
 ```
+
+`lib/search-tokenize.ts` must stay in sync with the backend's `db/tokenize.py`. Both are tested
+against a shared fixture.
 
 ## Related
 
