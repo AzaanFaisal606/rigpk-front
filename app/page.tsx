@@ -5,6 +5,7 @@ import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import { getStats } from "@/lib/api";
+import { SITE_URL } from "@/lib/seo";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -22,11 +23,11 @@ export default async function Home() {
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "RigPK",
-          url: "https://rigpk.vercel.app",
+          url: SITE_URL,
           description: "PC part price comparison for Pakistan",
           potentialAction: {
             "@type": "SearchAction",
-            target: "https://rigpk.vercel.app/market?q={search_term_string}",
+            target: `${SITE_URL}/market?q={search_term_string}`,
             "query-input": "required name=search_term_string",
           },
         }}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
+import { SITE_URL } from "@/lib/seo";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
@@ -16,7 +17,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://rigpk.vercel.app"),
+  metadataBase: new URL(SITE_URL),
   verification: { google: "m6z967mmdOlQekmoR1OXUv2-SVPDBJax2g6SUn1lZXA" },
   applicationName: "RigPK",
   title: {
@@ -72,7 +73,7 @@ export default function RootLayout({
               "@type": "WebSite",
               name: "RigPK",
               alternateName: "RigPK — PC Part Picker for Pakistan",
-              url: "https://rigpk.vercel.app",
+              url: SITE_URL,
             }),
           }}
         />
@@ -83,8 +84,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "RigPK",
-              url: "https://rigpk.vercel.app",
-              logo: "https://rigpk.vercel.app/logo.png",
+              url: SITE_URL,
+              logo: `${SITE_URL}/logo.png`,
             }),
           }}
         />

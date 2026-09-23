@@ -2,7 +2,7 @@ import type { Prebuilt, PrebuiltComponents } from "./prebuilts-api";
 import { SOURCES } from "./constants";
 
 /** Canonical origin for absolute URLs in metadata, sitemap and JSON-LD. */
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rigpk.vercel.app";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.rig.com.pk";
 
 /** "Rs 218,500" — same locale every other price on the site uses. */
 export function formatPkr(n: number): string {
