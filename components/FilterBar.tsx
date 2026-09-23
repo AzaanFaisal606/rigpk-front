@@ -303,7 +303,7 @@ export default function FilterBar({
       style={{
         top: "52px",
         background: "var(--bg)",
-        borderBottom: "2px solid #111112",
+        borderBottom: "2px solid var(--ink)",
         transform: barHidden ? "translateY(-100%)" : "translateY(0)",
         transition: "transform 0.25s ease",
       }}
@@ -361,10 +361,10 @@ export default function FilterBar({
                 style={{
                   width: "100%",
                   padding: "6px 26px 6px 10px",
-                  border: searchFocused ? "2px solid var(--purple)" : "2px solid #111112",
-                  background: "white",
+                  border: searchFocused ? "2px solid var(--purple)" : "2px solid var(--ink)",
+                  background: "var(--paper)",
                   outline: "none",
-                  boxShadow: searchFocused ? "2px 2px 0 var(--purple)" : "2px 2px 0 #111112",
+                  boxShadow: searchFocused ? "2px 2px 0 var(--purple)" : "2px 2px 0 var(--shadow)",
                   fontFamily: monoFont,
                   fontSize: "11px",
                   color: "var(--text)",
@@ -415,10 +415,10 @@ export default function FilterBar({
               style={{
                 flexShrink: 0,
                 padding: "5px 12px",
-                border: "2px solid #111112",
+                border: "2px solid var(--ink)",
                 background: "var(--purple)",
                 color: "white",
-                boxShadow: "2px 2px 0 #111112",
+                boxShadow: "var(--gloss), 2px 2px 0 var(--shadow)",
                 transform: "skewX(-8deg)",
                 fontFamily: monoFont,
                 fontSize: "10px",

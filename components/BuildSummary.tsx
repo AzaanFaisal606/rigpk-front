@@ -63,15 +63,15 @@ export default function BuildSummary({ build }: Props) {
       style={{
         width: "100%",
         flexShrink: 0,
-        border: "2px solid #111112",
+        border: "2px solid var(--ink)",
         background: "var(--bg-card)",
-        boxShadow: "5px 5px 0 #111112",
+        boxShadow: "5px 5px 0 var(--shadow)",
       }}
     >
       {/* Header */}
       <div
         style={{
-          background: "#111112",
+          background: "var(--bar)",
           color: "white",
           padding: "12px 16px",
           fontSize: "10px",
@@ -164,7 +164,7 @@ export default function BuildSummary({ build }: Props) {
           style={{
             marginTop: "14px",
             paddingTop: "14px",
-            borderTop: "2px solid #111112",
+            borderTop: "2px solid var(--ink)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -178,7 +178,7 @@ export default function BuildSummary({ build }: Props) {
           </span>
           <span
             className="mono"
-            style={{ fontSize: "18px", fontWeight: 900, color: "var(--purple)" }}
+            style={{ fontSize: "18px", fontWeight: 900, color: "var(--purple-text)" }}
           >
             Rs&nbsp;{total.toLocaleString("en-PK")}
           </span>
@@ -193,8 +193,8 @@ export default function BuildSummary({ build }: Props) {
             padding: "10px",
             background: "var(--purple)",
             color: "white",
-            border: "2px solid #111112",
-            boxShadow: "3px 3px 0 #111112",
+            border: "2px solid var(--ink)",
+            boxShadow: "var(--gloss), 3px 3px 0 var(--shadow)",
             fontSize: "10px",
             fontWeight: 800,
             letterSpacing: "1px",
@@ -217,10 +217,10 @@ export default function BuildSummary({ build }: Props) {
             width: "100%",
             marginTop: "10px",
             padding: "10px",
-            background: shareStatus === "copied" ? "#16a34a" : shareStatus === "error" ? "#dc2626" : "white",
-            color: shareStatus === "idle" ? "#111112" : "white",
-            border: "2px solid #111112",
-            boxShadow: "3px 3px 0 #111112",
+            background: shareStatus === "copied" ? "#16a34a" : shareStatus === "error" ? "#dc2626" : "var(--paper)",
+            color: shareStatus === "idle" ? "var(--text)" : "white",
+            border: "2px solid var(--ink)",
+            boxShadow: "3px 3px 0 var(--shadow)",
             fontSize: "10px",
             fontWeight: 800,
             letterSpacing: "1px",
@@ -234,7 +234,7 @@ export default function BuildSummary({ build }: Props) {
             if (shareStatus === "idle") (e.currentTarget as HTMLButtonElement).style.background = "color-mix(in srgb, var(--purple) 6%, transparent)";
           }}
           onMouseLeave={(e) => {
-            if (shareStatus === "idle") (e.currentTarget as HTMLButtonElement).style.background = "white";
+            if (shareStatus === "idle") (e.currentTarget as HTMLButtonElement).style.background = "var(--paper)";
           }}
         >
           {shareStatus === "idle" && "Share Build"}

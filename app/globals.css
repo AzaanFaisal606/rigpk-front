@@ -35,8 +35,101 @@
   --text-muted:   #5a5a61;
   --text-dim:     #6f6f78;
 
+  /* Ink: hard borders + strong text. Shadow: the hard offset shadows.
+     Bar: black header strips (white text on top in both themes).
+     Paper: the "white" of buttons, inputs, dropdowns and panels. */
+  --ink:          #111112;
+  --shadow:       #111112;
+  --bar:          #111112;
+  --paper:        #ffffff;
+  --paper-alt:    #fafafa;
+
+  /* Roles that only diverge in dark mode (same value as their base here). */
+  --purple-text:  var(--purple);   /* maroon used as TEXT, not fill */
+  --gloss:        inset 0 0 0 0 transparent; /* cel-shade on maroon fills */
+  --hero-bg:      var(--bg);
+  --band-bg:      var(--bg);       /* alternate section band */
+  --line-art:     #111112;         /* wireframe / PC illustration strokes */
+
+  /* Greys that used to be hardcoded — same values, now theme-aware. */
+  --faint:        #a1a1aa;
+  --grey-500:     #71717a;
+  --grey-600:     #52525b;
+  --line-soft:    #e4e4e7;
+  --danger-pale:  #fef2f2;
+  --grid-line:    rgba(0, 0, 0, 0.035);
+  --scrim:        rgba(244, 244, 245, 0.75);
+  --glow:         rgba(255, 255, 255, 0.55);
+
+  color-scheme: light;
+
   /* Mono accent — JetBrains Mono loaded via next/font in app/layout.tsx */
   --mono: var(--font-jetbrains-mono), "JetBrains Mono", "Fira Code", monospace;
+}
+
+
+/* ── Dark theme ─────────────────────────────────────────────
+   Set by the navbar's theme button (lib/theme.ts), persisted in
+   localStorage and applied before first paint by the inline script in
+   app/layout.tsx.
+
+   Composed, not inverted. A straight inversion turns every 2px ink border
+   into a white outline and the site reads like a high-contrast mode. So:
+   - Surfaces are a ladder of blacks: the hero is the void (#000), the page
+     sits a step up, bands and panels step up again, controls sit on top.
+     Depth comes from those steps, not from outlines.
+   - Ink (borders) drops to a graphite that's only ~2:1 against its surface:
+     every comic line is still there, it just stops shouting. Text keeps its
+     own bright token, which is why text never uses --ink.
+   - Hard shadows become a deep maroon shade: dark enough not to glare, but
+     tinted so the offset still reads against near-black (a grey shade just
+     merged into the graphite border and looked like a thicker outline).
+   - Maroon goes deeper and more saturated for fills (white on it: 6.6:1),
+     with a cel-shade "gloss" (hard inset highlight + shade line, no
+     gradient). Maroon used as text gets a lifted pink so it stays readable
+     (≥4.5:1 on every surface). */
+:root[data-theme="dark"] {
+  --hero-bg:      #000000;
+  --bg:           #09090b;
+  --band-bg:      #0d0d10;
+  --bg-hero:      #000000;
+  --bg-section:   #141418;
+  --bg-card:      #121215;
+  --bg-card-2:    #18181c;
+  --bg-card-dark: #050506;
+
+  --border:       #26262c;
+  --border-dark:  #3a3a42;
+
+  --purple:        #a8286a;
+  --purple-hover:  #8f2159;
+  --purple-accent: #d9468f;
+  --purple-pale:   #26101b;
+  --purple-text:   #de5198;
+
+  --text:         #ececf0;
+  --text-2:       #c6c6ce;
+  --text-muted:   #a3a3ad;
+  --text-dim:     #8b8b95;
+
+  --ink:          #3f3f48;
+  --shadow:       #3b1323;
+  --bar:          #050506;
+  --paper:        #18181c;
+  --paper-alt:    #1c1c21;
+  --line-art:     #9a9aa5;
+  --gloss:        inset 0 2px 0 rgba(255, 255, 255, 0.22), inset 0 -2px 0 rgba(0, 0, 0, 0.3);
+
+  --faint:        #6c6c76;
+  --grey-500:     #9d9da6;
+  --grey-600:     #b9b9c1;
+  --line-soft:    #202026;
+  --danger-pale:  #2a1216;
+  --grid-line:    rgba(255, 255, 255, 0.03);
+  --scrim:        rgba(0, 0, 0, 0.78);
+  --glow:         rgba(255, 255, 255, 0.025);
+
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -209,24 +302,28 @@ html[data-filtering="1"] .pb-browser-wrapper {
    to swap two style values — CSS :hover does the same job for free and lets
    Hero ship as a server component (M25). */
 .hero-cta {
-  border: 2px solid #111112;
-  box-shadow: 4px 4px 0 #111112;
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--shadow);
   transform: skewX(-8deg);
   transition: background 0.1s, box-shadow 0.1s;
 }
 .hero-cta:hover {
-  box-shadow: 5px 5px 0 #111112;
+  box-shadow: 5px 5px 0 var(--shadow);
 }
 .hero-cta--primary {
   background: var(--purple);
   color: white;
+  box-shadow: var(--gloss), 4px 4px 0 var(--shadow);
+}
+.hero-cta--primary:hover {
+  box-shadow: var(--gloss), 5px 5px 0 var(--shadow);
 }
 .hero-cta--primary:hover {
   background: var(--purple-hover);
 }
 .hero-cta--secondary {
   background: transparent;
-  color: #111112;
+  color: var(--text);
 }
 .hero-cta--secondary:hover {
   background: color-mix(in srgb, var(--purple) 6%, transparent);
@@ -275,10 +372,10 @@ html[data-filtering="1"] .pb-browser-wrapper {
   transform: translateY(-3px);
 }
 .feature-card--light {
-  box-shadow: 5px 5px 0 #111112;
+  box-shadow: 5px 5px 0 var(--shadow);
 }
 .feature-card--light:hover {
-  box-shadow: 7px 7px 0 #111112;
+  box-shadow: 7px 7px 0 var(--shadow);
 }
 .feature-card--dark {
   box-shadow: 5px 5px 0 var(--purple);
@@ -288,19 +385,36 @@ html[data-filtering="1"] .pb-browser-wrapper {
 }
 
 /* ── Navbar ──────────────────────────────────────────────── */
-/* The nav strip scrolls on its own. Vertical padding leaves room for the
-   2px hard shadow, which overflow-x:auto would otherwise clip. */
-.navbar-nav {
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-  padding: 5px 4px 5px 8px;
+/* Desktop shows the four buttons; at phone width they collapse into one
+   dropdown (Navbar.tsx `MobileNavMenu`) so nothing has to scroll sideways.
+   Hidden with display rather than unmounted, so the links stay in the
+   server HTML for crawlers. */
+.navbar-menu { display: none; }
+
+.navbar-menu-item {
+  background: var(--paper);
+  color: var(--text);
+  transition: background 0.1s, color 0.1s;
 }
-.navbar-nav::-webkit-scrollbar {
-  display: none;
+.navbar-menu-item:hover {
+  background: var(--purple-pale);
+  color: var(--purple-text);
+}
+.navbar-menu-item--active,
+.navbar-menu-item--active:hover {
+  background: var(--purple);
+  color: white;
+}
+.navbar-menu-panel {
+  transform-origin: top right;
+  animation: navbar-menu-in 0.14s ease-out;
+}
+@keyframes navbar-menu-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .navbar-menu-panel { animation: none; }
 }
 
 @media (max-width: 640px) {
@@ -308,11 +422,14 @@ html[data-filtering="1"] .pb-browser-wrapper {
     padding-left: 12px !important;
     padding-right: 12px !important;
   }
+  .navbar-nav { display: none !important; }
+  .navbar-menu { display: flex; }
   .navbar-nav-btn {
-    padding: 5px 8px !important;
+    padding: 5px 10px !important;
     font-size: 0.62rem !important;
     letter-spacing: 0.8px !important;
   }
+  .theme-btn { width: 32px; }
 }
 
 /* ── Prebuilt spec page responsive ───────────────────────── */
@@ -438,7 +555,7 @@ html[data-filtering="1"] .pb-browser-wrapper {
   width: 52px;
   height: 52px;
   background: var(--bg-section);
-  border: 1.5px solid #111112;
+  border: 1.5px solid var(--ink);
 }
 .trend-name {
   width: 200px;
@@ -514,7 +631,7 @@ html[data-filtering="1"] .pb-browser-wrapper {
   background: var(--purple-pale);
 }
 .part-row:hover .part-row-name {
-  color: var(--purple);
+  color: var(--purple-text);
 }
 .part-row-name {
   transition: color 0.1s;
@@ -671,7 +788,7 @@ html[data-filtering="1"] .pb-browser-wrapper {
 /* Shadow only while open: tucked away, its bottom edge would poke out
    below the bar as a black line. */
 .pulldown-body { transition: box-shadow 0.2s; }
-.pulldown-drawer[data-open="true"] .pulldown-body { box-shadow: 6px 6px 0 #111112; }
+.pulldown-drawer[data-open="true"] .pulldown-body { box-shadow: 6px 6px 0 var(--shadow); }
 .pulldown-lip {
   transform: translateY(-6px);
   transition: transform 0.16s ease, background 0.1s;
@@ -706,7 +823,7 @@ html[data-filtering="1"] .pb-browser-wrapper {
 .budget-box:hover,
 .budget-box:focus-visible {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 #111112 !important;
+  box-shadow: 6px 6px 0 var(--shadow) !important;
 }
 .budget-box:focus-visible {
   outline: 2px solid var(--purple-pale);
@@ -714,4 +831,192 @@ html[data-filtering="1"] .pb-browser-wrapper {
 }
 @media (max-width: 640px) {
   .budget-box-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+
+/* ── Theme switch: "scene change" wipe ───────────────────── */
+/* Driven by lib/theme.ts through the View Transitions API. The old page is
+   a frozen snapshot pushed off one side (and dimmed, as if leaving the
+   light); the new page is revealed behind a skewed band that is its own
+   captured layer. Everything that moves is a transform or clip-path on a
+   snapshot, so the compositor does the work and the live page is untouched.
+
+   Geometry, for the left-bound wipe (into dark). The seam is the new page's
+   leading edge: at the bottom it sits at x = S, at the top at S + K, where
+   K = 100vh·tan(12°) is the skew's horizontal run. The band's stripes sit
+   just ahead of the seam; its speed lines trail behind it over the new
+   page. S runs from 100vw + band (band just off the right) to
+   −(K + trail + 3px) (lines just off the left). The band element rests at
+   left: −300vw, so it can't flash once the snapshots are torn down. The
+   right-bound wipe (back to light) is the exact mirror. */
+:root {
+  --wipe-k: calc(100vh * 0.2126);
+  --wipe-band: 150px;
+  --wipe-trail: 24vw;
+  --wipe-ease: cubic-bezier(0.3, 0.05, 0.1, 1);
+  --wipe-dur: 1100ms;
+}
+@media (max-width: 640px) {
+  :root { --wipe-band: 104px; --wipe-dur: 1000ms; }
+}
+
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
+
+.theme-wipe {
+  position: fixed;
+  top: 0;
+  left: -300vw;
+  height: 100vh;
+  width: calc(var(--wipe-band) + var(--wipe-k) + var(--wipe-trail));
+  pointer-events: none;
+  z-index: 2147483647;
+  view-transition-name: theme-wipe;
+}
+.tw-flip,
+.tw-skew {
+  position: absolute;
+  inset: 0;
+}
+[data-wipe="right"] .tw-flip { transform: scaleX(-1); }
+.tw-skew {
+  transform-origin: 0 100%;
+  transform: skewX(-12deg);
+}
+.tw-skew > i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+/* Leading stripe is drawn in the OUTGOING theme's ink so it reads against
+   the page it is cutting into; the edge is the INCOMING ink, a hard panel
+   border along the new scene. */
+.tw-lead   { left: 0; width: 6px; background: #111112; }
+[data-wipe="right"] .tw-lead { background: #e4e4e9; }
+.tw-accent { left: 18px; width: 12px; background: var(--purple-accent); }
+.tw-slab   { left: 38px; width: calc(var(--wipe-band) - 42px); background: var(--purple); }
+.tw-edge   { left: calc(var(--wipe-band) - 4px); width: 7px; background: var(--text); }
+/* Speed lines: hard 2–3px strokes of varied length trailing the band. */
+.tw-lines {
+  left: calc(var(--wipe-band) + 3px);
+  width: var(--wipe-trail);
+  opacity: 0.55;
+  background:
+    linear-gradient(var(--text), var(--text)) 0 9%   / 62% 2px no-repeat,
+    linear-gradient(var(--text), var(--text)) 0 17%  / 28% 3px no-repeat,
+    linear-gradient(var(--purple-accent), var(--purple-accent)) 0 26% / 84% 3px no-repeat,
+    linear-gradient(var(--text), var(--text)) 0 38%  / 45% 2px no-repeat,
+    linear-gradient(var(--text), var(--text)) 0 47%  / 96% 3px no-repeat,
+    linear-gradient(var(--text), var(--text)) 0 55%  / 22% 2px no-repeat,
+    linear-gradient(var(--purple-accent), var(--purple-accent)) 0 66% / 58% 2px no-repeat,
+    linear-gradient(var(--text), var(--text)) 0 74%  / 76% 3px no-repeat,
+    linear-gradient(var(--text), var(--text)) 0 86%  / 34% 2px no-repeat,
+    linear-gradient(var(--text), var(--text)) 0 93%  / 68% 3px no-repeat;
+}
+
+::view-transition-old(root),
+::view-transition-new(root),
+::view-transition-new(theme-wipe) {
+  mix-blend-mode: normal;
+  animation-duration: var(--wipe-dur);
+  animation-timing-function: var(--wipe-ease);
+  animation-fill-mode: both;
+}
+::view-transition-group(root),
+::view-transition-group(theme-wipe) {
+  animation: none;
+}
+
+[data-wipe="left"]::view-transition-old(root)       { animation-name: tw-old-left; }
+[data-wipe="left"]::view-transition-new(root)       { animation-name: tw-new-left; }
+[data-wipe="left"]::view-transition-new(theme-wipe) { animation-name: tw-band-left; }
+[data-wipe="right"]::view-transition-old(root)       { animation-name: tw-old-right; }
+[data-wipe="right"]::view-transition-new(root)       { animation-name: tw-new-right; }
+[data-wipe="right"]::view-transition-new(theme-wipe) { animation-name: tw-band-right; }
+
+@keyframes tw-old-left {
+  from { transform: translateX(0);     filter: brightness(1); }
+  to   { transform: translateX(-30vw); filter: brightness(0.55); }
+}
+@keyframes tw-old-right {
+  from { transform: translateX(0);    filter: brightness(1); }
+  to   { transform: translateX(30vw); filter: brightness(0.55); }
+}
+/* New page: stays put (a translate would open a gap at the far edge) and
+   is revealed by a clip whose slanted edge is the seam. */
+@keyframes tw-new-left {
+  from {
+    clip-path: polygon(calc(100% + var(--wipe-band) + var(--wipe-k)) 0, 200% 0, 200% 100%,
+                       calc(100% + var(--wipe-band)) 100%);
+  }
+  to {
+    clip-path: polygon(calc(-1 * var(--wipe-trail) - 3px) 0, 200% 0, 200% 100%,
+                       calc(-1 * var(--wipe-k) - var(--wipe-trail) - 3px) 100%);
+  }
+}
+@keyframes tw-new-right {
+  from {
+    clip-path: polygon(-100% 0, calc(-1 * var(--wipe-band) - var(--wipe-k)) 0,
+                       calc(-1 * var(--wipe-band)) 100%, -100% 100%);
+  }
+  to {
+    clip-path: polygon(-100% 0, calc(100% + var(--wipe-trail) + 3px) 0,
+                       calc(100% + var(--wipe-k) + var(--wipe-trail) + 3px) 100%, -100% 100%);
+  }
+}
+/* Band: its offset from the resting spot at −300vw that puts it on the seam. */
+@keyframes tw-band-left {
+  from { transform: translateX(400vw); }
+  to   { transform: translateX(calc(300vw - var(--wipe-band) - var(--wipe-k) - var(--wipe-trail) - 3px)); }
+}
+@keyframes tw-band-right {
+  from { transform: translateX(calc(300vw - var(--wipe-band) - var(--wipe-k) - var(--wipe-trail))); }
+  to   { transform: translateX(calc(400vw + 3px)); }
+}
+
+/* ── Theme button ────────────────────────────────────────── */
+/* Same chrome as the nav buttons (2px ink, 2px hard shadow, -8° skew), but
+   square and icon-only. The icon on show is picked here from
+   html[data-theme], not in React, so a saved dark theme is right in the
+   very first paint. */
+.theme-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* Height comes from the nav row (align-self: stretch), so it always
+     matches the text buttons beside it, on desktop and on the mobile menu. */
+  align-self: stretch;
+  width: 36px;
+  padding: 0;
+  background: var(--paper);
+  color: var(--text);
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--shadow);
+  transform: skewX(-8deg);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.theme-btn:hover {
+  background: color-mix(in srgb, var(--purple) 6%, var(--paper));
+}
+.theme-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--purple);
+}
+.theme-icon { display: block; }
+.theme-icon--sun { display: none; }
+:root[data-theme="dark"] .theme-icon--moon { display: none; }
+:root[data-theme="dark"] .theme-icon--sun { display: block; color: var(--purple-accent); }
+.theme-btn[data-spun] .theme-icon {
+  animation: theme-icon-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both;
+}
+@keyframes theme-icon-in {
+  from { transform: rotate(-120deg) scale(0.3); opacity: 0; }
+  to   { transform: rotate(0) scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-btn[data-spun] .theme-icon { animation: none; }
 }

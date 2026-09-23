@@ -35,8 +35,8 @@ export default function TrendListPanel({
   return (
     <div
       style={{
-        border: "2px solid #111112",
-        boxShadow: "8px 8px 0 #111112",
+        border: "2px solid var(--ink)",
+        boxShadow: "8px 8px 0 var(--shadow)",
         background: "var(--bg-card)",
         overflow: "hidden",
       }}
@@ -45,7 +45,7 @@ export default function TrendListPanel({
       <div
         className="flex items-center justify-between px-4"
         style={{
-          background: "#111112",
+          background: "var(--bar)",
           color: "white",
           height: "40px",
           fontFamily: monoFont,
@@ -70,7 +70,7 @@ export default function TrendListPanel({
         {!result.ok ? (
           <div
             className="mono px-4 py-8 text-center"
-            style={{ fontSize: "0.72rem", color: "var(--purple)", fontWeight: 700 }}
+            style={{ fontSize: "0.72rem", color: "var(--purple-text)", fontWeight: 700 }}
           >
             {"// TRENDS TEMPORARILY UNAVAILABLE"}
           </div>

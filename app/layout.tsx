@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
@@ -56,7 +57,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${jetbrainsMono.variable} ${inter.variable} h-full antialiased`}
+      // The theme script below sets data-theme before hydration.
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col text-[var(--text)]">
         <script
           type="application/ld+json"

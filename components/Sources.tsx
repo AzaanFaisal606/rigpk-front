@@ -126,7 +126,7 @@ export default function Sources({ stats }: SourcesProps) {
   return (
     <section
       className="px-6 py-16"
-      style={{ background: "var(--bg)", borderTop: "2px solid #111112" }}
+      style={{ background: "var(--band-bg)", borderTop: "2px solid var(--ink)" }}
     >
       <div className="max-w-6xl mx-auto">
         {/* Header row */}
@@ -203,8 +203,8 @@ export default function Sources({ stats }: SourcesProps) {
                 flex: 1,
                 height: 10,
                 background: "var(--bg-card)",
-                border: "1.5px solid #111112",
-                boxShadow: "2px 2px 0 #111112",
+                border: "1.5px solid var(--ink)",
+                boxShadow: "2px 2px 0 var(--shadow)",
                 cursor: "pointer",
                 touchAction: "none",
               }}
@@ -221,7 +221,7 @@ export default function Sources({ stats }: SourcesProps) {
                   left: `${thumbLeft}%`,
                   width: `${thumbWidth * 100}%`,
                   background: "var(--purple)",
-                  borderRight: "1.5px solid #111112",
+                  borderRight: "1.5px solid var(--ink)",
                   transition: isDragging ? "none" : "left 0.08s linear",
                   cursor: isDragging ? "grabbing" : "grab",
                   touchAction: "none",
@@ -277,10 +277,10 @@ function StoreCard({
         position: "relative",
         background: "var(--bg-card)",
         borderTop: "3px solid var(--purple)",
-        borderRight: "2px solid #111112",
-        borderBottom: "2px solid #111112",
-        borderLeft: "2px solid #111112",
-        boxShadow: hovered ? "6px 6px 0 #111112" : "4px 4px 0 #111112",
+        borderRight: "2px solid var(--ink)",
+        borderBottom: "2px solid var(--ink)",
+        borderLeft: "2px solid var(--ink)",
+        boxShadow: hovered ? "6px 6px 0 var(--shadow)" : "4px 4px 0 var(--shadow)",
         transform: hovered ? "translateY(-2px)" : "none",
         transition: "box-shadow 0.1s, transform 0.1s",
       }}
@@ -305,9 +305,9 @@ function StoreCard({
             letterSpacing: "0.14em",
             textTransform: "uppercase",
             padding: "2px 0",
-            borderTop: "1.5px solid #111112",
-            borderBottom: "1.5px solid #111112",
-            boxShadow: "0 1px 0 #111112",
+            borderTop: "1.5px solid var(--ink)",
+            borderBottom: "1.5px solid var(--ink)",
+            boxShadow: "0 1px 0 var(--shadow)",
             zIndex: 2,
             pointerEvents: "none",
           }}
@@ -324,7 +324,7 @@ function StoreCard({
             style={{
               fontSize: "0.6rem",
               fontWeight: 800,
-              color: "var(--purple)",
+              color: "var(--purple-text)",
               background: "color-mix(in srgb, var(--purple) 8%, transparent)",
               border: "1px solid color-mix(in srgb, var(--purple) 22%, transparent)",
             }}
@@ -349,7 +349,7 @@ function StoreCard({
         </p>
 
         {/* Parts count */}
-        <div className="pt-2.5" style={{ borderTop: "1px solid #111112" }}>
+        <div className="pt-2.5" style={{ borderTop: "1px solid var(--ink)" }}>
           {count !== undefined ? (
             <span
               className="mono"

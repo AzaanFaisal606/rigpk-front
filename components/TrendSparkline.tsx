@@ -89,7 +89,7 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
         className="mono flex items-center justify-center"
         style={{
           width: W, height: H, fontSize: "0.6rem", fontWeight: 700,
-          color: "var(--text-dim)", border: "1.5px solid #111112",
+          color: "var(--text-dim)", border: "1.5px solid var(--ink)",
           background: "var(--bg-section)",
         }}
       >
@@ -145,7 +145,7 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
       <svg
         width={W}
         height={H}
-        style={{ display: "block", border: "1.5px solid #111112", background: "var(--bg-section)" }}
+        style={{ display: "block", border: "1.5px solid var(--ink)", background: "var(--bg-section)" }}
       >
         {/* center line, dashed across missing scrapes */}
         {centerSegments.map((sg, i) => (
@@ -177,8 +177,8 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
               y={y(p.center_price) - 2.5}
               width={5}
               height={5}
-              fill={hover === i ? "#111112" : "var(--purple)"}
-              stroke="#111112"
+              fill={hover === i ? "var(--ink)" : "var(--purple)"}
+              stroke="var(--ink)"
               strokeWidth={hover === i ? 1 : 0}
               pointerEvents="none"
             />
@@ -199,9 +199,9 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
               ? { top: anchorRect.bottom + 2, transform: "none" }
               : { top: anchorRect.top - 2, transform: "translateY(-100%)" }),
             width: 120,
-            background: "#111112",
+            background: "var(--bar)",
             color: "white",
-            border: "1.5px solid #111112",
+            border: "1.5px solid var(--ink)",
             boxShadow: "2px 2px 0 var(--purple)",
             padding: "4px 6px",
             fontSize: "0.58rem",

@@ -141,9 +141,9 @@ export default function MarketSearchResults({
   if (clientPathActive && failed) {
     return (
       <div style={{ padding: "64px 24px", textAlign: "center",
-                    background: "var(--bg-card)", borderTop: "1px solid #111112" }}>
+                    background: "var(--bg-card)", borderTop: "1px solid var(--ink)" }}>
         <p style={{ fontFamily: monoFont, fontSize: "0.9rem", fontWeight: 900,
-                    color: "var(--purple)", letterSpacing: "3px",
+                    color: "var(--purple-text)", letterSpacing: "3px",
                     textTransform: "uppercase" }}>
           {"// SEARCH FAILED"}
         </p>
@@ -157,7 +157,7 @@ export default function MarketSearchResults({
   if (displayedItems.length === 0) {
     return (
       <div style={{ padding: "64px 24px", textAlign: "center",
-                    background: "var(--bg-card)", borderTop: "1px solid #111112" }}>
+                    background: "var(--bg-card)", borderTop: "1px solid var(--ink)" }}>
         <p style={{ fontFamily: monoFont, fontSize: "0.9rem", fontWeight: 900,
                     color: "var(--text-dim)", letterSpacing: "3px",
                     textTransform: "uppercase" }}>

@@ -3,13 +3,12 @@
 import type { BuildState, SlotKey } from "@/app/build/page";
 import { SLOT_LABELS, SLOT_SUB } from "@/app/build/page";
 
-const INK = "#111112";
-// Note: SVG `fill`/`stroke` attributes do not resolve CSS vars. Must stay literal.
-// Keep in sync with --purple in app/globals.css.
-const PURPLE = "#873260";
-const CARD = "#f8f8f9";
-const DIM = "#a1a1aa";
-const TEXT2 = "#3f3f46";
+const INK = "var(--line-art)";
+// Theme tokens: SVG presentation attributes resolve var(), so dark mode flips these too.
+const PURPLE = "var(--purple)";
+const CARD = "var(--bg-card)";
+const DIM = "var(--faint)";
+const TEXT2 = "var(--text-2)";
 const MONO = "var(--mono)";
 const SANS = "var(--font-inter), -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif";
 
@@ -51,7 +50,7 @@ function DiagLines() {
   for (let i = 0; i < 40; i++) {
     const x = (i * 63) % 1400;
     const len = 40 + ((i * 37) % 120);
-    const col = i % 3 === 0 ? "var(--purple-pale)" : i % 3 === 1 ? "#e4e4e7" : "var(--purple-pale)";
+    const col = i % 3 === 0 ? "var(--purple-pale)" : i % 3 === 1 ? "var(--line-soft)" : "var(--purple-pale)";
     const thick = i % 5 === 0 ? 2.5 : 1.5;
     lines.push(
       <line key={i} x1={x} y1={-20} x2={x - len} y2={len + 20}
@@ -238,7 +237,6 @@ function LabelCard({
   const entry = build[slot];
   const part = entry?.part ?? null;
   const selected = entry != null;
-  const color = selected ? PURPLE : INK;
 
   const topPct = (railY / 540) * 100;
   // Left cards: span CARD_GAP..CARD_LEFT_END (inset from left wall by CARD_GAP)
@@ -265,8 +263,8 @@ function LabelCard({
         paddingLeft: side === "left" ? 10 : 12,
         paddingRight: side === "left" ? 12 : 10,
         background: selected ? "var(--bg-card)" : "var(--bg)",
-        border: `2px solid ${color}`,
-        boxShadow: `3px 3px 0 ${color}`,
+        border: `2px solid ${selected ? PURPLE : "var(--ink)"}`,
+        boxShadow: `3px 3px 0 ${selected ? PURPLE : "var(--shadow)"}`,
         cursor: "pointer",
         transition: "transform 0.12s",
         zIndex: 3,
@@ -344,8 +342,8 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
         position: "relative",
         width: "100%",
         background: CARD,
-        border: `2px solid ${INK}`,
-        boxShadow: `6px 6px 0 ${INK}`,
+        border: `2px solid var(--ink)`,
+        boxShadow: `6px 6px 0 var(--shadow)`,
         overflow: "hidden",
         flexShrink: 0,
       }}>

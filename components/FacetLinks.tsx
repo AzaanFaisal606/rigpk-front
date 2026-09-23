@@ -11,10 +11,10 @@ interface Props {
 
 const chipStyle = (active: boolean) => ({
   padding: "5px 11px",
-  border: "2px solid #111112",
-  boxShadow: "2px 2px 0 #111112",
-  background: active ? "var(--purple)" : "white",
-  color: active ? "white" : "#111112",
+  border: "2px solid var(--ink)",
+  boxShadow: active ? "var(--gloss), 2px 2px 0 var(--shadow)" : "2px 2px 0 var(--shadow)",
+  background: active ? "var(--purple)" : "var(--paper)",
+  color: active ? "white" : "var(--text)",
   fontFamily: monoFont,
   fontSize: "9px",
   fontWeight: 800,

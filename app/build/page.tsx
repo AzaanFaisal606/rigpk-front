@@ -139,8 +139,8 @@ function BuildPage() {
               {shareFailed && (
                 <div
                   style={{
-                    border: "2px solid #111112",
-                    boxShadow: "4px 4px 0 #111112",
+                    border: "2px solid var(--ink)",
+                    boxShadow: "4px 4px 0 var(--shadow)",
                     background: "var(--purple-pale)",
                     padding: "14px 16px",
                     marginBottom: "18px",
@@ -153,7 +153,7 @@ function BuildPage() {
                       fontWeight: 900,
                       letterSpacing: "2px",
                       textTransform: "uppercase",
-                      color: "var(--purple)",
+                      color: "var(--purple-text)",
                     }}
                   >
                     {"// SHARED BUILD NOT FOUND"}

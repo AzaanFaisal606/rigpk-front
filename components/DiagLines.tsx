@@ -22,23 +22,23 @@ interface LineSpec {
 // Lines anchored to right edge (x2=1100) sweeping y2 from 0→820 to cover full corner.
 const LINES: LineSpec[] = [
   // ── lines reaching the very top-right corner ─────────────────────────
-  { x1: -100, y1:  820, x2: 1100, y2: -380, strokeWidth: 3.5, opacity: 0.20, dash: 300, gap: 130, dur: "5.0s", color: "#71717a" },
-  { x1:    0, y1:  920, x2: 1100, y2: -180, strokeWidth: 4.5, opacity: 0.42, dash: 280, gap: 120, dur: "3.5s", color: "var(--purple)" },
-  { x1:  100, y1:  920, x2: 1100, y2:  -80, strokeWidth: 3.0, opacity: 0.22, dash: 260, gap: 140, dur: "4.2s", color: "#52525b" },
+  { x1: -100, y1:  820, x2: 1100, y2: -380, strokeWidth: 3.5, opacity: 0.20, dash: 300, gap: 130, dur: "5.0s", color: "var(--grey-500)" },
+  { x1:    0, y1:  920, x2: 1100, y2: -180, strokeWidth: 4.5, opacity: 0.42, dash: 280, gap: 120, dur: "3.5s", color: "var(--purple-text)" },
+  { x1:  100, y1:  920, x2: 1100, y2:  -80, strokeWidth: 3.0, opacity: 0.22, dash: 260, gap: 140, dur: "4.2s", color: "var(--grey-600)" },
   { x1:  180, y1:  920, x2: 1100, y2:    0, strokeWidth: 5.0, opacity: 0.50, dash: 310, gap: 115, dur: "3.0s", color: "var(--purple-accent)" },
   // ── main diagonal sweep across the hero ──────────────────────────────
-  { x1:  270, y1:  920, x2: 1100, y2:   90, strokeWidth: 3.2, opacity: 0.28, dash: 270, gap: 135, dur: "4.6s", color: "var(--purple)" },
+  { x1:  270, y1:  920, x2: 1100, y2:   90, strokeWidth: 3.2, opacity: 0.28, dash: 270, gap: 135, dur: "4.6s", color: "var(--purple-text)" },
   { x1:  360, y1:  920, x2: 1100, y2:  180, strokeWidth: 4.2, opacity: 0.38, dash: 295, gap: 120, dur: "3.8s", color: "var(--purple-accent)" },
-  { x1:  450, y1:  920, x2: 1100, y2:  270, strokeWidth: 3.0, opacity: 0.24, dash: 255, gap: 145, dur: "4.0s", color: "#71717a" },
-  { x1:  540, y1:  920, x2: 1100, y2:  360, strokeWidth: 5.0, opacity: 0.46, dash: 305, gap: 118, dur: "3.2s", color: "var(--purple)" },
-  { x1:  630, y1:  920, x2: 1100, y2:  450, strokeWidth: 3.0, opacity: 0.22, dash: 265, gap: 138, dur: "4.4s", color: "#a1a1aa" },
+  { x1:  450, y1:  920, x2: 1100, y2:  270, strokeWidth: 3.0, opacity: 0.24, dash: 255, gap: 145, dur: "4.0s", color: "var(--grey-500)" },
+  { x1:  540, y1:  920, x2: 1100, y2:  360, strokeWidth: 5.0, opacity: 0.46, dash: 305, gap: 118, dur: "3.2s", color: "var(--purple-text)" },
+  { x1:  630, y1:  920, x2: 1100, y2:  450, strokeWidth: 3.0, opacity: 0.22, dash: 265, gap: 138, dur: "4.4s", color: "var(--faint)" },
   { x1:  720, y1:  920, x2: 1100, y2:  540, strokeWidth: 4.0, opacity: 0.40, dash: 285, gap: 125, dur: "3.6s", color: "var(--purple-accent)" },
   // ── lower-right fill ─────────────────────────────────────────────────
   { x1:  800, y1:  920, x2: 1100, y2:  620, strokeWidth: 3.5, opacity: 0.32, dash: 275, gap: 130, dur: "4.8s", color: "var(--purple-accent)" },
-  { x1:  860, y1:  920, x2: 1100, y2:  680, strokeWidth: 4.5, opacity: 0.48, dash: 300, gap: 120, dur: "3.4s", color: "var(--purple)" },
-  { x1:  920, y1:  920, x2: 1100, y2:  740, strokeWidth: 3.0, opacity: 0.26, dash: 260, gap: 140, dur: "4.2s", color: "#71717a" },
+  { x1:  860, y1:  920, x2: 1100, y2:  680, strokeWidth: 4.5, opacity: 0.48, dash: 300, gap: 120, dur: "3.4s", color: "var(--purple-text)" },
+  { x1:  920, y1:  920, x2: 1100, y2:  740, strokeWidth: 3.0, opacity: 0.26, dash: 260, gap: 140, dur: "4.2s", color: "var(--grey-500)" },
   { x1:  980, y1:  920, x2: 1100, y2:  800, strokeWidth: 4.0, opacity: 0.36, dash: 290, gap: 122, dur: "3.9s", color: "var(--purple-accent)" },
-  { x1: 1040, y1:  920, x2: 1100, y2:  860, strokeWidth: 3.5, opacity: 0.44, dash: 270, gap: 132, dur: "4.5s", color: "var(--purple)" },
+  { x1: 1040, y1:  920, x2: 1100, y2:  860, strokeWidth: 3.5, opacity: 0.44, dash: 270, gap: 132, dur: "4.5s", color: "var(--purple-text)" },
 ];
 
 export default function DiagLines() {

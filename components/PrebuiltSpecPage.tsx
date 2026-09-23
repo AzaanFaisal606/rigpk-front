@@ -21,10 +21,10 @@ function PB_Chip({ label }: { label: string }) {
         letterSpacing: "1px",
         textTransform: "uppercase",
         padding: "3px 10px",
-        border: "2px solid #111112",
-        boxShadow: "3px 3px 0 #111112",
-        background: "#f8f8f9",
-        color: "#111112",
+        border: "2px solid var(--ink)",
+        boxShadow: "3px 3px 0 var(--shadow)",
+        background: "var(--bg-card)",
+        color: "var(--text)",
         transform: "skewX(-10deg)",
       }}
     >
@@ -109,12 +109,12 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
         {/* Right: info */}
         <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           {/* Eyebrow */}
-          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "var(--purple)", letterSpacing: "2px", textTransform: "uppercase" }}>
+          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "var(--purple-text)", letterSpacing: "2px", textTransform: "uppercase" }}>
             — RIGPK // PRE-BUILT
           </div>
 
           {/* Source */}
-          <div style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 700, color: "#3f3f46", marginBottom: "2px" }}>
+          <div style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 700, color: "var(--text-2)", marginBottom: "2px" }}>
             {prebuilt.source} {"//"}
           </div>
 
@@ -127,7 +127,7 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
               lineHeight: 0.95,
               textTransform: "uppercase",
               letterSpacing: "-0.02em",
-              color: "#111112",
+              color: "var(--text)",
               margin: 0,
               display: "-webkit-box",
               WebkitLineClamp: 2,
@@ -150,15 +150,15 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
           <div
             style={{
               marginTop: "12px",
-              border: "3px solid #111112",
-              boxShadow: "6px 6px 0 #111112",
-              background: "white",
+              border: "3px solid var(--ink)",
+              boxShadow: "6px 6px 0 var(--shadow)",
+              background: "var(--paper)",
             }}
           >
             {/* Header bar */}
             <div
               style={{
-                background: "#111112",
+                background: "var(--bar)",
                 padding: "8px 14px",
                 display: "flex",
                 justifyContent: "space-between",
@@ -182,7 +182,7 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                 style={{
                   fontFamily: monoFont,
                   fontWeight: 900,
-                  color: "var(--purple)",
+                  color: "var(--purple-text)",
                   letterSpacing: "-0.02em",
                 }}
               >
@@ -203,8 +203,8 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                     display: "block",
                     background: "var(--purple)",
                     color: "white",
-                    border: "2px solid #111112",
-                    boxShadow: "4px 4px 0 #111112",
+                    border: "2px solid var(--ink)",
+                    boxShadow: "var(--gloss), 4px 4px 0 var(--shadow)",
                     fontFamily: monoFont,
                     fontWeight: 800,
                     textTransform: "uppercase",
@@ -224,13 +224,13 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                   className="pbsp-icon-btn"
                   style={{
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    border: "2px solid #111112", boxShadow: "4px 4px 0 #111112",
-                    background: liked ? "#fef2f2" : "white", cursor: "pointer",
+                    border: "2px solid var(--ink)", boxShadow: "4px 4px 0 var(--shadow)",
+                    background: liked ? "var(--danger-pale)" : "var(--paper)", cursor: "pointer",
                     fontFamily: monoFont, fontSize: "18px",
                   }}
                   aria-label="Like"
                 >
-                  <Heart size={18} color={liked ? "#dc2626" : "#111112"} fill={liked ? "#dc2626" : "none"} />
+                  <Heart size={18} color={liked ? "#dc2626" : "var(--text)"} fill={liked ? "#dc2626" : "none"} />
                 </button>
 
                 {/* Share */}
@@ -239,15 +239,15 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                   className="pbsp-icon-btn"
                   style={{
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    border: "2px solid #111112",
-                    boxShadow: "4px 4px 0 #111112",
-                    background: shareStatus === "copied" ? "#16a34a" : "white",
+                    border: "2px solid var(--ink)",
+                    boxShadow: "4px 4px 0 var(--shadow)",
+                    background: shareStatus === "copied" ? "#16a34a" : "var(--paper)",
                     cursor: "pointer",
                     transition: "background 0.15s",
                   }}
                   aria-label="Share"
                 >
-                  <Share2 size={18} color={shareStatus === "copied" ? "white" : "#111112"} />
+                  <Share2 size={18} color={shareStatus === "copied" ? "white" : "var(--text)"} />
                 </button>
               </div>
             </div>
@@ -259,7 +259,7 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
       <div className="pb-spec-bottom" style={{ display: "grid", gridTemplateColumns: "1.6fr 0.9fr", gap: "28px", alignItems: "start" }}>
         {/* Left: spec table */}
         <div>
-          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "var(--purple)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "8px" }}>
+          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "var(--purple-text)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "8px" }}>
             — FULL SPEC SHEET
           </div>
           <h2
@@ -268,14 +268,14 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
               fontWeight: 900,
               fontSize: "1.875rem",
               letterSpacing: "-0.04em",
-              color: "#111112",
+              color: "var(--text)",
               margin: "0 0 16px",
             }}
           >
-            What&apos;s <span style={{ color: "var(--purple)", fontStyle: "italic" }}>inside.</span>
+            What&apos;s <span style={{ color: "var(--purple-text)", fontStyle: "italic" }}>inside.</span>
           </h2>
 
-          <div style={{ border: "2px solid #111112", boxShadow: "6px 6px 0 #111112", background: "white" }}>
+          <div style={{ border: "2px solid var(--ink)", boxShadow: "6px 6px 0 var(--shadow)", background: "var(--paper)" }}>
             {specRows.map((key, i) => (
               <div
                 key={key}
@@ -285,14 +285,14 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                   padding: "14px 18px",
                   gap: "18px",
                   alignItems: "baseline",
-                  borderBottom: i < specRows.length - 1 ? "1.5px dashed #d4d4d8" : "none",
-                  background: i % 2 === 0 ? "white" : "#fafafa",
+                  borderBottom: i < specRows.length - 1 ? "1.5px dashed var(--border)" : "none",
+                  background: i % 2 === 0 ? "var(--paper)" : "var(--paper-alt)",
                 }}
               >
-                <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "var(--purple)", letterSpacing: "1.5px", textTransform: "uppercase" }}>
+                <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "var(--purple-text)", letterSpacing: "1.5px", textTransform: "uppercase" }}>
                   {SPEC_LABELS[key]}
                 </div>
-                <div style={{ fontFamily: "var(--font-inter), 'Inter', system-ui, sans-serif", fontSize: "14px", fontWeight: 700, color: "#111112" }}>
+                <div style={{ fontFamily: "var(--font-inter), 'Inter', system-ui, sans-serif", fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>
                   {c[key]}
                 </div>
               </div>
@@ -306,8 +306,8 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
           <GameBenchmarksPanel />
 
           {/* What's included */}
-          <div style={{ border: "2px solid #111112", boxShadow: "5px 5px 0 #111112", background: "white" }}>
-            <div style={{ background: "#111112", padding: "8px 12px" }}>
+          <div style={{ border: "2px solid var(--ink)", boxShadow: "5px 5px 0 var(--shadow)", background: "var(--paper)" }}>
+            <div style={{ background: "var(--bar)", padding: "8px 12px" }}>
               <span style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "2px", textTransform: "uppercase" }}>◼ WHAT&apos;S INCLUDED</span>
             </div>
             <div style={{ padding: "14px" }}>
@@ -317,11 +317,11 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                   style={{
                     display: "flex", alignItems: "flex-start", gap: "10px",
                     padding: "6px 0",
-                    borderBottom: i < arr.length - 1 ? "1px dashed #d4d4d8" : "none",
+                    borderBottom: i < arr.length - 1 ? "1px dashed var(--border)" : "none",
                   }}
                 >
-                  <span style={{ color: "var(--purple)", fontFamily: monoFont, fontWeight: 900, fontSize: "12px", flexShrink: 0 }}>+</span>
-                  <span style={{ fontFamily: "var(--font-inter), 'Inter', system-ui, sans-serif", fontSize: "12px", color: "#3f3f46", lineHeight: 1.4 }}>{item}</span>
+                  <span style={{ color: "var(--purple-text)", fontFamily: monoFont, fontWeight: 900, fontSize: "12px", flexShrink: 0 }}>+</span>
+                  <span style={{ fontFamily: "var(--font-inter), 'Inter', system-ui, sans-serif", fontSize: "12px", color: "var(--text-2)", lineHeight: 1.4 }}>{item}</span>
                 </div>
               ))}
             </div>

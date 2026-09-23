@@ -17,19 +17,19 @@ export default function Hero({ stats }: HeroProps) {
     <section
       className="relative overflow-hidden"
       style={{
-        background: "var(--bg)",
+        background: "var(--hero-bg)",
         minHeight: "88vh",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        borderBottom: "2px solid #111112",
+        borderBottom: "2px solid var(--ink)",
       }}
     >
       {/* Subtle grid lines */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: "linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px)",
+          backgroundImage: "linear-gradient(var(--grid-line) 1px, transparent 1px)",
           backgroundSize: "100% 80px",
         }}
       />
@@ -42,7 +42,7 @@ export default function Hero({ stats }: HeroProps) {
         style={{
           width: "4px",
           background: "var(--purple)",
-          borderRight: "1px solid #111112",
+          borderRight: "1px solid var(--bar)",
         }}
       />
 
@@ -50,7 +50,7 @@ export default function Hero({ stats }: HeroProps) {
         {/* Top mono label */}
         <div className="fade-left flex items-center gap-3 mb-8">
           <div style={{ width: "8px", height: "2px", background: "var(--purple)" }} />
-          <span className="mono" style={{ color: "var(--purple)" }}>
+          <span className="mono" style={{ color: "var(--purple-text)" }}>
             RIGPK // PC PARTS IN PAKISTAN
           </span>
         </div>
@@ -65,11 +65,11 @@ export default function Hero({ stats }: HeroProps) {
             fontWeight: 900,
             lineHeight: 1.04,
             letterSpacing: "-0.02em",
-            color: "#111112",
+            color: "var(--text)",
             maxWidth: "720px",
           }}
         >
-          Yahan <span style={{ color: "var(--purple)", fontStyle: "italic" }}>sab kuch</span>
+          Yahan <span style={{ color: "var(--purple-text)", fontStyle: "italic" }}>sab kuch</span>
           <br />
           milay ga.
         </h1>
@@ -77,7 +77,7 @@ export default function Hero({ stats }: HeroProps) {
         {/* Subtext */}
         <p
           className="fade-up mt-6 max-w-lg leading-relaxed"
-          style={{ animationDelay: "0.2s", color: "#71717a", fontSize: "clamp(0.88rem, 3vw, 1.05rem)" }}
+          style={{ animationDelay: "0.2s", color: "var(--grey-500)", fontSize: "clamp(0.88rem, 3vw, 1.05rem)" }}
         >
           Real-time prices scraped from Pakistan&apos;s top PC retailers.
           Compare, build, and track — all in one place.
@@ -113,17 +113,17 @@ export default function Hero({ stats }: HeroProps) {
                   flex: 1,
                   minWidth: "120px",
                   padding: "16px 20px",
-                  border: "2px solid #111112",
-                  borderLeft: i === 0 ? "2px solid #111112" : "none",
+                  border: "2px solid var(--ink)",
+                  borderLeft: i === 0 ? "2px solid var(--ink)" : "none",
                   background: "var(--bg-card)",
-                  boxShadow: "4px 4px 0 #111112",
+                  boxShadow: "4px 4px 0 var(--shadow)",
                 }}
               >
                 <div
                   style={{
                     fontSize: "1.8rem",
                     fontWeight: 900,
-                    color: "#111112",
+                    color: "var(--text)",
                     lineHeight: 1,
                     fontFamily: monoFont,
                   }}

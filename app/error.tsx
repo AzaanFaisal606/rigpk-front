@@ -19,8 +19,8 @@ export default function Error({
     >
       <div
         style={{
-          border: "2px solid #111112",
-          boxShadow: "6px 6px 0 #111112",
+          border: "2px solid var(--ink)",
+          boxShadow: "6px 6px 0 var(--shadow)",
           background: "var(--bg-card)",
           padding: "40px 32px",
           maxWidth: "440px",
@@ -31,7 +31,7 @@ export default function Error({
             fontFamily: monoFont,
             fontSize: "0.9rem",
             fontWeight: 900,
-            color: "var(--purple)",
+            color: "var(--purple-text)",
             letterSpacing: "3px",
             textTransform: "uppercase",
           }}
@@ -46,8 +46,8 @@ export default function Error({
             onClick={() => reset()}
             className="mono"
             style={{
-              border: "2px solid #111112",
-              boxShadow: "2px 2px 0 #111112",
+              border: "2px solid var(--ink)",
+              boxShadow: "2px 2px 0 var(--shadow)",
               background: "var(--purple)",
               color: "white",
               padding: "8px 16px",
@@ -65,10 +65,10 @@ export default function Error({
             href="/"
             className="mono"
             style={{
-              border: "2px solid #111112",
-              boxShadow: "2px 2px 0 #111112",
-              background: "white",
-              color: "#111112",
+              border: "2px solid var(--ink)",
+              boxShadow: "2px 2px 0 var(--shadow)",
+              background: "var(--paper)",
+              color: "var(--text)",
               padding: "8px 16px",
               fontSize: "0.65rem",
               fontWeight: 800,

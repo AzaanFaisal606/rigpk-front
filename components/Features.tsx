@@ -9,7 +9,7 @@ const FEATURES = [
     title: "Browse Prices",
     description:
       "Search and filter thousands of PC parts from multiple Pakistani retailers. Sort by price, source, or category.",
-    accent: "var(--purple)",
+    accent: "var(--purple-text)",
     dark: false,
     href: "/market",
     cta: "BROWSE MARKET →",
@@ -42,7 +42,7 @@ export default function Features() {
   return (
     <section
       className="px-6 py-24"
-      style={{ background: "var(--bg)", borderTop: "2px solid #111112" }}
+      style={{ background: "var(--bg)", borderTop: "2px solid var(--ink)" }}
     >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
@@ -82,14 +82,14 @@ function FeatureCard({
   f: (typeof FEATURES)[number];
   i: number;
 }) {
-  const border = f.dark ? `2px solid var(--purple)` : "2px solid #111112";
+  const border = f.dark ? `2px solid var(--purple)` : "2px solid var(--ink)";
 
   return (
     <div
       className={`fade-up overflow-hidden relative feature-card ${f.dark ? "feature-card--dark" : "feature-card--light"}`}
       style={{
         animationDelay: `${i * 0.1}s`,
-        background: f.dark ? "#111112" : "var(--bg-card)",
+        background: f.dark ? "var(--bar)" : "var(--bg-card)",
         border,
         minHeight: "240px",
       }}
@@ -140,7 +140,7 @@ function FeatureCard({
         {/* Bottom tag */}
         <div
           className="mt-6 pt-4"
-          style={{ borderTop: `1px solid ${f.dark ? "#3f3f46" : "#111112"}` }}
+          style={{ borderTop: `1px solid ${f.dark ? "#3f3f46" : "var(--ink)"}` }}
         >
           {f.href ? (
             <Link

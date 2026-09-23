@@ -40,9 +40,9 @@ function QtyStepper({
         style={{
           width: "22px",
           height: "22px",
-          border: "2px solid #111112",
-          boxShadow: "2px 2px 0 #111112",
-          background: "white",
+          border: "2px solid var(--ink)",
+          boxShadow: "2px 2px 0 var(--shadow)",
+          background: "var(--paper)",
           fontFamily: "var(--mono)",
           fontWeight: 800,
           fontSize: "12px",
@@ -68,9 +68,9 @@ function QtyStepper({
         style={{
           width: "22px",
           height: "22px",
-          border: "2px solid #111112",
-          boxShadow: "2px 2px 0 #111112",
-          background: "white",
+          border: "2px solid var(--ink)",
+          boxShadow: "2px 2px 0 var(--shadow)",
+          background: "var(--paper)",
           fontFamily: "var(--mono)",
           fontWeight: 800,
           fontSize: "12px",
@@ -111,9 +111,9 @@ export default function BuildCards({ build, onSlotClick, onRemove, onQtyChange }
           <div
             key={slot}
             style={{
-              border: selected ? "2px solid var(--purple)" : "2px dashed #d4d4d8",
-              boxShadow: selected ? "3px 3px 0 var(--purple)" : "3px 3px 0 #d4d4d8",
-              background: selected ? "var(--bg-card)" : "#fafafa",
+              border: selected ? "2px solid var(--purple)" : "2px dashed var(--border)",
+              boxShadow: selected ? "3px 3px 0 var(--purple)" : "3px 3px 0 var(--border)",
+              background: selected ? "var(--bg-card)" : "var(--paper-alt)",
               position: "relative",
             }}
           >
@@ -143,7 +143,7 @@ export default function BuildCards({ build, onSlotClick, onRemove, onQtyChange }
                   fontWeight: 800,
                   letterSpacing: "1.5px",
                   textTransform: "uppercase",
-                  color: selected ? "var(--purple)" : "var(--text-dim)",
+                  color: selected ? "var(--purple-text)" : "var(--text-dim)",
                   marginBottom: "7px",
                 }}
               >

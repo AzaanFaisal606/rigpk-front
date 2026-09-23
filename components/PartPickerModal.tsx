@@ -179,7 +179,7 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
       onClick={onClose}
       style={{
         position: "fixed", inset: 0,
-        background: "rgba(244,244,245,0.75)",
+        background: "var(--scrim)",
         backdropFilter: "blur(4px)",
         display: "flex", alignItems: "center", justifyContent: "center",
         zIndex: 200, padding: "24px",
@@ -199,8 +199,8 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
         style={{
           width: "820px", maxWidth: "100%",
           background: "var(--bg-card)",
-          border: "2px solid #111112",
-          boxShadow: "10px 10px 0 #111112",
+          border: "2px solid var(--ink)",
+          boxShadow: "10px 10px 0 var(--shadow)",
           display: "flex", flexDirection: "column",
           maxHeight: "86vh",
         }}
@@ -208,7 +208,7 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
         {/* Header */}
         <div
           style={{
-            background: "#111112", color: "white",
+            background: "var(--bar)", color: "white",
             padding: "16px 22px",
             display: "flex", alignItems: "center", justifyContent: "space-between",
           }}
@@ -245,9 +245,9 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
             className="comic-input"
             style={{
               width: "100%", padding: "10px 14px",
-              border: "2px solid #111112",
-              background: "white", fontSize: "13px", outline: "none",
-              boxShadow: "2px 2px 0 #111112",
+              border: "2px solid var(--ink)",
+              background: "var(--paper)", fontSize: "13px", outline: "none",
+              boxShadow: "2px 2px 0 var(--shadow)",
               fontFamily: "inherit",
             }}
           />
@@ -258,7 +258,7 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
           <div
             style={{
               padding: "10px 22px",
-              borderBottom: "2px solid #111112",
+              borderBottom: "2px solid var(--ink)",
               display: "flex", gap: "8px", alignItems: "center",
               overflowX: "auto", flexShrink: 0,
               scrollbarWidth: "none",
@@ -284,11 +284,11 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
                         style={{
                           padding: "4px 12px",
                           border: active ? "1.5px solid var(--purple)" : "1.5px solid var(--border)",
-                          background: active ? "var(--purple-pale)" : "white",
+                          background: active ? "var(--purple-pale)" : "var(--paper)",
                           boxShadow: active ? "2px 2px 0 var(--purple)" : "none",
                           transform: "skewX(-8deg)",
                           fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px",
-                          color: active ? "var(--purple)" : "var(--text-muted)",
+                          color: active ? "var(--purple-text)" : "var(--text-muted)",
                           cursor: "pointer",
                           fontFamily: "var(--mono)",
                         }}
@@ -382,8 +382,8 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
                     style={{
                       padding: "8px 18px",
                       background: isCurrent ? "var(--purple)" : "var(--bg)",
-                      border: "2px solid #111112",
-                      boxShadow: "2px 2px 0 #111112",
+                      border: "2px solid var(--ink)",
+                      boxShadow: "2px 2px 0 var(--shadow)",
                       fontSize: "9px", fontWeight: 800, letterSpacing: "1px",
                       textTransform: "uppercase",
                       color: isCurrent ? "white" : "var(--text)",
@@ -415,7 +415,7 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
         <div
           style={{
             padding: "14px 22px",
-            borderTop: "2px solid #111112",
+            borderTop: "2px solid var(--ink)",
             display: "flex", justifyContent: "space-between", alignItems: "center",
             background: "var(--bg)",
           }}

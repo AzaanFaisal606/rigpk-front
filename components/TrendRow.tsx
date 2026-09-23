@@ -42,7 +42,7 @@ export default function TrendRow({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        borderBottom: "1px solid #111112",
+        borderBottom: "1px solid var(--ink)",
         borderLeft: hovered ? "4px solid var(--purple)" : "4px solid transparent",
         background: bg,
         transition: "background 0.1s, border-left-color 0.1s",
@@ -75,7 +75,7 @@ export default function TrendRow({
             <p
               className="font-bold truncate"
               style={{
-                color: hovered ? "var(--purple)" : "var(--text)",
+                color: hovered ? "var(--purple-text)" : "var(--text)",
                 transition: "color 0.1s",
               }}
             >
@@ -87,7 +87,7 @@ export default function TrendRow({
                 fontSize: "0.55rem",
                 fontWeight: 800,
                 color: "var(--text-muted)",
-                border: "1px solid color-mix(in srgb, #111112 30%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--ink) 30%, transparent)",
                 whiteSpace: "nowrap",
               }}
             >
@@ -100,7 +100,7 @@ export default function TrendRow({
             <div className="trend-col-label mono">{group.median_price != null ? "MEDIAN" : "INDEX"}</div>
             <div
               className="mono trend-avg-value"
-              style={{ fontWeight: 900, whiteSpace: "nowrap", color: "#111112" }}
+              style={{ fontWeight: 900, whiteSpace: "nowrap", color: "var(--text)" }}
             >
               {fmt(group.median_price ?? group.latest_price)}
             </div>

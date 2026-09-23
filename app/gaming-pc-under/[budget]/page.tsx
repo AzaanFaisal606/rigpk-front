@@ -81,7 +81,7 @@ const labelStyle = {
   fontFamily: monoFont,
   fontSize: "10px",
   fontWeight: 800,
-  color: "#a1a1aa",
+  color: "var(--faint)",
   letterSpacing: "2px",
   textTransform: "uppercase" as const,
 };
@@ -98,10 +98,10 @@ function SiblingLinks({ current }: { current: Budget }) {
             aria-current={active ? "page" : undefined}
             style={{
               padding: "7px 14px",
-              border: "2px solid #111112",
-              boxShadow: "2px 2px 0 #111112",
-              background: active ? "var(--purple)" : "white",
-              color: active ? "white" : "#111112",
+              border: "2px solid var(--ink)",
+              boxShadow: active ? "var(--gloss), 2px 2px 0 var(--shadow)" : "2px 2px 0 var(--shadow)",
+              background: active ? "var(--purple)" : "var(--paper)",
+              color: active ? "white" : "var(--text)",
               fontFamily: monoFont,
               fontSize: "10px",
               fontWeight: 800,
@@ -182,7 +182,7 @@ export default async function BudgetPage({ params }: PageProps) {
       <Navbar />
 
       {/* Header strip: breadcrumb, with the budget pulldown hanging off it. */}
-      <div style={{ position: "relative", zIndex: 30, background: "var(--bg)", borderBottom: "2px solid #111112" }}>
+      <div style={{ position: "relative", zIndex: 30, background: "var(--bg)", borderBottom: "2px solid var(--ink)" }}>
         <nav
           aria-label="Breadcrumb"
           style={{
@@ -194,16 +194,16 @@ export default async function BudgetPage({ params }: PageProps) {
             fontFamily: monoFont,
             fontSize: "10px",
             fontWeight: 700,
-            color: "#a1a1aa",
+            color: "var(--faint)",
             letterSpacing: "1px",
             textTransform: "uppercase",
           }}
         >
-          <Link href="/" style={{ color: "#a1a1aa", textDecoration: "none" }}>RIGPK</Link>
+          <Link href="/" style={{ color: "var(--faint)", textDecoration: "none" }}>RIGPK</Link>
           <span>›</span>
-          <Link href="/prebuilts" style={{ color: "#a1a1aa", textDecoration: "none" }}>PRE-BUILTS</Link>
+          <Link href="/prebuilts" style={{ color: "var(--faint)", textDecoration: "none" }}>PRE-BUILTS</Link>
           <span>›</span>
-          <span style={{ color: "#111112" }}>UNDER {budget.short}</span>
+          <span style={{ color: "var(--text)" }}>UNDER {budget.short}</span>
         </nav>
         <PulldownTab label="PCs by budget" title="Gaming PCs by budget">
           <BudgetBoxes buckets={buckets} activeSlug={budget.slug} />
@@ -212,16 +212,16 @@ export default async function BudgetPage({ params }: PageProps) {
 
       <main className="pb-browser-wrapper" style={{ maxWidth: "80rem", margin: "0 auto", padding: "40px 24px 32px" }}>
         <div style={{ ...labelStyle, marginBottom: "6px" }}>RIGPK {"//"} BUDGET GAMING PCS</div>
-        <h1 style={{ fontFamily: monoFont, fontWeight: 900, fontSize: "1.75rem", textTransform: "uppercase", letterSpacing: "0.04em", color: "#111112", margin: 0 }}>
+        <h1 style={{ fontFamily: monoFont, fontWeight: 900, fontSize: "1.75rem", textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text)", margin: 0 }}>
           {heading}
         </h1>
-        <p style={{ ...labelStyle, color: "var(--purple)", marginTop: "8px" }}>
+        <p style={{ ...labelStyle, color: "var(--purple-text)", marginTop: "8px" }}>
           {budget.lakh} · Prices for {monthYear(new Date())}
         </p>
 
         {failed ? (
           <div style={{ padding: "80px 0", textAlign: "center" }}>
-            <p style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 900, color: "var(--purple)", letterSpacing: "1.5px" }}>
+            <p style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 900, color: "var(--purple-text)", letterSpacing: "1.5px" }}>
               {"// SEARCH FAILED"}
             </p>
             <p style={{ fontFamily: monoFont, fontSize: "11px", color: "var(--text-muted)", letterSpacing: "0.5px", marginTop: "8px" }}>
@@ -237,7 +237,7 @@ export default async function BudgetPage({ params }: PageProps) {
             <SiblingLinks current={budget} />
 
             {listed.length === 0 ? (
-              <div style={{ padding: "80px 0", textAlign: "center", fontFamily: monoFont, fontSize: "13px", color: "#a1a1aa", letterSpacing: "1.5px" }}>
+              <div style={{ padding: "80px 0", textAlign: "center", fontFamily: monoFont, fontSize: "13px", color: "var(--faint)", letterSpacing: "1.5px" }}>
                 {"// NO PREBUILTS FOUND"}
               </div>
             ) : (
@@ -248,7 +248,7 @@ export default async function BudgetPage({ params }: PageProps) {
 
             {all.length > listed.length && (
               <p style={{ marginTop: "24px", fontFamily: monoFont, fontSize: "11px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" }}>
-                <Link href={`/prebuilts?max_price=${budget.max}`} style={{ color: "var(--purple)" }}>
+                <Link href={`/prebuilts?max_price=${budget.max}`} style={{ color: "var(--purple-text)" }}>
                   See all {all.length} PCs under {budget.short} →
                 </Link>
               </p>
@@ -257,18 +257,18 @@ export default async function BudgetPage({ params }: PageProps) {
             {faqs.length > 0 && (
               <section
                 aria-labelledby="budget-faq"
-                style={{ marginTop: "48px", border: "2px solid #111112", boxShadow: "10px 10px 0 #111112", background: "white", overflow: "hidden" }}
+                style={{ marginTop: "48px", border: "2px solid var(--ink)", boxShadow: "10px 10px 0 var(--shadow)", background: "var(--paper)", overflow: "hidden" }}
               >
                 <h2
                   id="budget-faq"
-                  style={{ margin: 0, background: "#111112", color: "white", padding: "10px 16px", fontFamily: monoFont, fontSize: "11px", fontWeight: 800, letterSpacing: "2px", textTransform: "uppercase" }}
+                  style={{ margin: 0, background: "var(--bar)", color: "white", padding: "10px 16px", fontFamily: monoFont, fontSize: "11px", fontWeight: 800, letterSpacing: "2px", textTransform: "uppercase" }}
                 >
                   FAQ · Gaming PC under {budget.lakh}
                 </h2>
                 <div style={{ padding: "8px 16px 16px" }}>
                   {faqs.map(f => (
-                    <div key={f.q} style={{ padding: "14px 0", borderBottom: "1.5px dashed #d4d4d8" }}>
-                      <h3 style={{ margin: 0, fontFamily: monoFont, fontSize: "12px", fontWeight: 800, color: "#111112", letterSpacing: "0.5px" }}>
+                    <div key={f.q} style={{ padding: "14px 0", borderBottom: "1.5px dashed var(--border)" }}>
+                      <h3 style={{ margin: 0, fontFamily: monoFont, fontSize: "12px", fontWeight: 800, color: "var(--text)", letterSpacing: "0.5px" }}>
                         {f.q}
                       </h3>
                       <p style={{ margin: "6px 0 0", fontSize: "14px", lineHeight: 1.6, color: "var(--text-muted)" }}>{f.a}</p>

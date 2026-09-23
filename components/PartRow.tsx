@@ -39,14 +39,14 @@ export default function PartRow({ part }: { part: Part }) {
       target={href ? "_blank" : undefined}
       rel={href ? "noopener noreferrer" : undefined}
       className="flex items-center px-4 py-3 no-underline part-row"
-      style={{ borderBottom: "1px solid #111112" }}
+      style={{ borderBottom: "1px solid var(--ink)" }}
     >
       {/* Thumbnail */}
       <div
         className="flex-shrink-0 flex items-center justify-center overflow-hidden part-row-thumb"
         style={{
           background: "var(--bg-section)",
-          border: "1.5px solid #111112",
+          border: "1.5px solid var(--ink)",
         }}
       >
         {part.thumbnail_url ? (
@@ -75,7 +75,7 @@ export default function PartRow({ part }: { part: Part }) {
             style={{
               fontSize: "0.6rem",
               fontWeight: 800,
-              color: "var(--purple)",
+              color: "var(--purple-text)",
               background: "color-mix(in srgb, var(--purple) 8%, transparent)",
               border: "1px solid color-mix(in srgb, var(--purple) 22%, transparent)",
             }}
@@ -89,8 +89,8 @@ export default function PartRow({ part }: { part: Part }) {
                 fontSize: "0.6rem",
                 fontWeight: 800,
                 color: "#fff",
-                background: "#111112",
-                border: "1px solid #111112",
+                background: "var(--bar)",
+                border: "1px solid var(--ink)",
               }}
             >
               {part.condition.toUpperCase()}
@@ -112,7 +112,7 @@ export default function PartRow({ part }: { part: Part }) {
           style={{
             fontWeight: 900,
             whiteSpace: "nowrap",
-            color: part.price_pkr ? "#111112" : "var(--text-dim)",
+            color: part.price_pkr ? "var(--text)" : "var(--text-dim)",
           }}
         >
           {formatPrice(part.price_pkr)}

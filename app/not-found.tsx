@@ -10,8 +10,8 @@ export default function NotFound() {
     >
       <div
         style={{
-          border: "2px solid #111112",
-          boxShadow: "6px 6px 0 #111112",
+          border: "2px solid var(--ink)",
+          boxShadow: "6px 6px 0 var(--shadow)",
           background: "var(--bg-card)",
           padding: "40px 32px",
           maxWidth: "440px",
@@ -36,8 +36,8 @@ export default function NotFound() {
           href="/"
           className="mono"
           style={{
-            border: "2px solid #111112",
-            boxShadow: "2px 2px 0 #111112",
+            border: "2px solid var(--ink)",
+            boxShadow: "2px 2px 0 var(--shadow)",
             background: "var(--purple)",
             color: "white",
             padding: "8px 16px",

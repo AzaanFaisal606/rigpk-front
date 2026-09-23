@@ -90,7 +90,7 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
         top: "52px",
         zIndex: 40,
         background: "var(--bg)",
-        borderBottom: "2px solid #111112",
+        borderBottom: "2px solid var(--ink)",
         transform: hidden ? "translateY(-100%)" : "translateY(0)",
         transition: "transform 0.25s ease",
       }}
@@ -125,13 +125,13 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
             enterKeyHint="search"
             style={{
               padding: "5px 26px 5px 10px",
-              border: searchInput ? "2px solid var(--purple)" : "2px solid #111112",
-              boxShadow: searchInput ? "2px 2px 0 var(--purple)" : "2px 2px 0 #111112",
+              border: searchInput ? "2px solid var(--purple)" : "2px solid var(--ink)",
+              boxShadow: searchInput ? "2px 2px 0 var(--purple)" : "2px 2px 0 var(--shadow)",
               fontFamily: monoFont,
               fontSize: "11px",
               fontWeight: 700,
-              background: "white",
-              color: "#111112",
+              background: "var(--paper)",
+              color: "var(--text)",
               outline: "none",
               width: "180px",
             }}
@@ -141,7 +141,7 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
           )}
         </div>
 
-        <div style={{ width: "1px", height: "20px", background: "#111112", flexShrink: 0 }} />
+        <div style={{ width: "1px", height: "20px", background: "var(--ink)", flexShrink: 0 }} />
 
         {/* Retailer */}
         <ComicDropdown
@@ -152,10 +152,10 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
           onClear={() => push({ source: undefined })}
         />
 
-        <div style={{ width: "1px", height: "20px", background: "#111112", flexShrink: 0 }} />
+        <div style={{ width: "1px", height: "20px", background: "var(--ink)", flexShrink: 0 }} />
 
         {/* CPU brand */}
-        <span style={{ fontFamily: monoFont, fontSize: "9px", fontWeight: 800, color: "#71717a", letterSpacing: "1px" }}>CPU</span>
+        <span style={{ fontFamily: monoFont, fontSize: "9px", fontWeight: 800, color: "var(--grey-500)", letterSpacing: "1px" }}>CPU</span>
         <div style={{ display: "flex", gap: "4px" }}>
           {CPU_BRANDS.map(b => (
             <ToggleChip
@@ -167,10 +167,10 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
           ))}
         </div>
 
-        <div style={{ width: "1px", height: "20px", background: "#111112", flexShrink: 0 }} />
+        <div style={{ width: "1px", height: "20px", background: "var(--ink)", flexShrink: 0 }} />
 
         {/* GPU brand */}
-        <span style={{ fontFamily: monoFont, fontSize: "9px", fontWeight: 800, color: "#71717a", letterSpacing: "1px" }}>GPU</span>
+        <span style={{ fontFamily: monoFont, fontSize: "9px", fontWeight: 800, color: "var(--grey-500)", letterSpacing: "1px" }}>GPU</span>
         <div style={{ display: "flex", gap: "4px" }}>
           {GPU_BRANDS.map(b => (
             <ToggleChip
@@ -182,10 +182,10 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
           ))}
         </div>
 
-        <div style={{ width: "1px", height: "20px", background: "#111112", flexShrink: 0 }} />
+        <div style={{ width: "1px", height: "20px", background: "var(--ink)", flexShrink: 0 }} />
 
         {/* Price range */}
-        <span style={{ fontFamily: monoFont, fontSize: "9px", fontWeight: 800, color: "#71717a", letterSpacing: "1px" }}>PRICE</span>
+        <span style={{ fontFamily: monoFont, fontSize: "9px", fontWeight: 800, color: "var(--grey-500)", letterSpacing: "1px" }}>PRICE</span>
         <input
           value={minPrice}
           onChange={e => push({ min_price: e.target.value || undefined })}
@@ -193,12 +193,12 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
           type="number"
           style={{
             width: "70px", padding: "5px 8px",
-            border: "2px solid #111112", boxShadow: "2px 2px 0 #111112",
+            border: "2px solid var(--ink)", boxShadow: "2px 2px 0 var(--shadow)",
             fontFamily: monoFont, fontSize: "10px", fontWeight: 700,
-            background: "white", color: "#111112", outline: "none",
+            background: "var(--paper)", color: "var(--text)", outline: "none",
           }}
         />
-        <span style={{ fontFamily: monoFont, fontSize: "10px", color: "#71717a" }}>—</span>
+        <span style={{ fontFamily: monoFont, fontSize: "10px", color: "var(--grey-500)" }}>—</span>
         <input
           value={maxPrice}
           onChange={e => push({ max_price: e.target.value || undefined })}
@@ -206,13 +206,13 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
           type="number"
           style={{
             width: "70px", padding: "5px 8px",
-            border: "2px solid #111112", boxShadow: "2px 2px 0 #111112",
+            border: "2px solid var(--ink)", boxShadow: "2px 2px 0 var(--shadow)",
             fontFamily: monoFont, fontSize: "10px", fontWeight: 700,
-            background: "white", color: "#111112", outline: "none",
+            background: "var(--paper)", color: "var(--text)", outline: "none",
           }}
         />
 
-        <div style={{ width: "1px", height: "20px", background: "#111112", flexShrink: 0 }} />
+        <div style={{ width: "1px", height: "20px", background: "var(--ink)", flexShrink: 0 }} />
 
         {/* Sort */}
         <ComicDropdown

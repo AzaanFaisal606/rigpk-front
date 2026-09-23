@@ -154,15 +154,15 @@ export default async function PartsList({ category, searchParams, baseParams, he
         {/* Parts list card — bigger shadow like PartPickerModal */}
         <div
           style={{
-            border: "2px solid #111112",
-            boxShadow: "10px 10px 0 #111112",
+            border: "2px solid var(--ink)",
+            boxShadow: "10px 10px 0 var(--shadow)",
             overflow: "hidden",
           }}
         >
           {/* Black header bar */}
           <div
             style={{
-              background: "#111112",
+              background: "var(--bar)",
               color: "white",
               padding: "12px 20px",
               display: "flex",
@@ -225,7 +225,7 @@ export default async function PartsList({ category, searchParams, baseParams, he
                 padding: "64px 24px",
                 textAlign: "center",
                 background: "var(--bg-card)",
-                borderTop: "1px solid #111112",
+                borderTop: "1px solid var(--ink)",
               }}
             >
               <p
@@ -233,7 +233,7 @@ export default async function PartsList({ category, searchParams, baseParams, he
                   fontFamily: monoFont,
                   fontSize: "0.9rem",
                   fontWeight: 900,
-                  color: "var(--purple)",
+                  color: "var(--purple-text)",
                   letterSpacing: "3px",
                   textTransform: "uppercase",
                 }}
@@ -263,7 +263,7 @@ export default async function PartsList({ category, searchParams, baseParams, he
                 padding: "64px 24px",
                 textAlign: "center",
                 background: "var(--bg-card)",
-                borderTop: "1px solid #111112",
+                borderTop: "1px solid var(--ink)",
               }}
             >
               <p
@@ -320,10 +320,10 @@ export default async function PartsList({ category, searchParams, baseParams, he
                   href={pageUrl(offset - LIMIT)}
                   style={{
                     padding: "7px 18px",
-                    border: "2px solid #111112",
-                    boxShadow: "3px 3px 0 #111112",
-                    background: "white",
-                    color: "#111112",
+                    border: "2px solid var(--ink)",
+                    boxShadow: "3px 3px 0 var(--shadow)",
+                    background: "var(--paper)",
+                    color: "var(--text)",
                     fontFamily: monoFont,
                     fontSize: "10px",
                     fontWeight: 800,
@@ -363,8 +363,8 @@ export default async function PartsList({ category, searchParams, baseParams, he
                   href={pageUrl(offset + LIMIT)}
                   style={{
                     padding: "7px 18px",
-                    border: "2px solid #111112",
-                    boxShadow: "3px 3px 0 #111112",
+                    border: "2px solid var(--ink)",
+                    boxShadow: "3px 3px 0 var(--shadow)",
                     background: "var(--purple)",
                     color: "white",
                     fontFamily: monoFont,

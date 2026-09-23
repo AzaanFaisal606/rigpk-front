@@ -24,9 +24,9 @@ export default async function TrendsPage() {
       <div className="mb-8">
         <h1
           className="font-black"
-          style={{ fontSize: "1.9rem", letterSpacing: "-0.02em", color: "#111112" }}
+          style={{ fontSize: "1.9rem", letterSpacing: "-0.02em", color: "var(--text)" }}
         >
-          Price <span style={{ color: "var(--purple)" }}>Trends</span>
+          Price <span style={{ color: "var(--purple-text)" }}>Trends</span>
         </h1>
         <p
           className="mono mt-1"

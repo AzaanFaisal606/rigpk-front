@@ -93,7 +93,7 @@ export default function PulldownTab({
               className="pulldown-body"
               style={{
                 background: "var(--purple)",
-                border: "2px solid #111112",
+                border: "2px solid var(--ink)",
                 borderTop: "none",
                 padding: "18px",
                 maxHeight: "calc(100vh - 220px)",
@@ -125,9 +125,9 @@ export default function PulldownTab({
                 gap: "6px",
                 background: "var(--purple)",
                 color: "white",
-                border: "2px solid #111112",
+                border: "2px solid var(--ink)",
                 borderTop: "none",
-                boxShadow: "3px 3px 0 #111112",
+                boxShadow: "var(--gloss), 3px 3px 0 var(--shadow)",
                 fontFamily: monoFont,
                 fontSize: "9px",
                 fontWeight: 800,

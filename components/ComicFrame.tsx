@@ -21,10 +21,10 @@ export default function ComicFrame({
       style={{
         position: "relative",
         height,
-        border: "4px solid #111112",
-        boxShadow: "8px 8px 0 #111112",
+        border: "4px solid var(--ink)",
+        boxShadow: "8px 8px 0 var(--shadow)",
         overflow: "hidden",
-        background: "#f4f4f5",
+        background: "var(--bg)",
       }}
     >
       {/* Halftone background */}
@@ -46,7 +46,7 @@ export default function ComicFrame({
           position: "absolute",
           inset: 0,
           background:
-            "radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.55) 0%, transparent 70%)",
+            "radial-gradient(ellipse at 50% 40%, var(--glow) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
@@ -67,7 +67,7 @@ export default function ComicFrame({
           height: 0,
           borderStyle: "solid",
           borderWidth: `${FOLD}px ${FOLD}px 0 0`,
-          borderColor: `#111112 transparent transparent transparent`,
+          borderColor: `var(--ink) transparent transparent transparent`,
         }}
       />
       <div
@@ -91,7 +91,7 @@ export default function ComicFrame({
             position: "absolute",
             bottom: 0,
             right: 0,
-            background: "#111112",
+            background: "var(--bar)",
             color: "white",
             fontFamily: monoFont,
             fontSize: "9px",

@@ -80,7 +80,7 @@ async function PrebuiltGrid({
     <>
       {failed ? (
         <div style={{ padding: "80px 0", textAlign: "center" }}>
-          <p style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 900, color: "var(--purple)", letterSpacing: "1.5px" }}>
+          <p style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 900, color: "var(--purple-text)", letterSpacing: "1.5px" }}>
             {"// SEARCH FAILED"}
           </p>
           <p style={{ fontFamily: monoFont, fontSize: "11px", color: "var(--text-muted)", letterSpacing: "0.5px", marginTop: "8px" }}>
@@ -88,7 +88,7 @@ async function PrebuiltGrid({
           </p>
         </div>
       ) : items.length === 0 ? (
-        <div style={{ padding: "80px 0", textAlign: "center", fontFamily: monoFont, fontSize: "13px", color: "#a1a1aa", letterSpacing: "1.5px" }}>
+        <div style={{ padding: "80px 0", textAlign: "center", fontFamily: monoFont, fontSize: "13px", color: "var(--faint)", letterSpacing: "1.5px" }}>
           {"// NO PREBUILTS FOUND"}
         </div>
       ) : (
@@ -103,10 +103,10 @@ async function PrebuiltGrid({
             href={hasPrev ? pageUrl(offset - LIMIT) : "#"}
             style={{
               padding: "8px 18px",
-              border: "2px solid #111112",
-              boxShadow: "3px 3px 0 #111112",
-              background: hasPrev ? "white" : "#f4f4f5",
-              color: hasPrev ? "#111112" : "#a1a1aa",
+              border: "2px solid var(--ink)",
+              boxShadow: "3px 3px 0 var(--shadow)",
+              background: hasPrev ? "var(--paper)" : "var(--bg)",
+              color: hasPrev ? "var(--text)" : "var(--faint)",
               fontFamily: monoFont,
               fontSize: "10px",
               fontWeight: 800,
@@ -125,8 +125,8 @@ async function PrebuiltGrid({
               fontFamily: monoFont,
               fontSize: "10px",
               fontWeight: 700,
-              color: "#71717a",
-              border: "1.5px solid #d4d4d8",
+              color: "var(--grey-500)",
+              border: "1.5px solid var(--border)",
               padding: "5px 12px",
               transform: "skewX(-6deg)",
               display: "inline-block",
@@ -141,10 +141,10 @@ async function PrebuiltGrid({
             href={hasNext ? pageUrl(offset + LIMIT) : "#"}
             style={{
               padding: "8px 18px",
-              border: "2px solid #111112",
-              boxShadow: "3px 3px 0 #111112",
-              background: hasNext ? "var(--purple)" : "#f4f4f5",
-              color: hasNext ? "white" : "#a1a1aa",
+              border: "2px solid var(--ink)",
+              boxShadow: "3px 3px 0 var(--shadow)",
+              background: hasNext ? "var(--purple)" : "var(--bg)",
+              color: hasNext ? "white" : "var(--faint)",
               fontFamily: monoFont,
               fontSize: "10px",
               fontWeight: 800,
@@ -175,16 +175,16 @@ export default async function PrebuiltsPage({ searchParams }: PageProps) {
 
       <main className="pb-browser-wrapper" style={{ maxWidth: "80rem", margin: "0 auto", padding: "32px 24px" }}>
         <div style={{ marginBottom: "28px" }}>
-          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "#a1a1aa", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "6px" }}>
+          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "var(--faint)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "6px" }}>
             RIGPK
           </div>
-          <h1 style={{ fontFamily: monoFont, fontWeight: 900, fontSize: "1.75rem", textTransform: "uppercase", letterSpacing: "0.04em", color: "#111112", margin: 0 }}>
+          <h1 style={{ fontFamily: monoFont, fontWeight: 900, fontSize: "1.75rem", textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text)", margin: 0 }}>
             Pre-Built PCs
           </h1>
         </div>
 
         <Suspense fallback={
-          <div style={{ padding: "80px 0", textAlign: "center", fontFamily: monoFont, fontSize: "12px", color: "#a1a1aa", letterSpacing: "1.5px" }}>
+          <div style={{ padding: "80px 0", textAlign: "center", fontFamily: monoFont, fontSize: "12px", color: "var(--faint)", letterSpacing: "1.5px" }}>
             {"// LOADING..."}
           </div>
         }>

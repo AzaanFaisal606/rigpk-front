@@ -22,10 +22,10 @@ function Chip({ label }: { label: string }) {
         letterSpacing: "0.8px",
         textTransform: "uppercase",
         padding: "2px 7px",
-        border: "1px solid #111112",
-        boxShadow: "1px 1px 0 #111112",
-        background: "white",
-        color: "#111112",
+        border: "1px solid var(--ink)",
+        boxShadow: "1px 1px 0 var(--shadow)",
+        background: "var(--paper)",
+        color: "var(--text)",
       }}
     >
       {label}
@@ -48,11 +48,11 @@ export default function PrebuiltCard({ prebuilt }: Props) {
       onMouseLeave={() => setHovered(false)}
       style={{
         borderTop: "none",
-        borderRight: "2px solid #111112",
-        borderBottom: "2px solid #111112",
+        borderRight: "2px solid var(--ink)",
+        borderBottom: "2px solid var(--ink)",
         borderLeft: hovered ? "4px solid var(--purple)" : "4px solid transparent",
-        boxShadow: hovered ? "6px 6px 0 var(--purple)" : "6px 6px 0 #111112",
-        background: hovered ? "var(--purple-pale)" : "white",
+        boxShadow: hovered ? "6px 6px 0 var(--purple)" : "6px 6px 0 var(--shadow)",
+        background: hovered ? "var(--purple-pale)" : "var(--paper)",
         transition: "background 0.1s",
         display: "flex",
         flexDirection: "column",
@@ -63,9 +63,9 @@ export default function PrebuiltCard({ prebuilt }: Props) {
       {/* Thumbnail */}
       <div
         style={{
-          borderBottom: "2px solid #111112",
+          borderBottom: "2px solid var(--ink)",
           height: 200,
-          background: "#f4f4f5",
+          background: "var(--bg)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -116,7 +116,7 @@ export default function PrebuiltCard({ prebuilt }: Props) {
             position: "absolute",
             bottom: 0,
             right: 0,
-            background: "#111112",
+            background: "var(--bar)",
             color: "white",
             fontFamily: monoFont,
             fontSize: "9px",
@@ -138,7 +138,7 @@ export default function PrebuiltCard({ prebuilt }: Props) {
             fontWeight: 700,
             fontSize: "0.875rem",
             lineHeight: 1.35,
-            color: hovered ? "var(--purple)" : "#111112",
+            color: hovered ? "var(--purple-text)" : "var(--text)",
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
@@ -167,7 +167,7 @@ export default function PrebuiltCard({ prebuilt }: Props) {
             fontFamily: monoFont,
             fontWeight: 900,
             fontSize: "1.1rem",
-            color: "#111112",
+            color: "var(--text)",
             letterSpacing: "-0.01em",
           }}
         >
@@ -184,8 +184,8 @@ export default function PrebuiltCard({ prebuilt }: Props) {
             padding: "7px 14px",
             background: "var(--purple)",
             color: "white",
-            border: "2px solid #111112",
-            boxShadow: "3px 3px 0 #111112",
+            border: "2px solid var(--ink)",
+            boxShadow: "var(--gloss), 3px 3px 0 var(--shadow)",
             fontFamily: monoFont,
             fontSize: "10px",
             fontWeight: 800,

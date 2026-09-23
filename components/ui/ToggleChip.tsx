@@ -22,10 +22,10 @@ export function ToggleChip({
       className="filter-chip"
       style={{
         padding: "5px 12px",
-        border: active ? "2px solid var(--purple)" : "2px solid #111112",
-        boxShadow: active ? "2px 2px 0 var(--purple)" : "2px 2px 0 #111112",
-        background: active ? "var(--purple)" : hov ? "color-mix(in srgb, var(--purple) 6%, transparent)" : "white",
-        color: active ? "white" : "#111112",
+        border: active ? "2px solid var(--purple)" : "2px solid var(--ink)",
+        boxShadow: active ? "var(--gloss), 2px 2px 0 var(--purple)" : "2px 2px 0 var(--shadow)",
+        background: active ? "var(--purple)" : hov ? "color-mix(in srgb, var(--purple) 6%, transparent)" : "var(--paper)",
+        color: active ? "white" : "var(--text)",
         fontFamily: monoFont,
         fontSize: "10px",
         fontWeight: 800,

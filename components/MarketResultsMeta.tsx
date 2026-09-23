@@ -112,10 +112,10 @@ export default function MarketResultsMeta({
           href={pageUrl(offset - limit)}
           style={{
             padding: "7px 18px",
-            border: "2px solid #111112",
-            boxShadow: "3px 3px 0 #111112",
-            background: "white",
-            color: "#111112",
+            border: "2px solid var(--ink)",
+            boxShadow: "3px 3px 0 var(--shadow)",
+            background: "var(--paper)",
+            color: "var(--text)",
             fontFamily: monoFont,
             fontSize: "10px",
             fontWeight: 800,
@@ -151,8 +151,8 @@ export default function MarketResultsMeta({
           href={pageUrl(offset + limit)}
           style={{
             padding: "7px 18px",
-            border: "2px solid #111112",
-            boxShadow: "3px 3px 0 #111112",
+            border: "2px solid var(--ink)",
+            boxShadow: "3px 3px 0 var(--shadow)",
             background: "var(--purple)",
             color: "white",
             fontFamily: monoFont,

@@ -8,7 +8,7 @@ export default function Footer() {
       className="px-6 py-5 text-center"
       style={{
         background: "var(--bg)",
-        borderTop: "2px solid #111112",
+        borderTop: "2px solid var(--ink)",
         color: "var(--text-dim)",
         fontFamily: monoFont,
         fontSize: "0.65rem",
