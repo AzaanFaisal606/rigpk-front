@@ -56,6 +56,11 @@ export interface PartSpecs {
   fan_size?: string;
   interface?: string;
   capacity?: string;
+  condition?: string;
+  screen_size?: string;
+  resolution?: string;
+  refresh_rate?: string;
+  panel?: string;
 }
 
 export interface FilterOptions {
@@ -73,6 +78,10 @@ export interface FilterOptions {
   fan_size?: string[];
   interface?: string[];
   capacity?: string[];
+  screen_size?: string[];
+  resolution?: string[];
+  refresh_rate?: string[];
+  panel?: string[];
 }
 
 export interface Part {
@@ -84,6 +93,8 @@ export interface Part {
   thumbnail_url: string | null;
   price_pkr: number | null;
   specs: PartSpecs | null;
+  /** "Used" / "Open Box" / "Refurbished"; null or absent means new. */
+  condition?: string | null;
 }
 
 export type PartsResult =
@@ -113,7 +124,13 @@ export interface PartsParams {
   fan_size?: string;
   interface?: string;
   capacity?: string;
+  screen_size?: string;
+  resolution?: string;
+  refresh_rate?: string;
+  panel?: string;
   include_specs?: boolean;
+  /** Drop rows with this specs.type (untyped rows stay). */
+  exclude_type?: string;
   /** Aborts the underlying fetch — lets a caller cancel a stale in-flight request. */
   signal?: AbortSignal;
 }
@@ -124,7 +141,8 @@ export async function getParts(params: PartsParams = {}): Promise<PartsResult> {
     "category", "source", "min_price", "max_price", "sort", "limit", "offset", "q",
     "brand", "socket", "vram", "ddr_type", "speed", "chipset", "wattage",
     "rating", "form_factor", "type", "aio_size", "fan_size", "interface", "capacity",
-    "include_specs",
+    "screen_size", "resolution", "refresh_rate", "panel",
+    "include_specs", "exclude_type",
   ];
   for (const key of keys) {
     const val = params[key];

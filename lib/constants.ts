@@ -71,6 +71,7 @@ export const SPEC_KEYS = [
   "brand", "socket", "vram", "ddr_type", "speed", "chipset",
   "wattage", "rating", "form_factor", "type", "aio_size",
   "fan_size", "interface", "capacity",
+  "screen_size", "resolution", "refresh_rate", "panel",
 ] as const;
 
 // Curated "popular" trend groups shown on the /trends page, per category.
@@ -109,4 +110,8 @@ export const SPEC_LABELS: Record<string, string> = {
   fan_size:    "Fan",
   interface:   "Interface",
   capacity:    "Capacity",
+  screen_size: "Size",
+  resolution:  "Res",
+  refresh_rate: "Hz",
+  panel:       "Panel",
 };

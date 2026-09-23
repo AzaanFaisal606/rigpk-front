@@ -82,6 +82,20 @@ export default function PartRow({ part }: { part: Part }) {
           >
             {part.category.toUpperCase()}
           </span>
+          {part.condition && (
+            <span
+              className="mono px-1.5 py-px"
+              style={{
+                fontSize: "0.6rem",
+                fontWeight: 800,
+                color: "#fff",
+                background: "#111112",
+                border: "1px solid #111112",
+              }}
+            >
+              {part.condition.toUpperCase()}
+            </span>
+          )}
           <span
             className="mono"
             style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text-muted)" }}

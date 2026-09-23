@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 export const metadata = {
   title: "PC Part Price Trends in Pakistan",
   alternates: { canonical: "/trends" },
-  description: "Average market prices for popular GPUs, CPUs and RAM in Pakistan over time.",
+  description: "Median market prices for popular GPUs, CPUs and RAM in Pakistan over time.",
 };
 
 export default async function TrendsPage() {
@@ -32,7 +32,7 @@ export default async function TrendsPage() {
           className="mono mt-1"
           style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)" }}
         >
-          Average market price per model over time — tap or hover the chart for exact figures &amp; range.
+          Median market price per model over time — tap or hover the chart for exact figures &amp; range.
         </p>
       </div>
 

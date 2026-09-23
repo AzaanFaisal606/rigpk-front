@@ -8,6 +8,8 @@ export interface TrendPoint {
   max_price: number;
   sample_count: number;
   used_count: number;
+  /** Real median of that date's listings; null before the first rebuild with it. */
+  median_price?: number | null;
 }
 
 export interface TrendGroup {
@@ -16,6 +18,10 @@ export interface TrendGroup {
   min_price: number;
   max_price: number;
   sample_count: number;
+  /** Real prices on the latest date; null before the first rebuild with them. */
+  median_price?: number | null;
+  low_price?: number | null;
+  high_price?: number | null;
   thumbnail_url: string | null;
   series: TrendPoint[];
 }

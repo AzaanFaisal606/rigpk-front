@@ -98,22 +98,10 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
     );
   }
 
-  // Y-scale follows the CENTER line, not the min/max band.
-  //
-  // Scaling to the band looked more honest and was in practice unreadable:
-  // measured across the live catalogue, the median series' band spans 27.5%
-  // of its own price while its center line moves 0.93% — and in 85 of 101
-  // multi-point series the center span is under a fifth of the band span. On
-  // a band-scaled axis every one of those renders as a dead-flat line, which
-  // is what a real price move of a few percent actually looks like when the
-  // axis is sized by the gap between the cheapest and priciest listing in the
-  // group. The chart was answering "how wide is this group?" when the
-  // question asked is "which way did the price go?".
-  //
-  // So: fit the axis to the center line and pad it, then CLIP the band to the
-  // chart box (below). The band still shows — it just runs off the top and
-  // bottom when it is genuinely wider than the movement, which reads
-  // correctly as "the spread is wider than this view".
+  // No band. A group's spread (kit types, brands, used stock) is ~10x its
+  // week-to-week movement, so any band fitted to a readable axis filled the
+  // whole chart (22 of 39 whitelisted charts). The line answers "which way
+  // did the price go"; the RANGE column carries the spread.
   const centerLo = Math.min(...series.map((p) => p.center_price));
   const centerHi = Math.max(...series.map((p) => p.center_price));
   // Padding is the larger of 60% of the movement (so a moving line never
@@ -127,30 +115,21 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
   const innerW = W - PAD_X * 2;
   const innerH = H - PAD_Y * 2;
 
+  // Spaced by date, not by point: scrapes are irregular (a 37-day gap once),
+  // and equal spacing made a slow drift look as steep as a one-week drop.
+  const t = series.map((p) => Date.parse(p.scrape_date));
+  const tSpan = t[t.length - 1] - t[0];
   const x = (i: number) =>
-    PAD_X + (series.length === 1 ? innerW / 2 : (i / (series.length - 1)) * innerW);
-  // Clamped: band values now routinely fall outside [lo, hi], and an
-  // unclamped polygon point would paint far outside the 60px-tall svg.
+    PAD_X + (series.length === 1 || !tSpan ? innerW / 2 : ((t[i] - t[0]) / tSpan) * innerW);
+  // A gap this long is missing scrapes, not a trend: drawn dashed.
+  const GAP_MS = 21 * 86_400_000;
+  const isGap = (i: number) => t[i + 1] - t[i] > GAP_MS;
   const y = (v: number) =>
     Math.max(0, Math.min(H, PAD_Y + innerH - ((v - lo) / span) * innerH));
 
-  const centerPts = series.map((p, i) => `${x(i)},${y(p.center_price)}`).join(" ");
-  // Band: one convex trapezoid per adjacent pair (top=max, bottom=min). Drawing
-  // per-segment avoids the self-intersecting single-polygon that leaves gaps
-  // when a segment's min/max swing crosses its neighbour's (nonzero fill-rule
-  // cancels the overlap). Each trapezoid is convex, so it always fills.
-  const bandSegments = series.slice(1).map((p, i) => {
-    const a = series[i];
-    const x0 = x(i), x1 = x(i + 1);
-    return `${x0},${y(a.max_price)} ${x1},${y(p.max_price)} ` +
-           `${x1},${y(p.min_price)} ${x0},${y(a.min_price)}`;
-  });
-  // Single-point fallback: a vertical band slab at the centre.
-  const singleBand =
-    series.length === 1
-      ? `${x(0) - 8},${y(series[0].max_price)} ${x(0) + 8},${y(series[0].max_price)} ` +
-        `${x(0) + 8},${y(series[0].min_price)} ${x(0) - 8},${y(series[0].min_price)}`
-      : null;
+  const centerSegments = series.slice(1).map((p, i) => ({
+    x1: x(i), y1: y(series[i].center_price), x2: x(i + 1), y2: y(p.center_price), gap: isGap(i),
+  }));
 
   const active = hover != null ? series[hover] : null;
   // Flip tooltip below the point when the point sits in the upper half of
@@ -168,29 +147,24 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
         height={H}
         style={{ display: "block", border: "1.5px solid #111112", background: "var(--bg-section)" }}
       >
-        {/* min/max band — per-segment trapezoids (gap-free) */}
-        {singleBand ? (
-          <polygon points={singleBand} fill="var(--purple)" fillOpacity={0.14} stroke="none" />
-        ) : (
-          bandSegments.map((pts, i) => (
-            <polygon key={i} points={pts} fill="var(--purple)" fillOpacity={0.14} stroke="none" />
-          ))
-        )}
-        {/* center line */}
-        <polyline
-          points={centerPts}
-          fill="none"
-          stroke="var(--purple)"
-          strokeWidth={2}
-          strokeLinejoin="miter"
-        />
+        {/* center line, dashed across missing scrapes */}
+        {centerSegments.map((sg, i) => (
+          <line
+            key={i}
+            x1={sg.x1} y1={sg.y1} x2={sg.x2} y2={sg.y2}
+            stroke="var(--purple)"
+            strokeWidth={2}
+            strokeDasharray={sg.gap ? "3 3" : undefined}
+            strokeLinecap="square"
+          />
+        ))}
         {/* points + hover hit areas */}
         {series.map((p, i) => (
           <g key={i}>
             <rect
-              x={x(i) - innerW / (2 * series.length) - 2}
+              x={i === 0 ? 0 : (x(i - 1) + x(i)) / 2}
               y={0}
-              width={innerW / series.length + 4}
+              width={(i === series.length - 1 ? W : (x(i) + x(i + 1)) / 2) - (i === 0 ? 0 : (x(i - 1) + x(i)) / 2)}
               height={H}
               fill="transparent"
               onPointerEnter={e => { if (e.pointerType === "mouse") setHover(i); }}
@@ -239,7 +213,10 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
           <div style={{ fontWeight: 800, letterSpacing: "0.5px", color: "var(--purple-pale, #f9e1ed)" }}>
             {shortDate(active.scrape_date)}
           </div>
-          <div style={{ fontWeight: 800 }}>{fmt(active.center_price)}</div>
+          <div style={{ fontWeight: 800 }}>{fmt(active.median_price ?? active.center_price)}</div>
+          {active.median_price != null && (
+            <div style={{ opacity: 0.7 }}>index {fmt(active.center_price)}</div>
+          )}
         </div>,
         document.body
       )}

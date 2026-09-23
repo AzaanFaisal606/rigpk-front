@@ -95,22 +95,22 @@ export default function TrendRow({
             </span>
           </div>
 
-          {/* Center (average) */}
+          {/* Real median. The chart line is an index and drifts from it. */}
           <div className="trend-avg text-right">
-            <div className="trend-col-label mono">AVG</div>
+            <div className="trend-col-label mono">{group.median_price != null ? "MEDIAN" : "INDEX"}</div>
             <div
               className="mono trend-avg-value"
               style={{ fontWeight: 900, whiteSpace: "nowrap", color: "#111112" }}
             >
-              {fmt(group.latest_price)}
+              {fmt(group.median_price ?? group.latest_price)}
             </div>
           </div>
 
-          {/* Max–Min range */}
+          {/* Cheapest and priciest listing on the latest date */}
           <div className="trend-range text-right">
             <div className="trend-col-label mono">RANGE</div>
-            <div className="mono trend-range-value">{fmt(group.min_price)}</div>
-            <div className="mono trend-range-value">{fmt(group.max_price)}</div>
+            <div className="mono trend-range-value">{fmt(group.low_price ?? group.min_price)}</div>
+            <div className="mono trend-range-value">{fmt(group.high_price ?? group.max_price)}</div>
           </div>
 
           {/* Chart */}

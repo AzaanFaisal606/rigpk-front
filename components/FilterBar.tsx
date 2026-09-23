@@ -41,6 +41,19 @@ function bucketValues(key: string, rawValues: string[]): Bucket[] | null {
     return out.length > 1 ? out : null;
   }
 
+  if (key === "refresh_rate") {
+    const tiers: [string, (n: number) => boolean][] = [
+      ["≤100Hz", n => n <= 100],
+      ["120–180Hz", n => n > 100 && n <= 180],
+      ["200–280Hz", n => n > 180 && n <= 280],
+      ["300Hz+", n => n > 280],
+    ];
+    const out = tiers
+      .map(([label, test]) => ({ label, values: rawValues.filter(v => test(parse(v))) }))
+      .filter(b => b.values.length);
+    return out.length > 1 ? out : null;
+  }
+
   if (key === "speed") {
     // RAM speeds in MHz
     const ddr4slow: string[] = [], ddr4fast: string[] = [], ddr5base: string[] = [], ddr5fast: string[] = [];
@@ -325,7 +338,7 @@ export default function FilterBar({
             style={{
               flex: "1 1 180px",
               minWidth: "150px",
-              maxWidth: "260px",
+              maxWidth: "220px",
               display: "flex",
               alignItems: "center",
               gap: "10px",

@@ -125,6 +125,8 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
       limit: 50,
       q: debouncedSearch || undefined,
       include_specs: true,
+      // The cooler slot wants CPU coolers; case fans share the category.
+      exclude_type: category === "cooling" && !activeFilters.type ? "Fan/Accessory" : undefined,
       signal: controller.signal,
       ...activeFilters,
     });
