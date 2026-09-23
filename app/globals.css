@@ -782,7 +782,10 @@ html[data-filtering="1"] .pb-browser-wrapper {
    bar, leaving only the lip hanging below it. The lip rests 6px tucked up
    and drops those 6px on hover; the menu itself never moves until opened. */
 .pulldown-drawer {
-  width: 60vw;
+  /* Capped at the clip box: vw counts a classic scrollbar, and on a wide
+     screen 60vw can outgrow the row, either way cutting off the right
+     border and shadow. The clip box's 10px right padding keeps the shadow. */
+  width: min(60vw, 100%);
   transform: translateY(-100%);
   transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -796,6 +799,10 @@ html[data-filtering="1"] .pb-browser-wrapper {
   transition: transform 0.16s ease, background 0.1s;
 }
 .pulldown-drawer[data-open="false"] .pulldown-lip:hover { transform: translateY(0); }
+/* Open, the lip's top edge sits on the body's bottom border. Raised by the
+   closed-state 6px it would overlap the body, and its side border and shadow
+   would poke up into the menu as a notch. */
+.pulldown-drawer[data-open="true"] .pulldown-lip { transform: translateY(0); }
 .pulldown-lip:hover { background: var(--purple-hover) !important; }
 .pulldown-lip:focus-visible {
   outline: 2px solid var(--purple);
@@ -804,7 +811,41 @@ html[data-filtering="1"] .pb-browser-wrapper {
 .pulldown-caret { transition: transform 0.2s ease; }
 .pulldown-lip[aria-expanded="true"] .pulldown-caret { transform: rotate(180deg); }
 @media (max-width: 640px) {
-  .pulldown-drawer { width: calc(100vw - 58px); }
+  .pulldown-drawer { width: 100%; }
+}
+/* On phones a pulldown's box grid becomes one row scrolled sideways, so the
+   boxes keep their desktop size instead of squeezing into a tall stack.
+   Anything outside the grid (a header bar, a Back button) stays pinned.
+   Grids opt in with .pulldown-grid; they sit inside the body's 18px padding,
+   so the row bleeds out over it to scroll edge to edge. The vertical padding
+   leaves room for the boxes' hard shadow and hover lift. */
+@media (max-width: 640px) {
+  .pulldown-grid {
+    grid-template-columns: none !important;
+    grid-auto-flow: column;
+    /* Two boxes and a sliver of the third show, so the row reads as scrollable. */
+    grid-auto-columns: 136px;
+    gap: 12px;
+    margin: 0 -18px;
+    padding: 4px 18px 12px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 18px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink) transparent;
+  }
+  .pulldown-grid > * { scroll-snap-align: start; }
+  /* Narrower boxes keep the desktop's near-square shape: everything inside
+     scales down with them rather than stretching the box tall. !important
+     because the boxes are styled inline. */
+  .pulldown-grid .pulldown-box { padding: 8px !important; gap: 5px !important; }
+  .pulldown-grid .pulldown-box-title { font-size: 11px !important; line-height: 1.25; }
+  .pulldown-grid .pulldown-box-well { height: 62px !important; }
+  .pulldown-grid .pulldown-box-well img { max-height: 56px !important; }
+  .pulldown-grid .pulldown-box-well svg { width: 40px !important; height: 40px !important; }
+  .pulldown-grid .pulldown-box-sub { font-size: 9px !important; }
+  .pulldown-grid .pulldown-box-meta { font-size: 8px !important; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pulldown-drawer,
@@ -831,8 +872,19 @@ html[data-filtering="1"] .pb-browser-wrapper {
   outline: 2px solid var(--purple-pale);
   outline-offset: 2px;
 }
+
+/* Model boxes inside the "Shop by model" pulldown: the budget-box look, one
+   grid per menu level (all in the HTML, only the current one shown). */
+.model-box-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.pulldown-box-well { height: 96px; }
 @media (max-width: 640px) {
-  .budget-box-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  /* The lip already says "Shop by model"; the bar keeps just the trail. */
+  .model-menu-title,
+  .model-menu-slashes { display: none !important; }
 }
 
 /* ── Theme switch: "scene change" wipe ───────────────────── */

@@ -3,6 +3,7 @@ import { getPrebuilts } from "@/lib/prebuilts-api";
 import { MARKET_ROUTE_CATEGORIES } from "@/lib/constants";
 import { BUDGETS } from "@/lib/budgets";
 import { allFacetRoutes, facetPath } from "@/lib/facets";
+import { MODELS, modelPath } from "@/lib/models";
 import { SITE_URL as BASE } from "@/lib/seo";
 
 /** scraped_at as a Date, or undefined when it doesn't parse. */
@@ -47,6 +48,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${BASE}${facetPath(category, facet)}`,
       changeFrequency: "daily" as const,
       priority: 0.7,
+    })),
+    ...MODELS.map(m => ({
+      url: `${BASE}${modelPath(m)}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
     })),
     ...prebuiltUrls,
   ];

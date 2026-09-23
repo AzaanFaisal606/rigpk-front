@@ -5,6 +5,7 @@ import PartRow from "@/components/PartRow";
 import MarketSearchResults from "@/components/MarketSearchResults";
 import MarketResultsMeta from "@/components/MarketResultsMeta";
 import FacetLinks from "@/components/FacetLinks";
+import ModelPulldown from "@/components/ModelPulldown";
 import { getParts } from "@/lib/api";
 import { str } from "@/lib/utils";
 import { monoFont } from "@/lib/tokens";
@@ -100,10 +101,19 @@ export default async function PartsList({ category, searchParams, baseParams, he
           activeCategory={category}
           clientIndexActive={category ? !specFiltersActive : false}
           baseParams={baseParams}
+          pulldown={
+            <Suspense fallback={null}>
+              <ModelPulldown
+                initialPath={resolvedCategory === "gpu" || resolvedCategory === "cpu" ? [resolvedCategory] : []}
+                rowMaxWidth="72rem"
+              />
+            </Suspense>
+          }
         />
       </Suspense>
 
-      <div className="max-w-6xl mx-auto px-6 py-6 w-full market-list-wrap">
+      {/* Top padding clears the "Shop by model" lip hanging off the bar. */}
+      <div className="max-w-6xl mx-auto px-6 pt-10 pb-6 w-full market-list-wrap">
         {/* Section header */}
         <div className="flex items-end justify-between mb-5">
           <div>

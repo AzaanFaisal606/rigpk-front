@@ -9,7 +9,9 @@ interface Props {
   /** Accessible name for the menu; defaults to `label`. */
   title?: string;
   /** Menu contents. Always rendered (slid out of view and `inert` while
-   *  closed) so any links inside stay in the server HTML for crawlers. */
+   *  closed) so any links inside stay in the server HTML for crawlers.
+   *  A box grid given the `pulldown-grid` class becomes one sideways-
+   *  scrolling row on phones (globals.css). */
   children: ReactNode;
   /** The drawer sits in a row laid out like the host bar's content row, so
    *  its left edge and lip line up under a specific control. */
@@ -130,7 +132,10 @@ export default function PulldownTab({
                 color: "white",
                 border: "2px solid var(--ink)",
                 borderTop: "none",
-                boxShadow: "var(--gloss), 3px 3px 0 var(--shadow)",
+                // No --gloss: its top highlight would draw a light line right
+                // where the lip joins the body. The body has no gloss either,
+                // so the two read as one shape.
+                boxShadow: "3px 3px 0 var(--shadow)",
                 fontFamily: monoFont,
                 fontSize: "9px",
                 fontWeight: 800,

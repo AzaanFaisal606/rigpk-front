@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import type { FilterOptions } from "@/lib/api";
 import { getFilterOptions } from "@/lib/api";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
@@ -93,13 +93,16 @@ function bucketValues(key: string, rawValues: string[]): Bucket[] | null {
 }
 
 export default function FilterBar({
-  total, activeCategory, clientIndexActive = false, baseParams,
+  total, activeCategory, clientIndexActive = false, baseParams, pulldown,
 }: {
   total: number;
   activeCategory?: string;
   clientIndexActive?: boolean;
   /** Filters implied by a clean facet path (/market/ram/ddr5). */
   baseParams?: Record<string, string>;
+  /** Rendered hanging off the bar's bottom edge — outside the horizontal
+   *  scroll wrapper so it isn't clipped. */
+  pulldown?: ReactNode;
 }) {
   const router = useRouter();
   const currentPath = usePathname();
@@ -490,6 +493,7 @@ export default function FilterBar({
         </div>
         </div>
       </div>
+      {pulldown}
     </div>
   );
 }

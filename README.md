@@ -12,6 +12,8 @@ Pakistan. Built with Next.js 16 (App Router) and a custom "techy comic" design s
 - **PC Builder:** pick parts slot by slot, with quantities. A live compatibility check catches
   CPU↔motherboard socket and DDR mismatches, and builds can be shared as links.
 - **Prebuilts:** browse ~250 prebuilt PCs from 3 retailers, plus "gaming PC under X" budget pages.
+- **Model pages:** one price page per popular GPU/CPU model (RTX 5060 Ti 16GB, Core i5-14600K…),
+  reached from a "Shop by model" pulldown on every market page.
 - **Trends:** weekly price trends per GPU/CPU model and RAM spec.
 
 ## Tech Stack
@@ -39,10 +41,11 @@ maroon accent (`--purple: #873260`). The tokens live in `app/globals.css`.
 | `/build` | PC builder with compatibility banner and share links |
 | `/prebuilts` · `/prebuilts/[id]` | Prebuilt browser and detail page |
 | `/gaming-pc-under/[budget]` | Budget pages (100k/150k/200k/300k) |
+| `/gpu/[model]` · `/cpu/[model]` | Model price pages (70, catalog in `lib/models.ts`) |
 | `/trends` | Price trend sparklines and drill-down |
 
-`proxy.ts` (Next 16's renamed middleware) turns unknown categories, filters and budgets into
-real 404s.
+`proxy.ts` (Next 16's renamed middleware) turns unknown categories, filters, budgets and models
+into real 404s.
 
 ## Running Locally
 
@@ -59,9 +62,10 @@ npm test
 ```
 app/            routes above, plus sitemap.ts, robots.ts, error/loading/not-found
 components/     FilterBar, PartsList/PartRow, MarketSearchResults, Build*, PartPickerModal,
-                Prebuilt*, Trend*, Sources, JsonLd; ui/ (ComicDropdown, PulldownTab, …)
+                Prebuilt*, Model*, Trend*, Sources, JsonLd; ui/ (ComicDropdown, PulldownTab, …)
 lib/            api.ts, types.ts, compatibility.ts, search-tokenize.ts, search-index.ts,
-                search-bus.ts, trends-api.ts, prebuilts-api.ts, seo.ts, facets.ts, budgets.ts
+                search-bus.ts, trends-api.ts, prebuilts-api.ts, seo.ts, facets.ts, budgets.ts,
+                models.ts, model-data.ts, model-menu-data.ts
 lib/__tests__/  Vitest suites
 ```
 

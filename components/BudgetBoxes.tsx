@@ -18,7 +18,7 @@ interface Props {
  */
 export default function BudgetBoxes({ buckets, activeSlug }: Props) {
   return (
-    <div className="budget-box-grid">
+    <div className="budget-box-grid pulldown-grid">
       {BUDGETS.map(budget => {
         const bucket = buckets?.find(b => b.budget.slug === budget.slug);
         const active = budget.slug === activeSlug;
@@ -27,7 +27,7 @@ export default function BudgetBoxes({ buckets, activeSlug }: Props) {
             key={budget.slug}
             href={`/gaming-pc-under/${budget.slug}`}
             prefetch={false}
-            className="budget-box"
+            className="budget-box pulldown-box"
             aria-current={active ? "page" : undefined}
             title={`Best gaming PC under ${budget.short.toLowerCase()} (${budget.lakh}) in Pakistan`}
             style={{
@@ -44,7 +44,7 @@ export default function BudgetBoxes({ buckets, activeSlug }: Props) {
               minWidth: 0,
             }}
           >
-            <span
+            <span className="pulldown-box-title"
               style={{
                 fontFamily: monoFont,
                 fontSize: "15px",
@@ -55,7 +55,7 @@ export default function BudgetBoxes({ buckets, activeSlug }: Props) {
             >
               {"< "}{budget.short}
             </span>
-            <span
+            <span className="pulldown-box-well"
               style={{
                 height: "96px",
                 display: "flex",
@@ -81,13 +81,13 @@ export default function BudgetBoxes({ buckets, activeSlug }: Props) {
                 </span>
               )}
             </span>
-            <span style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase" }}>
+            <span className="pulldown-box-sub" style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase" }}>
               {bucket ? `${bucket.count} PC${bucket.count === 1 ? "" : "S"}` : budget.lakh}
             </span>
             {/* Buckets are cumulative, so they all share the same cheapest PC —
                 the top price is what tells them apart. */}
             {bucket?.maxPrice != null && (
-              <span
+              <span className="pulldown-box-meta"
                 style={{
                   fontFamily: monoFont,
                   fontSize: "9px",

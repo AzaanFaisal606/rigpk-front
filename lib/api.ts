@@ -43,6 +43,8 @@ export async function getStats(): Promise<StatsResult> {
 
 export interface PartSpecs {
   brand?: string;
+  /** Canonical GPU/CPU model ("RTX 4060 Ti", "i5-14600KF"), from the backend allowlist. */
+  model?: string;
   socket?: string;
   vram?: string;
   ddr_type?: string;

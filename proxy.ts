@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { DEFAULT_SORT, MARKET_ROUTE_CATEGORIES } from "@/lib/constants";
 import { budgetBySlug } from "@/lib/budgets";
 import { facetBySlug, facetForQuery, facetPath } from "@/lib/facets";
+import { modelBySlug } from "@/lib/models";
 
 /**
  * /market/[category] has a loading.tsx, which makes Next.js stream the
@@ -47,8 +48,17 @@ export function proxy(request: NextRequest) {
   if (budget && !budgetBySlug(budget[1])) {
     return NextResponse.rewrite(new URL("/__not_found__", request.url));
   }
+  // And for /gpu/<model> and /cpu/<model>, including a slug from the other
+  // category (/cpu/rtx-4060).
+  const model = pathname.match(/^\/(gpu|cpu)\/([^/]+)\/?$/);
+  if (model && !modelBySlug(model[1], model[2])) {
+    return NextResponse.rewrite(new URL("/__not_found__", request.url));
+  }
 }
 
 export const config = {
-  matcher: ["/market/:category", "/market/:category/:facet", "/gaming-pc-under/:budget"],
+  matcher: [
+    "/market/:category", "/market/:category/:facet", "/gaming-pc-under/:budget",
+    "/gpu/:model", "/cpu/:model",
+  ],
 };
