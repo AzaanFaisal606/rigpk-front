@@ -59,9 +59,12 @@ export default function PulldownTab({
     };
   }, [open]);
 
+  // Every box down to the drawer is a 100vh-tall, see-through layer over the
+  // page below the host bar, so none of them may take pointer events; only
+  // the drawer (lip and menu) opts back in.
   return (
-    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, height: 0 }}>
-      <div style={{ maxWidth: rowMaxWidth, margin: "0 auto", padding: rowPadding }}>
+    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, height: 0, pointerEvents: "none" }}>
+      <div style={{ maxWidth: rowMaxWidth, margin: "0 auto", padding: rowPadding, pointerEvents: "none" }}>
         {/* Clip box starting at the host's bottom edge: whatever of the drawer
             is above it is hidden, so the drawer reads as sliding out from
             behind the bar. Extra right room keeps the shadow unclipped. */}

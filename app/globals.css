@@ -506,8 +506,10 @@ html[data-filtering="1"] .pb-browser-wrapper {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
   }
+  /* Top padding clears the "PCs by budget" pulldown lip hanging off the bar
+     above (~32px with its hover drop). */
   .pb-browser-wrapper {
-    padding: 20px 16px !important;
+    padding: 40px 16px 20px !important;
   }
 }
 
