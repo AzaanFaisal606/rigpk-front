@@ -24,6 +24,12 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  experimental: {
+    // Vercel restores .next/cache between deploys, and the Turbopack build
+    // cache (on by default since 16.3) shipped a stale globals.css: new
+    // markup, old stylesheet. Always compile from source.
+    turbopackFileSystemCacheForBuild: false,
+  },
   async headers() {
     return [
       {
