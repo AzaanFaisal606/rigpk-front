@@ -1,9 +1,16 @@
+import AmbientLoops from "./AmbientLoops";
+
 /**
  * Animated diagonal dashed lines — bottom-right ~40% of hero.
  *
- * Smooth loop fix: for a seamless stroke-dashoffset loop, the animation
- * range must equal exactly one full (dash + gap) repeat unit. We animate
- * from -(dash+gap) to 0 so the pattern tiles perfectly with no skip.
+ * Every line is a static dashed strip that slides along its own direction,
+ * so the whole effect is a transform animation the compositor runs without
+ * repainting anything. (Animating stroke-dashoffset instead repaints the SVG,
+ * mask included, on every frame: cheap in Chrome, but on iOS WebKit paints
+ * on the CPU at 3× and the hero stuttered.)
+ *
+ * Smooth loop: a strip moves exactly one dash + gap per cycle, so the
+ * pattern lands back on itself with no visible jump.
  */
 
 interface LineSpec {
@@ -18,7 +25,7 @@ interface LineSpec {
 }
 
 // All lines at exactly 45°: Δx === Δy for every line (x2-x1 === y1-y2).
-// Coordinate space: 1100×920. Triangle clip: (0,920) → (1100,0) → (1100,920).
+// Coordinate space: 1100×920. Triangle mask: (0,920) → (1100,0) → (1100,920).
 // Lines anchored to right edge (x2=1100) sweeping y2 from 0→820 to cover full corner.
 const LINES: LineSpec[] = [
   // ── lines reaching the very top-right corner ─────────────────────────
@@ -41,82 +48,71 @@ const LINES: LineSpec[] = [
   { x1: 1040, y1:  920, x2: 1100, y2:  860, strokeWidth: 3.5, opacity: 0.44, dash: 270, gap: 132, dur: "4.5s", color: "var(--purple-text)" },
 ];
 
+const W = 1100;
+const H = 920;
+const SQRT2 = Math.SQRT2;
+
+/**
+ * Where each line's strip sits. A strip runs down-left along its line (the
+ * way the dashes flow), from one repeat unit before the line enters the
+ * field to where it leaves it, so sliding it by one unit never uncovers an
+ * end.
+ */
+const STRIPS = LINES.map((l) => {
+  const c = l.x2 + l.y2; // every point on the line has x + y = c
+  const xTop = Math.min(W, c); // upper-right end inside the field
+  const xBottom = Math.max(0, c - H); // lower-left end inside the field
+  const span = (xTop - xBottom) * SQRT2;
+  const unit = l.dash + l.gap;
+  const pad = l.strokeWidth; // room for the round caps
+  const back = unit + pad;
+  // Step back from the upper-right end, up-right along the line.
+  const x0 = xTop + back / SQRT2;
+  const y0 = c - xTop - back / SQRT2;
+  const length = Math.ceil(back + span + pad);
+  const height = Math.ceil(l.strokeWidth + 2);
+  return { ...l, x0, y0, length, height, unit };
+});
+
 export default function DiagLines() {
-  const W = 1100;
-  const H = 920;
-
   return (
-    <div
-      aria-hidden
-      className="absolute bottom-0 right-0 pointer-events-none"
-      style={{ width: W, height: H }}
-    >
-      <svg
-        width={W}
-        height={H}
-        viewBox={`0 0 ${W} ${H}`}
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ display: "block" }}
-      >
-        <defs>
-          {/* Lower-right triangle — lines go right to the corner */}
-          <clipPath id="diag-tri">
-            <polygon points={`0,${H} ${W},0 ${W},${H}`} />
-          </clipPath>
-
-          {/* Radial fade: fully opaque at corner, fades toward hypotenuse */}
-          <radialGradient
-            id="diag-fade"
-            cx={W} cy={H} r={W * 1.1}
-            gradientUnits="userSpaceOnUse"
+    <AmbientLoops className="diag-lines">
+      <style>{STRIPS.map((s, i) => `
+        @keyframes dl${i} {
+          from { transform: rotate(135deg) translateX(0); }
+          to   { transform: rotate(135deg) translateX(${s.unit}px); }
+        }
+      `).join("")}</style>
+      <div className="diag-field">
+        {STRIPS.map((s, i) => (
+          <svg
+            key={i}
+            className="diag-strip"
+            width={s.length}
+            height={s.height}
+            viewBox={`0 0 ${s.length} ${s.height}`}
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{
+              left: s.x0,
+              top: s.y0 - s.height / 2,
+              animation: `dl${i} ${s.dur} linear infinite`,
+            }}
           >
-            <stop offset="0%"   stopColor="white" stopOpacity="1" />
-            <stop offset="35%"  stopColor="white" stopOpacity="1" />
-            <stop offset="70%"  stopColor="white" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </radialGradient>
-          <mask id="diag-mask">
-            <rect width={W} height={H} fill="url(#diag-fade)" />
-          </mask>
-
-          {/*
-            Smooth loop: animate strokeDashoffset from -(dash+gap) → 0.
-            This shifts exactly one repeat unit, so the pattern tiles with
-            no visible jump at the loop boundary.
-          */}
-          <style>{`
-            ${LINES.map((l, i) => {
-              const unit = l.dash + l.gap;
-              return `
-                @keyframes dl${i} {
-                  from { stroke-dashoffset: ${-unit}px; }
-                  to   { stroke-dashoffset: 0px; }
-                }
-                .dl-${i} {
-                  animation: dl${i} ${l.dur} linear infinite;
-                }
-              `;
-            }).join("")}
-          `}</style>
-        </defs>
-
-        <g clipPath="url(#diag-tri)" mask="url(#diag-mask)">
-          {LINES.map((l, i) => (
             <line
-              key={i}
-              className={`dl-${i}`}
-              x1={l.x1} y1={l.y1}
-              x2={l.x2} y2={l.y2}
-              style={{ stroke: l.color }}
-              strokeWidth={l.strokeWidth}
-              strokeOpacity={l.opacity}
-              strokeDasharray={`${l.dash} ${l.gap}`}
+              x1={s.strokeWidth / 2}
+              y1={s.height / 2}
+              x2={s.length}
+              y2={s.height / 2}
+              style={{ stroke: s.color }}
+              strokeWidth={s.strokeWidth}
+              strokeOpacity={s.opacity}
+              strokeDasharray={`${s.dash} ${s.gap}`}
               strokeLinecap="round"
             />
-          ))}
-        </g>
-      </svg>
-    </div>
+          </svg>
+        ))}
+      </div>
+    </AmbientLoops>
   );
 }

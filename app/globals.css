@@ -241,10 +241,56 @@ body {
   letter-spacing: 0.04em;
 }
 
-/* ── Diagonal lines animation ────────────────────────────── */
-@keyframes dash-flow {
-  from { stroke-dashoffset: 120; }
-  to   { stroke-dashoffset: 0; }
+/* ── Diagonal lines animation (components/DiagLines.tsx) ─── */
+/* The field is drawn in a fixed 1100×920 space pinned to the hero's
+   bottom-right corner; the masked box is only as big as the part of that
+   field the hero shows, so a phone doesn't composite a mask for the ~60% of
+   it that's cropped off. The mask is static (the lower-right triangle, faded
+   out from the corner) and only the strips under it move, so nothing is
+   repainted while it plays. */
+.diag-lines {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: min(1100px, 100%);
+  height: min(920px, 100%);
+  overflow: hidden;
+  pointer-events: none;
+  --diag-mask:
+    linear-gradient(to bottom right, transparent calc(50% - 0.5px), #000 calc(50% + 0.5px)),
+    radial-gradient(circle 1210px at 100% 100%, #000 0%, #000 35%, rgb(0 0 0 / 0.5) 70%, transparent 100%);
+  -webkit-mask-image: var(--diag-mask);
+  mask-image: var(--diag-mask);
+  -webkit-mask-size: 1100px 920px;
+  mask-size: 1100px 920px;
+  -webkit-mask-position: right bottom;
+  mask-position: right bottom;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.diag-field {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 1100px;
+  height: 920px;
+}
+.diag-strip {
+  position: absolute;
+  display: block;
+  transform-origin: 0 50%;
+  transform: rotate(135deg);
+}
+.diag-lines[data-offscreen] .diag-strip { animation-play-state: paused !important; }
+/* During the theme wipe the loops come off the compositor: WebKit freezes
+   compositor animations inside the transition's live snapshot. Paused here,
+   components/AmbientLoops.tsx steps them from the main thread instead, so
+   they keep flowing on the incoming side. */
+:root[data-wipe] .diag-strip { animation-play-state: paused !important; }
+@media (prefers-reduced-motion: reduce) {
+  .diag-strip { animation: none !important; }
 }
 
 /* ── Section label ───────────────────────────────────────── */
@@ -888,29 +934,26 @@ html[data-filtering="1"] .pb-browser-wrapper {
 }
 
 /* ── Theme switch: "scene change" wipe ───────────────────── */
-/* Driven by lib/theme.ts through the View Transitions API. The old page is
-   a frozen snapshot pushed off one side (and dimmed, as if leaving the
-   light); the new page is revealed behind a skewed band that is its own
-   captured layer. Everything that moves is a transform or clip-path on a
-   snapshot, so the compositor does the work and the live page is untouched.
+/* Driven by lib/theme.ts through the View Transitions API; the motion
+   itself (a sampled keyframe table per part) and the reasoning behind the
+   geometry live there. This block only sets up the stage: the parts of the
+   band, the old snapshot's sliding window, and the stacking order.
 
-   Geometry, for the left-bound wipe (into dark). The seam is the new page's
-   leading edge: at the bottom it sits at x = S, at the top at S + K, where
-   K = 100vh·tan(12°) is the skew's horizontal run. The band's stripes sit
-   just ahead of the seam; its speed lines trail behind it over the new
-   page. S runs from 100vw + band (band just off the right) to
-   −(K + trail + 3px) (lines just off the left). The band element rests at
-   left: −300vw, so it can't flash once the snapshots are torn down. The
-   right-bound wipe (back to light) is the exact mirror. */
+   Every animated property is a transform or an opacity, so all of it runs
+   on the compositor. Don't add clip-path, filter or mask animations here:
+   WebKit and Gecko run those on the main thread, and anything on the main
+   thread drifts out of step with the band. */
 :root {
-  --wipe-k: calc(100vh * 0.2126);
   --wipe-band: 150px;
   --wipe-trail: 24vw;
-  --wipe-ease: cubic-bezier(0.3, 0.05, 0.1, 1);
-  --wipe-dur: 1100ms;
+  --wipe-smear: clamp(48px, 8vw, 150px);
+  /* How far the old snapshot's window reaches past its own left/right edge,
+     so the skewed window still covers the whole screen when it starts. Must
+     be at least the band plus the skew's run over the band's height. */
+  --wipe-reach: calc(var(--wipe-band) + 22lvh + 16px);
 }
 @media (max-width: 640px) {
-  :root { --wipe-band: 104px; --wipe-dur: 1000ms; }
+  :root { --wipe-band: 104px; }
 }
 
 .theme-switching *,
@@ -919,27 +962,39 @@ html[data-filtering="1"] .pb-browser-wrapper {
   transition: none !important;
 }
 
+/* The rig: real elements, each with its own view-transition-name, so each
+   is captured as a layer that paints above both page snapshots. Their
+   resting place is far off-screen, so the frame after the transition can't
+   flash them. */
 .theme-wipe {
   position: fixed;
   top: 0;
   left: -300vw;
-  height: 100vh;
-  width: calc(var(--wipe-band) + var(--wipe-k) + var(--wipe-trail));
+  width: 0;
+  height: 0;
   pointer-events: none;
   z-index: 2147483647;
-  view-transition-name: theme-wipe;
 }
-.tw-flip,
-.tw-skew {
+.tw-part {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  height: 100lvh;
+}
+.tw-band  { width: calc(var(--wipe-band) + 3px); view-transition-name: tw-band; }
+.tw-lines { width: var(--wipe-trail);            view-transition-name: tw-lines; }
+.tw-smear { width: var(--wipe-smear);            view-transition-name: tw-smear; }
+/* Each part is drawn upright and mirrored for the way back; the 12° lean is
+   applied with the motion, from the top edge, exactly like the old
+   snapshot's window. An upright part has no ink overflow, so its capture
+   lands exactly where the maths puts it. */
+.tw-flip {
   position: absolute;
   inset: 0;
 }
 [data-wipe="right"] .tw-flip { transform: scaleX(-1); }
-.tw-skew {
-  transform-origin: 0 100%;
-  transform: skewX(-12deg);
-}
-.tw-skew > i {
+.tw-band i {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -952,10 +1007,9 @@ html[data-filtering="1"] .pb-browser-wrapper {
 .tw-accent { left: 18px; width: 12px; background: var(--purple-accent); }
 .tw-slab   { left: 38px; width: calc(var(--wipe-band) - 42px); background: var(--purple); }
 .tw-edge   { left: calc(var(--wipe-band) - 4px); width: 7px; background: var(--text); }
-/* Speed lines: hard 2–3px strokes of varied length trailing the band. */
-.tw-lines {
-  left: calc(var(--wipe-band) + 3px);
-  width: var(--wipe-trail);
+/* Speed lines: hard 2–3px strokes of varied length trailing the band. They
+   stretch with the band's speed. */
+.tw-lines .tw-flip {
   opacity: 0.55;
   background:
     linear-gradient(var(--text), var(--text)) 0 9%   / 62% 2px no-repeat,
@@ -969,65 +1023,93 @@ html[data-filtering="1"] .pb-browser-wrapper {
     linear-gradient(var(--text), var(--text)) 0 86%  / 34% 2px no-repeat,
     linear-gradient(var(--text), var(--text)) 0 93%  / 68% 3px no-repeat;
 }
-
-::view-transition-old(root),
-::view-transition-new(root),
-::view-transition-new(theme-wipe) {
-  mix-blend-mode: normal;
-  animation-duration: var(--wipe-dur);
-  animation-timing-function: var(--wipe-ease);
-  animation-fill-mode: both;
+/* Smear: comic after-images of the band, hard maroon bars that fan out
+   behind the edge with speed and fold away to nothing at rest, so the
+   fastest frames read as motion rather than as a jump. */
+.tw-smear .tw-flip {
+  background: linear-gradient(90deg,
+    var(--purple) 0 16%, transparent 16% 30%,
+    var(--purple-accent) 30% 39%, transparent 39% 55%,
+    var(--purple-accent) 55% 60%, transparent 60% 77%,
+    var(--purple-accent) 77% 79.5%, transparent 79.5%);
 }
-::view-transition-group(root),
-::view-transition-group(theme-wipe) {
+
+/* The new root gets a name of its own for a wipe, so the old root is alone
+   in its group and that group can be turned into a window. */
+:root.theme-switching[data-wipe="left"],
+:root.theme-switching[data-wipe="right"] {
+  view-transition-name: theme-new;
+}
+
+/* Everything that moves is animated from lib/theme.ts; switch off the UA's
+   default cross-fade and group morph. */
+:root[data-wipe="left"]::view-transition-group(*),
+:root[data-wipe="right"]::view-transition-group(*),
+:root[data-wipe="left"]::view-transition-image-pair(*),
+:root[data-wipe="right"]::view-transition-image-pair(*),
+:root[data-wipe="left"]::view-transition-old(*),
+:root[data-wipe="right"]::view-transition-old(*),
+:root[data-wipe="left"]::view-transition-new(*),
+:root[data-wipe="right"]::view-transition-new(*) {
   animation: none;
+  mix-blend-mode: normal;
 }
 
-[data-wipe="left"]::view-transition-old(root)       { animation-name: tw-old-left; }
-[data-wipe="left"]::view-transition-new(root)       { animation-name: tw-new-left; }
-[data-wipe="left"]::view-transition-new(theme-wipe) { animation-name: tw-band-left; }
-[data-wipe="right"]::view-transition-old(root)       { animation-name: tw-old-right; }
-[data-wipe="right"]::view-transition-new(root)       { animation-name: tw-new-right; }
-[data-wipe="right"]::view-transition-new(theme-wipe) { animation-name: tw-band-right; }
+/* Paint order, bottom to top: new page, old page (in its window), smear,
+   speed lines, band. */
+:root[data-wipe]::view-transition-group(theme-new) { z-index: 1; }
+:root[data-wipe]::view-transition-group(root)      { z-index: 2; }
+:root[data-wipe]::view-transition-group(tw-smear)  { z-index: 3; }
+:root[data-wipe]::view-transition-group(tw-lines)  { z-index: 4; }
+:root[data-wipe]::view-transition-group(tw-band)   { z-index: 5; }
 
-@keyframes tw-old-left {
-  from { transform: translateX(0);     filter: brightness(1); }
-  to   { transform: translateX(-30vw); filter: brightness(0.55); }
+/* The old page's window. Its box is stretched past the page on the side it
+   is leaving from, it clips its overflow, and lib/theme.ts slides and skews
+   it so its trailing edge is the seam. The image pair inside is put back
+   over the page and carries the inverse transform. Black behind the image
+   turns its opacity fade into a dim. */
+:root[data-wipe]::view-transition-group(root) {
+  box-sizing: content-box;
+  overflow: clip;
 }
-@keyframes tw-old-right {
-  from { transform: translateX(0);    filter: brightness(1); }
-  to   { transform: translateX(30vw); filter: brightness(0.55); }
+:root[data-wipe]::view-transition-image-pair(root) {
+  background: #000;
+  isolation: auto;
 }
-/* New page: stays put (a translate would open a gap at the far edge) and
-   is revealed by a clip whose slanted edge is the seam. */
-@keyframes tw-new-left {
-  from {
-    clip-path: polygon(calc(100% + var(--wipe-band) + var(--wipe-k)) 0, 200% 0, 200% 100%,
-                       calc(100% + var(--wipe-band)) 100%);
-  }
-  to {
-    clip-path: polygon(calc(-1 * var(--wipe-trail) - 3px) 0, 200% 0, 200% 100%,
-                       calc(-1 * var(--wipe-k) - var(--wipe-trail) - 3px) 100%);
-  }
+:root[data-wipe="left"]::view-transition-group(root) {
+  left: calc(-1 * var(--wipe-reach));
+  padding-left: var(--wipe-reach);
+  transform-origin: 100% 0;
 }
-@keyframes tw-new-right {
-  from {
-    clip-path: polygon(-100% 0, calc(-1 * var(--wipe-band) - var(--wipe-k)) 0,
-                       calc(-1 * var(--wipe-band)) 100%, -100% 100%);
-  }
-  to {
-    clip-path: polygon(-100% 0, calc(100% + var(--wipe-trail) + 3px) 0,
-                       calc(100% + var(--wipe-k) + var(--wipe-trail) + 3px) 100%, -100% 100%);
-  }
+:root[data-wipe="left"]::view-transition-image-pair(root) {
+  inset: 0 0 0 var(--wipe-reach);
+  transform-origin: 100% 0;
 }
-/* Band: its offset from the resting spot at −300vw that puts it on the seam. */
-@keyframes tw-band-left {
-  from { transform: translateX(400vw); }
-  to   { transform: translateX(calc(300vw - var(--wipe-band) - var(--wipe-k) - var(--wipe-trail) - 3px)); }
+:root[data-wipe="right"]::view-transition-group(root) {
+  padding-right: var(--wipe-reach);
+  transform-origin: 0 0;
 }
-@keyframes tw-band-right {
-  from { transform: translateX(calc(300vw - var(--wipe-band) - var(--wipe-k) - var(--wipe-trail))); }
-  to   { transform: translateX(calc(400vw + 3px)); }
+:root[data-wipe="right"]::view-transition-image-pair(root) {
+  inset: 0 var(--wipe-reach) 0 0;
+  transform-origin: 0 0;
+}
+/* Parts lean from their top edge, and lines and smear stretch out from the
+   seam, not from their centre. */
+:root[data-wipe="left"]::view-transition-new(tw-band),
+:root[data-wipe="left"]::view-transition-new(tw-lines),
+:root[data-wipe="left"]::view-transition-new(tw-smear) {
+  transform-origin: 0 0;
+}
+:root[data-wipe="right"]::view-transition-new(tw-band),
+:root[data-wipe="right"]::view-transition-new(tw-lines),
+:root[data-wipe="right"]::view-transition-new(tw-smear) {
+  transform-origin: 100% 0;
+}
+
+/* Reduced motion: no travel, just a quick cross-fade between the themes. */
+:root[data-wipe="fade"]::view-transition-old(root),
+:root[data-wipe="fade"]::view-transition-new(root) {
+  animation-duration: 180ms;
 }
 
 /* ── Theme button ────────────────────────────────────────── */
