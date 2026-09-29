@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
-import { monoFont } from "@/lib/tokens";
+import { sansFont } from "@/lib/tokens";
 import ThemeButton from "./ThemeButton";
 
 const NAV_LINKS = [
@@ -47,7 +47,7 @@ export default function Navbar() {
           </div>
           <span
             className="font-bold"
-            style={{ color: "var(--text)", fontSize: "0.95rem", letterSpacing: "-0.01em" }}
+            style={{ color: "var(--text)", fontSize: "1.1rem", letterSpacing: "-0.02em" }}
           >
             Rig<span style={{ color: "var(--purple-text)" }}>PK</span>
           </span>
@@ -85,11 +85,10 @@ function navButtonStyle(active: boolean, hovered: boolean): React.CSSProperties 
     border: "2px solid var(--ink)",
     boxShadow: active ? "var(--gloss), 2px 2px 0 var(--shadow)" : "2px 2px 0 var(--shadow)",
     transform: "skewX(-8deg)",
-    fontFamily: monoFont,
-    fontSize: "0.72rem",
-    fontWeight: 800,
-    letterSpacing: "1.5px",
-    textTransform: "uppercase",
+    fontFamily: sansFont,
+    fontSize: "0.82rem",
+    fontWeight: 700,
+    letterSpacing: "-0.005em",
     textDecoration: "none",
     transition: "background 0.1s",
     whiteSpace: "nowrap",
@@ -115,7 +114,7 @@ function NavButton({
       onMouseLeave={() => setHovered(false)}
       style={navButtonStyle(active, hovered)}
     >
-      {children}
+      <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>{children}</span>
     </Link>
   );
 }
@@ -152,6 +151,7 @@ function MobileNavMenu({ pathname }: { pathname: string }) {
         onClick={() => setOpen(o => !o)}
         style={{ ...navButtonStyle(!!current, false), cursor: "pointer" }}
       >
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", transform: "skewX(8deg)" }}>
         {current?.label ?? "Menu"}
         <ChevronDown
           size={12}
@@ -159,6 +159,7 @@ function MobileNavMenu({ pathname }: { pathname: string }) {
           aria-hidden
           style={{ transition: "transform 0.15s", transform: open ? "rotate(180deg)" : "none" }}
         />
+        </span>
       </button>
 
       {open && (
@@ -190,11 +191,9 @@ function MobileNavMenu({ pathname }: { pathname: string }) {
                   display: "block",
                   padding: "11px 14px",
                   borderTop: i === 0 ? "none" : "1px solid var(--ink)",
-                  fontFamily: monoFont,
-                  fontSize: "0.68rem",
-                  fontWeight: 800,
-                  letterSpacing: "1.5px",
-                  textTransform: "uppercase",
+                  fontFamily: sansFont,
+                  fontSize: "0.88rem",
+                  fontWeight: 700,
                   textDecoration: "none",
                 }}
               >

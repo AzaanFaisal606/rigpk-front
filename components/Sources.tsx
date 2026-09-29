@@ -1,10 +1,9 @@
 "use client";
 
-import { ExternalLink, Database } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { type Stats } from "@/lib/api";
-import { monoFont } from "@/lib/tokens";
 
 const STORES = [
   { key: "czone.com.pk",       name: "CZone",           domain: "czone.com.pk",       tag: "FLAGSHIP" },
@@ -124,33 +123,12 @@ export default function Sources({ stats }: SourcesProps) {
   };
 
   return (
-    <section
-      className="px-6 py-16"
-      style={{ background: "var(--band-bg)", borderTop: "2px solid var(--ink)" }}
-    >
-      <div className="max-w-6xl mx-auto">
-        {/* Header row */}
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <p className="section-label mb-1">Data Sources</p>
-            <h2
-              style={{
-                fontFamily: monoFont,
-                fontWeight: 900,
-                fontSize: "clamp(1.1rem, 2vw, 1.4rem)",
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-                color: "var(--text)",
-              }}
-            >
-              Sourced from {STORES.length} retailers
-            </h2>
-          </div>
+    <section className="sources-band">
+      <div className="sources-inner">
+        <div className="sources-head">
+          <h2 className="sources-title">Sourced from {STORES.length} retailers.</h2>
           {total > 0 && (
-            <div className="flex items-center gap-2 mono" style={{ color: "var(--text-dim)" }}>
-              <Database size={12} />
-              <span>{total.toLocaleString()} total parts</span>
-            </div>
+            <p className="sources-total">{total.toLocaleString()} parts in total</p>
           )}
         </div>
 
@@ -158,7 +136,7 @@ export default function Sources({ stats }: SourcesProps) {
         <div
           ref={scrollRef}
           id="sources-cards"
-          className="flex gap-3 overflow-x-auto pb-2"
+          className="sources-scroller flex gap-3 overflow-x-auto"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -179,7 +157,7 @@ export default function Sources({ stats }: SourcesProps) {
 
         {/* Scroll indicator — interactive scrollbar (click track, drag thumb) */}
         {isOverflowing && (
-          <div className="mt-4 flex items-center gap-3">
+          <div className="sources-scrollbar mt-4 flex items-center gap-3">
             <div
               ref={trackRef}
               role="scrollbar"
@@ -235,7 +213,7 @@ export default function Sources({ stats }: SourcesProps) {
                 fontWeight: 800,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                color: "var(--text-dim)",
+                color: "var(--on-maroon)",
                 whiteSpace: "nowrap",
               }}
             >

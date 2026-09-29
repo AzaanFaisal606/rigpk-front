@@ -7,7 +7,7 @@ import { getFilterOptions } from "@/lib/api";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import type { DropdownOption } from "@/components/ui/ComicDropdown";
 import { PriceRangeFilter } from "@/components/ui/PriceRangeFilter";
-import { monoFont } from "@/lib/tokens";
+import { sansFont } from "@/lib/tokens";
 import { CATEGORIES, DEFAULT_SORT, SOURCES, SPEC_KEYS, SPEC_LABELS } from "@/lib/constants";
 import { useScrollHide } from "@/lib/hooks/useScrollHide";
 import { publishSearch, subscribeIndexReady } from "@/lib/search-bus";
@@ -368,8 +368,8 @@ export default function FilterBar({
                   background: "var(--paper)",
                   outline: "none",
                   boxShadow: searchFocused ? "2px 2px 0 var(--purple)" : "2px 2px 0 var(--shadow)",
-                  fontFamily: monoFont,
-                  fontSize: "11px",
+                  fontFamily: sansFont,
+                  fontSize: "13px",
                   color: "var(--text)",
                   transition: "border-color 0.1s, box-shadow 0.1s",
                   // Safari draws its own clear affordance on type=search and
@@ -394,9 +394,9 @@ export default function FilterBar({
                     padding: 0,
                     lineHeight: 1,
                     cursor: "pointer",
-                    fontFamily: monoFont,
-                    fontSize: "11px",
-                    fontWeight: 800,
+                    fontFamily: sansFont,
+                    fontSize: "13px",
+                    fontWeight: 700,
                     color: "var(--text-muted)",
                   }}
                 >
@@ -423,11 +423,10 @@ export default function FilterBar({
                 color: "white",
                 boxShadow: "var(--gloss), 2px 2px 0 var(--shadow)",
                 transform: "skewX(-8deg)",
-                fontFamily: monoFont,
-                fontSize: "10px",
-                fontWeight: 800,
-                letterSpacing: "0.8px",
-                textTransform: "uppercase",
+                fontFamily: sansFont,
+                fontSize: "12px",
+                fontWeight: 700,
+                letterSpacing: "-0.005em",
                 cursor: "pointer",
                 whiteSpace: "nowrap",
                 lineHeight: 1.6,

@@ -8,7 +8,7 @@ import PrebuiltFilterBar from "@/components/PrebuiltFilterBar";
 import BudgetPulldown from "@/components/BudgetPulldown";
 import { getPrebuilts } from "@/lib/prebuilts-api";
 import { str } from "@/lib/utils";
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 import { buildPageUrl, DEFAULT_SORT } from "@/lib/constants";
 import { hasQueryParams } from "@/lib/seo";
 
@@ -83,7 +83,7 @@ async function PrebuiltGrid({
           <p style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 900, color: "var(--purple-text)", letterSpacing: "1.5px" }}>
             {"// SEARCH FAILED"}
           </p>
-          <p style={{ fontFamily: monoFont, fontSize: "11px", color: "var(--text-muted)", letterSpacing: "0.5px", marginTop: "8px" }}>
+          <p style={{ fontFamily: sansFont, fontSize: "14px", color: "var(--text-muted)", letterSpacing: "-0.005em", marginTop: "8px" }}>
             Couldn&apos;t reach the server. Reload to try again.
           </p>
         </div>
@@ -107,17 +107,16 @@ async function PrebuiltGrid({
               boxShadow: "3px 3px 0 var(--shadow)",
               background: hasPrev ? "var(--paper)" : "var(--bg)",
               color: hasPrev ? "var(--text)" : "var(--faint)",
-              fontFamily: monoFont,
-              fontSize: "10px",
-              fontWeight: 800,
-              letterSpacing: "1px",
-              textTransform: "uppercase",
+              fontFamily: sansFont,
+              fontSize: "12px",
+              fontWeight: 700,
+              letterSpacing: "-0.005em",
               textDecoration: "none",
               transform: "skewX(-8deg)",
               pointerEvents: hasPrev ? "auto" : "none",
             }}
           >
-            <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>← PREV</span>
+            <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>← Prev</span>
           </Link>
 
           <span
@@ -145,17 +144,16 @@ async function PrebuiltGrid({
               boxShadow: "3px 3px 0 var(--shadow)",
               background: hasNext ? "var(--purple)" : "var(--bg)",
               color: hasNext ? "white" : "var(--faint)",
-              fontFamily: monoFont,
-              fontSize: "10px",
-              fontWeight: 800,
-              letterSpacing: "1px",
-              textTransform: "uppercase",
+              fontFamily: sansFont,
+              fontSize: "12px",
+              fontWeight: 700,
+              letterSpacing: "-0.005em",
               textDecoration: "none",
               transform: "skewX(-8deg)",
               pointerEvents: hasNext ? "auto" : "none",
             }}
           >
-            <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>NEXT →</span>
+            <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>Next →</span>
           </Link>
         </div>
       )}
@@ -175,10 +173,7 @@ export default async function PrebuiltsPage({ searchParams }: PageProps) {
 
       <main className="pb-browser-wrapper" style={{ maxWidth: "80rem", margin: "0 auto", padding: "32px 24px" }}>
         <div style={{ marginBottom: "28px" }}>
-          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "var(--faint)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "6px" }}>
-            RIGPK
-          </div>
-          <h1 style={{ fontFamily: monoFont, fontWeight: 900, fontSize: "1.75rem", textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text)", margin: 0 }}>
+          <h1 style={{ fontFamily: sansFont, fontWeight: 700, fontSize: "clamp(1.9rem, 4vw, 2.5rem)", lineHeight: 1.05, letterSpacing: "-0.03em", color: "var(--text)", margin: 0 }}>
             Pre-Built PCs
           </h1>
         </div>

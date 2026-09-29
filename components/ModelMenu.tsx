@@ -15,7 +15,7 @@ import {
 import type { MenuThumb, ModelMenuData } from "@/lib/model-menu-data";
 import { BrandLogo, CategoryIcon } from "@/components/ModelMenuArt";
 import { formatPkr } from "@/lib/seo";
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 
 interface Props {
   /** Null when the catalogue fetch failed — every level and link still renders. */
@@ -65,10 +65,10 @@ const boxStyle: CSSProperties = {
 };
 
 const boxLabelStyle: CSSProperties = {
-  fontFamily: monoFont,
-  fontSize: "14px",
-  fontWeight: 900,
-  letterSpacing: "0.04em",
+  fontFamily: sansFont,
+  fontSize: "16px",
+  fontWeight: 700,
+  letterSpacing: "-0.005em",
   color: "white",
 };
 
@@ -255,11 +255,10 @@ export default function ModelMenu({ data, activeSlug, initialPath = [] }: Props)
                 boxShadow: "2px 2px 0 var(--purple)",
                 background: "var(--paper)",
                 color: "var(--text)",
-                fontFamily: monoFont,
-                fontSize: "10px",
-                fontWeight: 800,
-                letterSpacing: "1px",
-                textTransform: "uppercase",
+                fontFamily: sansFont,
+                fontSize: "12px",
+                fontWeight: 700,
+                letterSpacing: "-0.005em",
                 transform: "skewX(-8deg)",
                 cursor: "pointer",
                 flexShrink: 0,

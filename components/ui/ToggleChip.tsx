@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { monoFont } from "@/lib/tokens";
+import { sansFont } from "@/lib/tokens";
 
 export function ToggleChip({
   label,
@@ -26,11 +26,10 @@ export function ToggleChip({
         boxShadow: active ? "var(--gloss), 2px 2px 0 var(--purple)" : "2px 2px 0 var(--shadow)",
         background: active ? "var(--purple)" : hov ? "color-mix(in srgb, var(--purple) 6%, transparent)" : "var(--paper)",
         color: active ? "white" : "var(--text)",
-        fontFamily: monoFont,
-        fontSize: "10px",
-        fontWeight: 800,
-        letterSpacing: "0.8px",
-        textTransform: "uppercase",
+        fontFamily: sansFont,
+        fontSize: "12px",
+        fontWeight: 700,
+        letterSpacing: "-0.005em",
         transform: "skewX(-8deg)",
         cursor: "pointer",
         transition: "background 0.1s",

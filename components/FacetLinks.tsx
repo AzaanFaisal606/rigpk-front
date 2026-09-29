@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CATEGORY_NAMES } from "@/lib/constants";
 import { facetPath, facetsFor } from "@/lib/facets";
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 
 interface Props {
   category: string;
@@ -15,11 +15,10 @@ const chipStyle = (active: boolean) => ({
   boxShadow: active ? "var(--gloss), 2px 2px 0 var(--shadow)" : "2px 2px 0 var(--shadow)",
   background: active ? "var(--purple)" : "var(--paper)",
   color: active ? "white" : "var(--text)",
-  fontFamily: monoFont,
-  fontSize: "9px",
-  fontWeight: 800,
-  letterSpacing: "1px",
-  textTransform: "uppercase" as const,
+  fontFamily: sansFont,
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "-0.005em",
   textDecoration: "none",
   transform: "skewX(-8deg)",
   display: "inline-block",

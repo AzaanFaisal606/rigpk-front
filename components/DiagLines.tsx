@@ -1,118 +1,131 @@
 import AmbientLoops from "./AmbientLoops";
 
 /**
- * Animated diagonal dashed lines — bottom-right ~40% of hero.
+ * Animated diagonal dashed lines filling the hero panel.
  *
  * Every line is a static dashed strip that slides along its own direction,
  * so the whole effect is a transform animation the compositor runs without
- * repainting anything. (Animating stroke-dashoffset instead repaints the SVG,
- * mask included, on every frame: cheap in Chrome, but on iOS WebKit paints
- * on the CPU at 3× and the hero stuttered.)
+ * repainting anything. (Animating stroke-dashoffset instead repaints the SVG
+ * on every frame: cheap in Chrome, but on iOS WebKit paints on the CPU at 3×
+ * and the hero stuttered.)
  *
  * Smooth loop: a strip moves exactly one dash + gap per cycle, so the
  * pattern lands back on itself with no visible jump.
+ *
+ * Two fields are rendered and CSS shows one: a wide one for the desktop
+ * panel and a tighter, denser one for the phone panel. The hidden field is
+ * display:none, so its animations don't run at all.
  */
 
-interface LineSpec {
-  x1: number; y1: number;
-  x2: number; y2: number;
+interface Spec {
   strokeWidth: number;
   opacity: number;
   dash: number;   // visible dash length
   gap: number;    // gap between dashes
-  dur: string;
+  dur: number;    // seconds per dash + gap
   color: string;
 }
 
-// All lines at exactly 45°: Δx === Δy for every line (x2-x1 === y1-y2).
-// Coordinate space: 1100×920. Triangle mask: (0,920) → (1100,0) → (1100,920).
-// Lines anchored to right edge (x2=1100) sweeping y2 from 0→820 to cover full corner.
-const LINES: LineSpec[] = [
-  // ── lines reaching the very top-right corner ─────────────────────────
-  { x1: -100, y1:  820, x2: 1100, y2: -380, strokeWidth: 3.5, opacity: 0.20, dash: 300, gap: 130, dur: "5.0s", color: "var(--grey-500)" },
-  { x1:    0, y1:  920, x2: 1100, y2: -180, strokeWidth: 4.5, opacity: 0.42, dash: 280, gap: 120, dur: "3.5s", color: "var(--purple-text)" },
-  { x1:  100, y1:  920, x2: 1100, y2:  -80, strokeWidth: 3.0, opacity: 0.22, dash: 260, gap: 140, dur: "4.2s", color: "var(--grey-600)" },
-  { x1:  180, y1:  920, x2: 1100, y2:    0, strokeWidth: 5.0, opacity: 0.50, dash: 310, gap: 115, dur: "3.0s", color: "var(--purple-accent)" },
-  // ── main diagonal sweep across the hero ──────────────────────────────
-  { x1:  270, y1:  920, x2: 1100, y2:   90, strokeWidth: 3.2, opacity: 0.28, dash: 270, gap: 135, dur: "4.6s", color: "var(--purple-text)" },
-  { x1:  360, y1:  920, x2: 1100, y2:  180, strokeWidth: 4.2, opacity: 0.38, dash: 295, gap: 120, dur: "3.8s", color: "var(--purple-accent)" },
-  { x1:  450, y1:  920, x2: 1100, y2:  270, strokeWidth: 3.0, opacity: 0.24, dash: 255, gap: 145, dur: "4.0s", color: "var(--grey-500)" },
-  { x1:  540, y1:  920, x2: 1100, y2:  360, strokeWidth: 5.0, opacity: 0.46, dash: 305, gap: 118, dur: "3.2s", color: "var(--purple-text)" },
-  { x1:  630, y1:  920, x2: 1100, y2:  450, strokeWidth: 3.0, opacity: 0.22, dash: 265, gap: 138, dur: "4.4s", color: "var(--faint)" },
-  { x1:  720, y1:  920, x2: 1100, y2:  540, strokeWidth: 4.0, opacity: 0.40, dash: 285, gap: 125, dur: "3.6s", color: "var(--purple-accent)" },
-  // ── lower-right fill ─────────────────────────────────────────────────
-  { x1:  800, y1:  920, x2: 1100, y2:  620, strokeWidth: 3.5, opacity: 0.32, dash: 275, gap: 130, dur: "4.8s", color: "var(--purple-accent)" },
-  { x1:  860, y1:  920, x2: 1100, y2:  680, strokeWidth: 4.5, opacity: 0.48, dash: 300, gap: 120, dur: "3.4s", color: "var(--purple-text)" },
-  { x1:  920, y1:  920, x2: 1100, y2:  740, strokeWidth: 3.0, opacity: 0.26, dash: 260, gap: 140, dur: "4.2s", color: "var(--grey-500)" },
-  { x1:  980, y1:  920, x2: 1100, y2:  800, strokeWidth: 4.0, opacity: 0.36, dash: 290, gap: 122, dur: "3.9s", color: "var(--purple-accent)" },
-  { x1: 1040, y1:  920, x2: 1100, y2:  860, strokeWidth: 3.5, opacity: 0.44, dash: 270, gap: 132, dur: "4.5s", color: "var(--purple-text)" },
+// One cycle of ten looks, repeated across the field.
+const SPECS: Spec[] = [
+  { strokeWidth: 3.5, opacity: 0.20, dash: 300, gap: 130, dur: 5.0, color: "var(--grey-500)" },
+  { strokeWidth: 4.5, opacity: 0.42, dash: 280, gap: 120, dur: 3.5, color: "var(--purple-text)" },
+  { strokeWidth: 3.0, opacity: 0.22, dash: 260, gap: 140, dur: 4.2, color: "var(--grey-600)" },
+  { strokeWidth: 5.0, opacity: 0.50, dash: 310, gap: 115, dur: 3.0, color: "var(--purple-accent)" },
+  { strokeWidth: 3.2, opacity: 0.28, dash: 270, gap: 135, dur: 4.6, color: "var(--purple-text)" },
+  { strokeWidth: 4.2, opacity: 0.38, dash: 295, gap: 120, dur: 3.8, color: "var(--purple-accent)" },
+  { strokeWidth: 3.0, opacity: 0.24, dash: 255, gap: 145, dur: 4.0, color: "var(--grey-500)" },
+  { strokeWidth: 5.0, opacity: 0.46, dash: 305, gap: 118, dur: 3.2, color: "var(--purple-text)" },
+  { strokeWidth: 3.0, opacity: 0.22, dash: 265, gap: 138, dur: 4.4, color: "var(--faint)" },
+  { strokeWidth: 4.0, opacity: 0.40, dash: 285, gap: 125, dur: 3.6, color: "var(--purple-accent)" },
 ];
 
-const W = 1100;
-const H = 920;
 const SQRT2 = Math.SQRT2;
 
+interface Field {
+  key: string;
+  w: number;
+  h: number;
+  spacing: number;
+}
+
+// Sized to the largest panel each layout draws; the panel clips the rest.
+const FIELDS: Field[] = [
+  { key: "wide", w: 1400, h: 780, spacing: 36 },
+  { key: "narrow", w: 420, h: 820, spacing: 27 },
+];
+
 /**
- * Where each line's strip sits. A strip runs down-left along its line (the
- * way the dashes flow), from one repeat unit before the line enters the
- * field to where it leaves it, so sliding it by one unit never uncovers an
- * end.
+ * Lines at 45° from lower-left to upper-right: every point on line i has
+ * x + y = c. A strip runs down-left along its line (the way the dashes
+ * flow), starting one repeat unit before the line enters the field, so
+ * sliding it by one unit never uncovers an end.
  */
-const STRIPS = LINES.map((l) => {
-  const c = l.x2 + l.y2; // every point on the line has x + y = c
-  const xTop = Math.min(W, c); // upper-right end inside the field
-  const xBottom = Math.max(0, c - H); // lower-left end inside the field
-  const span = (xTop - xBottom) * SQRT2;
-  const unit = l.dash + l.gap;
-  const pad = l.strokeWidth; // room for the round caps
-  const back = unit + pad;
-  // Step back from the upper-right end, up-right along the line.
-  const x0 = xTop + back / SQRT2;
-  const y0 = c - xTop - back / SQRT2;
-  const length = Math.ceil(back + span + pad);
-  const height = Math.ceil(l.strokeWidth + 2);
-  return { ...l, x0, y0, length, height, unit };
-});
+function strips({ w, h, spacing }: Field) {
+  const out = [];
+  for (let c = spacing / 2, i = 0; c < w + h; c += spacing, i++) {
+    const s = SPECS[i % SPECS.length];
+    const xTop = Math.min(w, c);
+    const xBottom = Math.max(0, c - h);
+    const span = (xTop - xBottom) * SQRT2;
+    const unit = s.dash + s.gap;
+    const pad = s.strokeWidth; // room for the round caps
+    const back = unit + pad;
+    const x0 = xTop + back / SQRT2;
+    const y0 = c - xTop - back / SQRT2;
+    const length = Math.ceil(back + span + pad);
+    const height = Math.ceil(s.strokeWidth + 2);
+    // Stagger the phase so neighbouring dashes don't line up.
+    const delay = -(((i * 137) % unit) / unit) * s.dur;
+    out.push({ ...s, i, x0, y0, length, height, unit, delay });
+  }
+  return out;
+}
 
 export default function DiagLines() {
+  const fields = FIELDS.map(f => ({ ...f, strips: strips(f) }));
+  const units = [...new Set(fields.flatMap(f => f.strips.map(s => s.unit)))];
+
   return (
     <AmbientLoops className="diag-lines">
-      <style>{STRIPS.map((s, i) => `
-        @keyframes dl${i} {
+      <style>{units.map(u => `
+        @keyframes dl${u} {
           from { transform: rotate(135deg) translateX(0); }
-          to   { transform: rotate(135deg) translateX(${s.unit}px); }
+          to   { transform: rotate(135deg) translateX(${u}px); }
         }
       `).join("")}</style>
-      <div className="diag-field">
-        {STRIPS.map((s, i) => (
-          <svg
-            key={i}
-            className="diag-strip"
-            width={s.length}
-            height={s.height}
-            viewBox={`0 0 ${s.length} ${s.height}`}
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{
-              left: s.x0,
-              top: s.y0 - s.height / 2,
-              animation: `dl${i} ${s.dur} linear infinite`,
-            }}
-          >
-            <line
-              x1={s.strokeWidth / 2}
-              y1={s.height / 2}
-              x2={s.length}
-              y2={s.height / 2}
-              style={{ stroke: s.color }}
-              strokeWidth={s.strokeWidth}
-              strokeOpacity={s.opacity}
-              strokeDasharray={`${s.dash} ${s.gap}`}
-              strokeLinecap="round"
-            />
-          </svg>
-        ))}
-      </div>
+      {fields.map(f => (
+        <div key={f.key} className={`diag-field diag-field--${f.key}`} style={{ width: f.w, height: f.h }}>
+          {f.strips.map(s => (
+            <svg
+              key={s.i}
+              className="diag-strip ambient-loop"
+              width={s.length}
+              height={s.height}
+              viewBox={`0 0 ${s.length} ${s.height}`}
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{
+                left: s.x0,
+                top: s.y0 - s.height / 2,
+                animation: `dl${s.unit} ${s.dur}s linear ${s.delay.toFixed(3)}s infinite`,
+              }}
+            >
+              <line
+                x1={s.strokeWidth / 2}
+                y1={s.height / 2}
+                x2={s.length}
+                y2={s.height / 2}
+                style={{ stroke: s.color }}
+                strokeWidth={s.strokeWidth}
+                strokeOpacity={Math.min(1, s.opacity * 0.9)}
+                strokeDasharray={`${s.dash} ${s.gap}`}
+                strokeLinecap="round"
+              />
+            </svg>
+          ))}
+        </div>
+      ))}
     </AmbientLoops>
   );
 }

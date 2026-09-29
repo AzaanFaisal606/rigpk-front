@@ -2,7 +2,7 @@ import Link from "next/link";
 import { BUDGETS } from "@/lib/budgets";
 import type { BudgetBucket } from "@/lib/budget-data";
 import { formatPkr } from "@/lib/seo";
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 
 interface Props {
   /** Null when the catalogue fetch failed — boxes still render as plain links. */
@@ -46,10 +46,10 @@ export default function BudgetBoxes({ buckets, activeSlug }: Props) {
           >
             <span className="pulldown-box-title"
               style={{
-                fontFamily: monoFont,
-                fontSize: "15px",
-                fontWeight: 900,
-                letterSpacing: "0.04em",
+                fontFamily: sansFont,
+                fontSize: "17px",
+                fontWeight: 700,
+                letterSpacing: "-0.005em",
                 color: "white",
               }}
             >

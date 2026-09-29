@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 import { buildPageUrl } from "@/lib/constants";
 import { subscribeIndexReady, subscribeSearch, subscribeTotal } from "@/lib/search-bus";
 
@@ -116,11 +116,10 @@ export default function MarketResultsMeta({
             boxShadow: "3px 3px 0 var(--shadow)",
             background: "var(--paper)",
             color: "var(--text)",
-            fontFamily: monoFont,
-            fontSize: "10px",
-            fontWeight: 800,
-            letterSpacing: "1px",
-            textTransform: "uppercase",
+            fontFamily: sansFont,
+            fontSize: "12px",
+            fontWeight: 700,
+            letterSpacing: "-0.005em",
             textDecoration: "none",
             transform: "skewX(-8deg)",
             display: "inline-block",
@@ -155,11 +154,10 @@ export default function MarketResultsMeta({
             boxShadow: "3px 3px 0 var(--shadow)",
             background: "var(--purple)",
             color: "white",
-            fontFamily: monoFont,
-            fontSize: "10px",
-            fontWeight: 800,
-            letterSpacing: "1px",
-            textTransform: "uppercase",
+            fontFamily: sansFont,
+            fontSize: "12px",
+            fontWeight: 700,
+            letterSpacing: "-0.005em",
             textDecoration: "none",
             transform: "skewX(-8deg)",
             display: "inline-block",

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useId, useCallback, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 
 export interface DropdownOption {
   value: string;
@@ -196,13 +196,12 @@ export function ComicDropdown({
             background: "color-mix(in srgb, var(--purple) 6%, transparent)",
             border: "none",
             borderBottom: "1px solid var(--ink)",
-            fontFamily: monoFont,
-            fontSize: "10px",
+            fontFamily: sansFont,
+            fontSize: "12px",
             fontWeight: 700,
             color: "var(--purple-text)",
             cursor: "pointer",
-            letterSpacing: "0.5px",
-            textTransform: "uppercase",
+            letterSpacing: "-0.005em",
           }}
         >
           ✕ Clear
@@ -245,12 +244,12 @@ export function ComicDropdown({
               borderBottom: "1px solid var(--line-soft)",
               outline: i === activeIndex ? "2px solid var(--purple)" : "none",
               outlineOffset: "-2px",
-              fontFamily: monoFont,
-              fontSize: "10px",
+              fontFamily: sansFont,
+              fontSize: "12px",
               fontWeight: active === opt.value ? 800 : 600,
               color: active === opt.value ? "var(--purple-text)" : "var(--text)",
               cursor: "pointer",
-              letterSpacing: "0.3px",
+              letterSpacing: "-0.005em",
             }}
           >
             {opt.label}
@@ -289,11 +288,10 @@ export function ComicDropdown({
           color: isActive ? "white" : "var(--text)",
           boxShadow: isActive ? "var(--gloss), 2px 2px 0 var(--purple)" : "2px 2px 0 var(--shadow)",
           transform: "skewX(-8deg)",
-          fontFamily: monoFont,
-          fontSize: "10px",
-          fontWeight: 800,
-          letterSpacing: "0.8px",
-          textTransform: "uppercase",
+          fontFamily: sansFont,
+          fontSize: "12px",
+          fontWeight: 700,
+          letterSpacing: "-0.005em",
           cursor: "pointer",
           whiteSpace: "nowrap",
           display: "flex",

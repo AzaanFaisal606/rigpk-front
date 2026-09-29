@@ -4,7 +4,7 @@ import { useState, type CSSProperties } from "react";
 import PartRow from "@/components/PartRow";
 import type { Part } from "@/lib/api";
 import { filterByPrice } from "@/lib/models";
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 
 interface Props {
   /** partsForModel output: priced, cheapest first. */
@@ -82,11 +82,10 @@ export default function ModelListings({ parts, label, seriesLabel }: Props) {
                 boxShadow: "2px 2px 0 var(--shadow)",
                 background: "var(--paper)",
                 color: "var(--text)",
-                fontFamily: monoFont,
-                fontSize: "10px",
-                fontWeight: 800,
-                letterSpacing: "0.8px",
-                textTransform: "uppercase",
+                fontFamily: sansFont,
+                fontSize: "12px",
+                fontWeight: 700,
+                letterSpacing: "-0.005em",
                 transform: "skewX(-8deg)",
                 cursor: "pointer",
               }}

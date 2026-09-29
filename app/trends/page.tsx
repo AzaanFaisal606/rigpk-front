@@ -29,8 +29,8 @@ export default async function TrendsPage() {
           Price <span style={{ color: "var(--purple-text)" }}>Trends</span>
         </h1>
         <p
-          className="mono mt-1"
-          style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)" }}
+          className="mt-1"
+          style={{ fontSize: "0.95rem", color: "var(--text-muted)" }}
         >
           Median market price per model over time — tap or hover the chart for exact figures &amp; range.
         </p>

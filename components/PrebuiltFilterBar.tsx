@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, useTransition, type ReactNode
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import { ToggleChip } from "@/components/ui/ToggleChip";
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 import { useScrollHide } from "@/lib/hooks/useScrollHide";
 import { DEFAULT_SORT } from "@/lib/constants";
 
@@ -117,7 +117,7 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
             onChange={e => setSearchInput(e.target.value)}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
-            placeholder="SEARCH PREBUILTS"
+            placeholder="Search pre-builts"
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
@@ -127,8 +127,8 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
               padding: "5px 26px 5px 10px",
               border: searchInput ? "2px solid var(--purple)" : "2px solid var(--ink)",
               boxShadow: searchInput ? "2px 2px 0 var(--purple)" : "2px 2px 0 var(--shadow)",
-              fontFamily: monoFont,
-              fontSize: "11px",
+              fontFamily: sansFont,
+              fontSize: "13px",
               fontWeight: 700,
               background: "var(--paper)",
               color: "var(--text)",
@@ -145,7 +145,7 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
 
         {/* Retailer */}
         <ComicDropdown
-          label="RETAILER"
+          label="Retailer"
           active={source ?? ""}
           options={SOURCES.map(s => ({ value: s, label: s }))}
           onSelect={v => push({ source: v })}
@@ -216,7 +216,7 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
 
         {/* Sort */}
         <ComicDropdown
-          label="SORT"
+          label="Sort"
           active={sort === DEFAULT_SORT ? "" : sort}
           options={SORT_OPTIONS}
           onSelect={v => push({ sort: v })}

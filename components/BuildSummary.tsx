@@ -195,18 +195,17 @@ export default function BuildSummary({ build }: Props) {
             color: "white",
             border: "2px solid var(--ink)",
             boxShadow: "var(--gloss), 3px 3px 0 var(--shadow)",
-            fontSize: "10px",
-            fontWeight: 800,
-            letterSpacing: "1px",
-            textTransform: "uppercase",
+            fontSize: "14px",
+            fontWeight: 700,
+            letterSpacing: "-0.005em",
             cursor: "pointer",
             transform: "skewX(-6deg)",
-            fontFamily: "var(--mono)",
+            fontFamily: "var(--sans)",
           }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--purple-hover)"; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--purple)"; }}
         >
-          Copy Build List
+          <span style={{ display: "inline-block", transform: "skewX(6deg)" }}>Copy build list</span>
         </button>
 
         {/* Share button */}
@@ -221,13 +220,12 @@ export default function BuildSummary({ build }: Props) {
             color: shareStatus === "idle" ? "var(--text)" : "white",
             border: "2px solid var(--ink)",
             boxShadow: "3px 3px 0 var(--shadow)",
-            fontSize: "10px",
-            fontWeight: 800,
-            letterSpacing: "1px",
-            textTransform: "uppercase",
+            fontSize: "14px",
+            fontWeight: 700,
+            letterSpacing: "-0.005em",
             cursor: shareStatus === "loading" ? "not-allowed" : "pointer",
             transform: "skewX(-6deg)",
-            fontFamily: "var(--mono)",
+            fontFamily: "var(--sans)",
             opacity: shareStatus === "loading" ? 0.7 : 1,
           }}
           onMouseEnter={(e) => {
@@ -237,10 +235,12 @@ export default function BuildSummary({ build }: Props) {
             if (shareStatus === "idle") (e.currentTarget as HTMLButtonElement).style.background = "var(--paper)";
           }}
         >
-          {shareStatus === "idle" && "Share Build"}
-          {shareStatus === "loading" && "Sharing…"}
-          {shareStatus === "copied" && "Link Copied!"}
-          {shareStatus === "error" && "Error — Retry"}
+          <span style={{ display: "inline-block", transform: "skewX(6deg)" }}>
+            {shareStatus === "idle" && "Share build"}
+            {shareStatus === "loading" && "Sharing…"}
+            {shareStatus === "copied" && "Link copied!"}
+            {shareStatus === "error" && "Couldn't share. Retry"}
+          </span>
         </button>
       </div>
     </div>

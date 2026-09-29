@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import PCThumb from "./PCThumb";
 import type { Prebuilt } from "@/lib/prebuilts-api";
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 
 function truncate(s: string | undefined, n: number): string {
   if (!s) return "—";
@@ -186,16 +186,15 @@ export default function PrebuiltCard({ prebuilt }: Props) {
             color: "white",
             border: "2px solid var(--ink)",
             boxShadow: "var(--gloss), 3px 3px 0 var(--shadow)",
-            fontFamily: monoFont,
-            fontSize: "10px",
-            fontWeight: 800,
-            letterSpacing: "1.2px",
-            textTransform: "uppercase",
+            fontFamily: sansFont,
+            fontSize: "13px",
+            fontWeight: 700,
+            letterSpacing: "-0.005em",
             transform: "skewX(-8deg)",
           }}
         >
           <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>
-            VIEW SPECS →
+            View specs →
           </span>
         </span>
       </div>
