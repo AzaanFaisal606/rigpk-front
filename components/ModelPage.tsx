@@ -16,7 +16,6 @@ import {
   modelDescription,
   modelFaqs,
   modelHeading,
-  modelIntro,
   modelPath,
   modelTitle,
   partsForModel,
@@ -27,7 +26,7 @@ import {
   type ModelEntry,
 } from "@/lib/models";
 import { SITE_URL } from "@/lib/seo";
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 
 export async function modelMetadata(category: ModelCategory, slug: string): Promise<Metadata> {
   const e = modelBySlug(category, slug);
@@ -91,11 +90,10 @@ function SiblingLinks({ current }: { current: ModelEntry }) {
             boxShadow: "2px 2px 0 var(--shadow)",
             background: "var(--paper)",
             color: "var(--text)",
-            fontFamily: monoFont,
-            fontSize: "10px",
-            fontWeight: 800,
-            letterSpacing: "1px",
-            textTransform: "uppercase",
+            fontFamily: sansFont,
+            fontSize: "12px",
+            fontWeight: 700,
+            letterSpacing: "-0.005em",
             textDecoration: "none",
             transform: "skewX(-8deg)",
             display: "inline-block",
@@ -199,8 +197,7 @@ export default async function ModelPage({ category, slug }: { category: ModelCat
       </div>
 
       <main className="pb-browser-wrapper" style={{ width: "100%", maxWidth: "80rem", margin: "0 auto", padding: "40px 24px 32px" }}>
-        <div style={{ ...labelStyle, marginBottom: "6px" }}>RIGPK {"//"} {category.toUpperCase()} PRICES</div>
-        <h1 style={{ fontFamily: monoFont, fontWeight: 900, fontSize: "1.75rem", textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text)", margin: 0 }}>
+        <h1 style={{ fontFamily: sansFont, fontWeight: 700, fontSize: "clamp(1.9rem, 4vw, 2.5rem)", lineHeight: 1.05, letterSpacing: "-0.03em", color: "var(--text)", margin: 0 }}>
           {modelHeading(e)}
         </h1>
         <p style={{ ...labelStyle, color: "var(--purple-text)", marginTop: "8px" }}>
@@ -212,16 +209,12 @@ export default async function ModelPage({ category, slug }: { category: ModelCat
             <p style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 900, color: "var(--purple-text)", letterSpacing: "1.5px" }}>
               {"// SEARCH FAILED"}
             </p>
-            <p style={{ fontFamily: monoFont, fontSize: "11px", color: "var(--text-muted)", letterSpacing: "0.5px", marginTop: "8px" }}>
+            <p style={{ fontFamily: sansFont, fontSize: "14px", color: "var(--text-muted)", letterSpacing: "-0.005em", marginTop: "8px" }}>
               Couldn&apos;t reach the server. Reload to try again.
             </p>
           </div>
         ) : (
           <>
-            <p style={{ maxWidth: "52rem", marginTop: "18px", fontSize: "15px", lineHeight: 1.6, color: "var(--text-muted)" }}>
-              {modelIntro(e, summary)}
-            </p>
-
             <SiblingLinks current={e} />
 
             <ModelListings parts={parts} label={e.label} seriesLabel={seriesOf(e).label} />
@@ -240,7 +233,7 @@ export default async function ModelPage({ category, slug }: { category: ModelCat
                 <div style={{ padding: "8px 16px 16px" }}>
                   {faqs.map(f => (
                     <div key={f.q} style={{ padding: "14px 0", borderBottom: "1.5px dashed var(--border)" }}>
-                      <h3 style={{ margin: 0, fontFamily: monoFont, fontSize: "12px", fontWeight: 800, color: "var(--text)", letterSpacing: "0.5px" }}>
+                      <h3 style={{ margin: 0, fontFamily: sansFont, fontSize: "14px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.005em" }}>
                         {f.q}
                       </h3>
                       <p style={{ margin: "6px 0 0", fontSize: "14px", lineHeight: 1.6, color: "var(--text-muted)" }}>{f.a}</p>

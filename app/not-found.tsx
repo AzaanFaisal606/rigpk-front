@@ -34,17 +34,14 @@ export default function NotFound() {
         </p>
         <Link
           href="/"
-          className="mono"
           style={{
             border: "2px solid var(--ink)",
             boxShadow: "2px 2px 0 var(--shadow)",
             background: "var(--purple)",
             color: "white",
             padding: "8px 16px",
-            fontSize: "0.65rem",
-            fontWeight: 800,
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
+              fontSize: "0.8rem",
+            fontWeight: 700,
             transform: "skewX(-8deg)",
             display: "inline-block",
             marginTop: "24px",

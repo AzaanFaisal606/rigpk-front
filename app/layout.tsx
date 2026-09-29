@@ -1,20 +1,32 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Inter } from "next/font/google";
+import { Fragment_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { SITE_URL } from "@/lib/seo";
 import { Analytics } from "@vercel/analytics/next";
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
+// TeX Gyre Heros: a free Helvetica (GUST Font License, see app/fonts/),
+// self-hosted so every OS gets the same face. Windows would swap a bare
+// "Helvetica" for Arial. Regular and Bold only: 500 renders as 400, 600+ as 700.
+const heros = localFont({
+  variable: "--font-heros",
+  display: "swap",
+  src: [
+    { path: "./fonts/heros-regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/heros-italic.woff2", weight: "400", style: "italic" },
+    { path: "./fonts/heros-bold.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/heros-bolditalic.woff2", weight: "700", style: "italic" },
+  ],
+  fallback: ["Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+// Data face: prices, specs, counts, tags. One weight exists (400).
+const fragmentMono = Fragment_Mono({
+  variable: "--font-fragment-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "700", "900"],
+  weight: "400",
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -58,7 +70,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${jetbrainsMono.variable} ${inter.variable} h-full antialiased`}
+      className={`${heros.variable} ${fragmentMono.variable} h-full antialiased`}
       // The theme script below sets data-theme before hydration.
       suppressHydrationWarning
     >

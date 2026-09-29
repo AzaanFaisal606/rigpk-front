@@ -7,7 +7,7 @@ import PCThumb from "./PCThumb";
 import { derivePrebuiltTags } from "@/lib/prebuilt-tags";
 import type { Prebuilt } from "@/lib/prebuilts-api";
 import { GameBenchmarksPanel } from "@/components/ui/GameBenchmarksPanel";
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 import { isSafeHref } from "@/lib/safe-url";
 
 function PB_Chip({ label }: { label: string }) {
@@ -108,10 +108,6 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
 
         {/* Right: info */}
         <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-          {/* Eyebrow */}
-          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "var(--purple-text)", letterSpacing: "2px", textTransform: "uppercase" }}>
-            — RIGPK // PRE-BUILT
-          </div>
 
           {/* Source */}
           <div style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 700, color: "var(--text-2)", marginBottom: "2px" }}>
@@ -121,12 +117,11 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
           {/* Title — max 2 lines */}
           <h1
             style={{
-              fontFamily: monoFont,
-              fontWeight: 900,
+              fontFamily: sansFont,
+              fontWeight: 700,
               fontSize: "clamp(1.4rem, 2.8vw, 2.8rem)",
               lineHeight: 0.95,
-              textTransform: "uppercase",
-              letterSpacing: "-0.02em",
+              letterSpacing: "-0.03em",
               color: "var(--text)",
               margin: 0,
               display: "-webkit-box",
@@ -205,16 +200,15 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                     color: "white",
                     border: "2px solid var(--ink)",
                     boxShadow: "var(--gloss), 4px 4px 0 var(--shadow)",
-                    fontFamily: monoFont,
-                    fontWeight: 800,
-                    textTransform: "uppercase",
+                    fontFamily: sansFont,
+                    fontWeight: 700,
                     textDecoration: "none",
                     textAlign: "center",
                     transform: "skewX(-6deg)",
                   }}
                 >
                   <span style={{ display: "inline-block", transform: "skewX(6deg)" }}>
-                    BUY NOW @ {prebuilt.source.toUpperCase()} ↗
+                    Buy at {prebuilt.source} ↗
                   </span>
                 </a>
 
@@ -264,7 +258,7 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
           </div>
           <h2
             style={{
-              fontFamily: "var(--font-inter), 'Inter', system-ui, sans-serif",
+              fontFamily: "var(--sans)",
               fontWeight: 900,
               fontSize: "1.875rem",
               letterSpacing: "-0.04em",
@@ -292,7 +286,7 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                 <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "var(--purple-text)", letterSpacing: "1.5px", textTransform: "uppercase" }}>
                   {SPEC_LABELS[key]}
                 </div>
-                <div style={{ fontFamily: "var(--font-inter), 'Inter', system-ui, sans-serif", fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>
+                <div style={{ fontFamily: "var(--sans)", fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>
                   {c[key]}
                 </div>
               </div>
@@ -321,7 +315,7 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                   }}
                 >
                   <span style={{ color: "var(--purple-text)", fontFamily: monoFont, fontWeight: 900, fontSize: "12px", flexShrink: 0 }}>+</span>
-                  <span style={{ fontFamily: "var(--font-inter), 'Inter', system-ui, sans-serif", fontSize: "12px", color: "var(--text-2)", lineHeight: 1.4 }}>{item}</span>
+                  <span style={{ fontFamily: "var(--sans)", fontSize: "12px", color: "var(--text-2)", lineHeight: 1.4 }}>{item}</span>
                 </div>
               ))}
             </div>

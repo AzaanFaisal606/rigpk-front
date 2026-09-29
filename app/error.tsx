@@ -44,17 +44,14 @@ export default function Error({
         <div className="flex items-center justify-center gap-3" style={{ marginTop: "24px" }}>
           <button
             onClick={() => reset()}
-            className="mono"
             style={{
               border: "2px solid var(--ink)",
               boxShadow: "2px 2px 0 var(--shadow)",
               background: "var(--purple)",
               color: "white",
               padding: "8px 16px",
-              fontSize: "0.65rem",
-              fontWeight: 800,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
+              fontSize: "0.8rem",
+              fontWeight: 700,
               transform: "skewX(-8deg)",
               cursor: "pointer",
             }}
@@ -63,17 +60,14 @@ export default function Error({
           </button>
           <Link
             href="/"
-            className="mono"
             style={{
               border: "2px solid var(--ink)",
               boxShadow: "2px 2px 0 var(--shadow)",
               background: "var(--paper)",
               color: "var(--text)",
               padding: "8px 16px",
-              fontSize: "0.65rem",
-              fontWeight: 800,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
+              fontSize: "0.8rem",
+              fontWeight: 700,
               transform: "skewX(-8deg)",
               display: "inline-block",
             }}

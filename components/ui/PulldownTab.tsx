@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { monoFont } from "@/lib/tokens";
+import { sansFont } from "@/lib/tokens";
 
 interface Props {
   /** Text on the lip. */
@@ -136,11 +136,10 @@ export default function PulldownTab({
                 // where the lip joins the body. The body has no gloss either,
                 // so the two read as one shape.
                 boxShadow: "3px 3px 0 var(--shadow)",
-                fontFamily: monoFont,
-                fontSize: "9px",
-                fontWeight: 800,
-                letterSpacing: "1.5px",
-                textTransform: "uppercase",
+                fontFamily: sansFont,
+                fontSize: "11px",
+                fontWeight: 700,
+                letterSpacing: "-0.005em",
                 cursor: "pointer",
               }}
             >

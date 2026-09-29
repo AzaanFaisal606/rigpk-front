@@ -114,4 +114,5 @@ export const SPEC_LABELS: Record<string, string> = {
   resolution:  "Res",
   refresh_rate: "Hz",
   panel:       "Panel",
+  model:       "Model",
 };

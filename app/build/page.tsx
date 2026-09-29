@@ -126,7 +126,6 @@ function BuildPage() {
           <BuildWireframe build={build} onSlotClick={setActiveSlot} />
           <section className="build-section-list">
             <div style={{ width: "100%" }}>
-              <p className="section-label mb-1">Your Build</p>
               <h2
                 className="font-black mb-2"
                 style={{ fontSize: "clamp(1.2rem, 2.5vw, 1.5rem)", color: "var(--text)" }}

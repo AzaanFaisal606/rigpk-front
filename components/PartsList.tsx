@@ -8,7 +8,7 @@ import FacetLinks from "@/components/FacetLinks";
 import ModelPulldown from "@/components/ModelPulldown";
 import { getParts } from "@/lib/api";
 import { str } from "@/lib/utils";
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 import { buildPageUrl, CATEGORY_NAMES, DEFAULT_SORT, SPEC_KEYS } from "@/lib/constants";
 
 const LIMIT = 50;
@@ -117,14 +117,12 @@ export default async function PartsList({ category, searchParams, baseParams, he
         {/* Section header */}
         <div className="flex items-end justify-between mb-5">
           <div>
-            <p className="section-label mb-1">Browse Parts</p>
             <h1
               style={{
-                fontFamily: monoFont,
-                fontSize: "clamp(1.2rem, 2.5vw, 1.6rem)",
-                fontWeight: 900,
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
+                fontFamily: sansFont,
+                fontSize: "clamp(1.6rem, 3vw, 2.1rem)",
+                fontWeight: 700,
+                letterSpacing: "-0.03em",
                 color: "var(--text)",
                 lineHeight: 1,
               }}
@@ -334,11 +332,10 @@ export default async function PartsList({ category, searchParams, baseParams, he
                     boxShadow: "3px 3px 0 var(--shadow)",
                     background: "var(--paper)",
                     color: "var(--text)",
-                    fontFamily: monoFont,
-                    fontSize: "10px",
-                    fontWeight: 800,
-                    letterSpacing: "1px",
-                    textTransform: "uppercase",
+                    fontFamily: sansFont,
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    letterSpacing: "-0.005em",
                     textDecoration: "none",
                     transform: "skewX(-8deg)",
                     display: "inline-block",
@@ -377,11 +374,10 @@ export default async function PartsList({ category, searchParams, baseParams, he
                     boxShadow: "3px 3px 0 var(--shadow)",
                     background: "var(--purple)",
                     color: "white",
-                    fontFamily: monoFont,
-                    fontSize: "10px",
-                    fontWeight: 800,
-                    letterSpacing: "1px",
-                    textTransform: "uppercase",
+                    fontFamily: sansFont,
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    letterSpacing: "-0.005em",
                     textDecoration: "none",
                     transform: "skewX(-8deg)",
                     display: "inline-block",

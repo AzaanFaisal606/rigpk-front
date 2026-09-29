@@ -1,4 +1,4 @@
-import { monoFont } from "@/lib/tokens";
+import { monoFont, sansFont } from "@/lib/tokens";
 
 interface GameBenchmarksPanelProps {
   style?: React.CSSProperties;
@@ -13,7 +13,7 @@ export function GameBenchmarksPanel({ style }: GameBenchmarksPanelProps) {
         </span>
       </div>
       <div style={{ padding: "24px 18px" }}>
-        <p style={{ fontFamily: monoFont, fontSize: "11px", color: "var(--faint)", margin: 0, lineHeight: 1.7 }}>
+        <p style={{ fontFamily: sansFont, fontSize: "14px", color: "var(--faint)", margin: 0, lineHeight: 1.7 }}>
           {`// Game performance data coming soon.`}
           <br />
           {"We're working on it."}

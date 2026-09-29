@@ -5,7 +5,6 @@ import {
   budgetBySlug,
   budgetDescription,
   budgetFaqs,
-  budgetIntro,
   budgetTitle,
   listJoin,
   monthYear,
@@ -70,11 +69,10 @@ describe("summaries and copy", () => {
     expect(monthYear(new Date("2026-09-30T20:00:00Z"))).toBe("October 2026");
   });
 
-  it("mentions count, range and stores in description and intro", () => {
+  it("mentions count, range and stores in the description", () => {
     const d = budgetDescription(b, s);
     expect(d).toContain("3 pre-built gaming PCs under 1.5 Lakh");
     expect(d).toContain("TechMatched and Red Tech");
-    expect(budgetIntro(b, s)).toContain("GTX 1660 Super");
   });
 
   it("answers FAQs from the top pick", () => {
@@ -88,7 +86,6 @@ describe("summaries and copy", () => {
     const empty = summarizeBudget([]);
     expect(empty.min).toBeNull();
     expect(budgetFaqs(b, [], empty)).toEqual([]);
-    expect(budgetIntro(b, empty)).toContain("No pre-built gaming PCs");
   });
 });
 

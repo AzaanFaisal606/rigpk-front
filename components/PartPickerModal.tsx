@@ -287,10 +287,10 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
                           background: active ? "var(--purple-pale)" : "var(--paper)",
                           boxShadow: active ? "2px 2px 0 var(--purple)" : "none",
                           transform: "skewX(-8deg)",
-                          fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px",
+                          fontSize: "12px", fontWeight: 700, letterSpacing: "-0.005em",
                           color: active ? "var(--purple-text)" : "var(--text-muted)",
                           cursor: "pointer",
-                          fontFamily: "var(--mono)",
+                          fontFamily: "var(--sans)",
                         }}
                       >
                         {v}
@@ -384,13 +384,12 @@ export default function PartPickerModal({ slot, currentPart, onSelect, onClose }
                       background: isCurrent ? "var(--purple)" : "var(--bg)",
                       border: "2px solid var(--ink)",
                       boxShadow: "2px 2px 0 var(--shadow)",
-                      fontSize: "9px", fontWeight: 800, letterSpacing: "1px",
-                      textTransform: "uppercase",
+                      fontSize: "11px", fontWeight: 700, letterSpacing: "-0.005em",
                       color: isCurrent ? "white" : "var(--text)",
                       cursor: "pointer",
                       transform: "skewX(-8deg)",
                       flexShrink: 0,
-                      fontFamily: "var(--mono)",
+                      fontFamily: "var(--sans)",
                     }}
                     onMouseEnter={(e) => {
                       const btn = e.currentTarget as HTMLButtonElement;
