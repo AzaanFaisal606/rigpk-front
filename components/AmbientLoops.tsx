@@ -3,7 +3,8 @@
 import { useEffect, useRef } from "react";
 
 /**
- * A wrapper for decorative looping animations (the hero lines). The loops
+ * A wrapper for looping animations (the hero lines, the retailer marquee).
+ * The loops
  * are plain CSS transform animations the compositor runs; this keeps them
  * cheap and keeps them flowing through the theme wipe.
  *
@@ -23,9 +24,12 @@ import { useEffect, useRef } from "react";
 export default function AmbientLoops({
   className,
   children,
+  decorative = true,
 }: {
   className?: string;
   children: React.ReactNode;
+  /** Hide from assistive tech. Off when the loop carries real links. */
+  decorative?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -82,7 +86,7 @@ export default function AmbientLoops({
   }, []);
 
   return (
-    <div ref={ref} className={className} aria-hidden>
+    <div ref={ref} className={className} aria-hidden={decorative || undefined}>
       {children}
     </div>
   );

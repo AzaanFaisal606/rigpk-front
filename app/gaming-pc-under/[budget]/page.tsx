@@ -14,7 +14,6 @@ import {
   budgetDescription,
   budgetFaqs,
   budgetHeading,
-  budgetIntro,
   budgetTitle,
   monthYear,
   prebuiltsInBudget,
@@ -228,10 +227,6 @@ export default async function BudgetPage({ params }: PageProps) {
           </div>
         ) : (
           <>
-            <p style={{ maxWidth: "52rem", marginTop: "18px", fontSize: "15px", lineHeight: 1.6, color: "var(--text-muted)" }}>
-              {budgetIntro(budget, summary)}
-            </p>
-
             <SiblingLinks current={budget} />
 
             {listed.length === 0 ? (

@@ -1,8 +1,5 @@
-"use client";
-
 import { ExternalLink } from "lucide-react";
-import { motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import AmbientLoops from "./AmbientLoops";
 import { type Stats } from "@/lib/api";
 
 const STORES = [
@@ -17,335 +14,102 @@ const STORES = [
   { key: "techmatched.pk",     name: "TechMatched",     domain: "techmatched.pk",     tag: "NEW" },
 ];
 
+// The marquee track holds three copies of the row and slides left by one
+// copy per loop, so the row never runs out on screens up to two copies
+// wide. Only the first copy is exposed to assistive tech and the keyboard.
+const COPIES = 3;
+
 interface SourcesProps {
   stats: Stats | null;
 }
 
 export default function Sources({ stats }: SourcesProps) {
   const total = stats?.total_parts ?? 0;
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const trackRef = useRef<HTMLDivElement | null>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);   // 0..1
-  const [thumbWidth, setThumbWidth] = useState(1);           // 0..1 — ratio of visible viewport
-  const [isOverflowing, setIsOverflowing] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStateRef = useRef<{ startX: number; startScrollLeft: number; trackWidth: number; thumbWidthPx: number } | null>(null);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const update = () => {
-      const max = el.scrollWidth - el.clientWidth;
-      const ratio = el.clientWidth / el.scrollWidth;
-      setIsOverflowing(max > 1);
-      setThumbWidth(Math.min(1, Math.max(0.15, ratio)));
-      setScrollProgress(max > 0 ? el.scrollLeft / max : 0);
-    };
-
-    update();
-    el.addEventListener("scroll", update, { passive: true });
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    window.addEventListener("resize", update);
-
-    return () => {
-      el.removeEventListener("scroll", update);
-      ro.disconnect();
-      window.removeEventListener("resize", update);
-    };
-  }, []);
-
-  // Thumb position: scroll progress maps into track minus thumb width
-  const thumbLeft = scrollProgress * (1 - thumbWidth) * 100;
-
-  const scrollContainerToProgress = (progress: number, smooth: boolean) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const max = el.scrollWidth - el.clientWidth;
-    const clamped = Math.max(0, Math.min(1, progress));
-    el.scrollTo({ left: clamped * max, behavior: smooth ? "smooth" : "auto" });
-  };
-
-  const handleThumbPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    const track = trackRef.current;
-    const el = scrollRef.current;
-    if (!track || !el) return;
-    e.preventDefault();
-    e.stopPropagation();
-    try {
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    } catch {
-      // synthetic pointer events (e.g. devtools/tests) lack a real pointer id; ignore
-    }
-    setIsDragging(true);
-    const trackRect = track.getBoundingClientRect();
-    dragStateRef.current = {
-      startX: e.clientX,
-      startScrollLeft: el.scrollLeft,
-      trackWidth: trackRect.width,
-      thumbWidthPx: thumbWidth * trackRect.width,
-    };
-  };
-
-  const handleThumbPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragStateRef.current) return;
-    const el = scrollRef.current;
-    if (!el) return;
-    const { startX, startScrollLeft, trackWidth, thumbWidthPx } = dragStateRef.current;
-    const travel = trackWidth - thumbWidthPx;
-    if (travel <= 0) return;
-    const deltaX = e.clientX - startX;
-    const max = el.scrollWidth - el.clientWidth;
-    el.scrollLeft = Math.max(0, Math.min(max, startScrollLeft + (deltaX / travel) * max));
-  };
-
-  const handleThumbPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragStateRef.current) return;
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {
-      // ignore: capture may not have been set (synthetic events)
-    }
-    dragStateRef.current = null;
-    setIsDragging(false);
-  };
-
-  const handleTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (dragStateRef.current) return;
-    const track = trackRef.current;
-    const el = scrollRef.current;
-    if (!track || !el) return;
-    const rect = track.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const target = (clickX - (thumbWidth * rect.width) / 2) / (rect.width - thumbWidth * rect.width);
-    scrollContainerToProgress(target, true);
-  };
 
   return (
     <section className="sources-band">
-      <div className="sources-inner">
-        <div className="sources-head">
-          <h2 className="sources-title">Sourced from {STORES.length} retailers.</h2>
-          {total > 0 && (
-            <p className="sources-total">{total.toLocaleString()} parts in total</p>
-          )}
-        </div>
-
-        {/* Store cards — always horizontal-scroll on all viewports */}
-        <div
-          ref={scrollRef}
-          id="sources-cards"
-          className="sources-scroller flex gap-3 overflow-x-auto"
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-            WebkitOverflowScrolling: "touch",
-          }}
-        >
-          {STORES.map((store, i) => {
-            const count = stats?.by_source[store.key];
-            // Staleness comes from the backend's last recorded scrape outcome,
-            // so a retailer flags itself when a scrape fails and clears itself
-            // when one succeeds — nothing to update here by hand.
-            const stale = stats?.sources?.[store.key]?.stale ?? false;
-            return (
-              <StoreCard key={store.key} store={store} count={count} stale={stale} i={i} />
-            );
-          })}
-        </div>
-
-        {/* Scroll indicator — interactive scrollbar (click track, drag thumb) */}
-        {isOverflowing && (
-          <div className="sources-scrollbar mt-4 flex items-center gap-3">
-            <div
-              ref={trackRef}
-              role="scrollbar"
-              tabIndex={0}
-              aria-controls="sources-cards"
-              aria-label="Scroll retailer cards"
-              aria-orientation="horizontal"
-              aria-valuenow={Math.round(scrollProgress * 100)}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              onPointerDown={handleTrackPointerDown}
-              onKeyDown={(e) => {
-                const step = 0.1;
-                if (e.key === "ArrowRight") { e.preventDefault(); scrollContainerToProgress(scrollProgress + step, true); }
-                if (e.key === "ArrowLeft")  { e.preventDefault(); scrollContainerToProgress(scrollProgress - step, true); }
-                if (e.key === "Home")       { e.preventDefault(); scrollContainerToProgress(0, true); }
-                if (e.key === "End")        { e.preventDefault(); scrollContainerToProgress(1, true); }
-              }}
-              style={{
-                position: "relative",
-                flex: 1,
-                height: 10,
-                background: "var(--bg-card)",
-                border: "1.5px solid var(--ink)",
-                boxShadow: "2px 2px 0 var(--shadow)",
-                cursor: "pointer",
-                touchAction: "none",
-              }}
-            >
-              <div
-                onPointerDown={handleThumbPointerDown}
-                onPointerMove={handleThumbPointerMove}
-                onPointerUp={handleThumbPointerUp}
-                onPointerCancel={handleThumbPointerUp}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  bottom: 0,
-                  left: `${thumbLeft}%`,
-                  width: `${thumbWidth * 100}%`,
-                  background: "var(--purple)",
-                  borderRight: "1.5px solid var(--ink)",
-                  transition: isDragging ? "none" : "left 0.08s linear",
-                  cursor: isDragging ? "grabbing" : "grab",
-                  touchAction: "none",
-                }}
-              />
-            </div>
-            <span
-              className="mono"
-              style={{
-                fontSize: "0.62rem",
-                fontWeight: 800,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "var(--on-maroon)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Scroll →
-            </span>
-          </div>
+      <div className="sources-head">
+        <h2 className="sources-title">Sourced from {STORES.length} retailers.</h2>
+        {total > 0 && (
+          <p className="sources-total">{total.toLocaleString()} parts in total</p>
         )}
       </div>
+
+      <AmbientLoops className="sources-marquee" decorative={false}>
+        <div className="sources-rail" aria-hidden />
+        <div className="sources-track ambient-loop">
+          {Array.from({ length: COPIES }, (_, copy) =>
+            STORES.map((store, i) => (
+              <StoreCard
+                key={`${copy}-${store.key}`}
+                store={store}
+                index={i}
+                count={stats?.by_source[store.key]}
+                // Staleness comes from the backend's last recorded scrape outcome,
+                // so a retailer flags itself when a scrape fails and clears itself
+                // when one succeeds — nothing to update here by hand.
+                stale={stats?.sources?.[store.key]?.stale ?? false}
+                copy={copy > 0}
+              />
+            )),
+          )}
+        </div>
+      </AmbientLoops>
     </section>
   );
 }
 
 function StoreCard({
   store,
+  index,
   count,
   stale,
-  i,
+  copy,
 }: {
   store: { key: string; name: string; domain: string; tag: string };
+  index: number;
   count: number | undefined;
   stale: boolean;
-  i: number;
+  copy: boolean;
 }) {
-  const [hovered, setHovered] = useState(false);
-
   return (
-    <motion.a
+    <a
       href={`https://${store.domain}`}
       target="_blank"
       rel="noopener noreferrer"
-      initial={{ opacity: 0, y: 8 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.35, delay: i * 0.06 }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="flex-shrink-0 w-44 overflow-hidden group no-underline"
-      style={{
-        position: "relative",
-        background: "var(--bg-card)",
-        borderTop: "3px solid var(--purple)",
-        borderRight: "2px solid var(--ink)",
-        borderBottom: "2px solid var(--ink)",
-        borderLeft: "2px solid var(--ink)",
-        boxShadow: hovered ? "6px 6px 0 var(--shadow)" : "4px 4px 0 var(--shadow)",
-        transform: hovered ? "translateY(-2px)" : "none",
-        transition: "box-shadow 0.1s, transform 0.1s",
-      }}
+      className={copy ? "src-card src-card--copy" : "src-card"}
+      aria-hidden={copy || undefined}
+      tabIndex={copy ? -1 : undefined}
     >
-      {/* Stale ribbon — diagonal red corner flag */}
       {stale && (
-        <div
-          aria-label="data is stale"
-          className="mono"
-          style={{
-            position: "absolute",
-            top: 13,
-            right: -30,
-            width: 110,
-            transform: "rotate(45deg)",
-            transformOrigin: "center",
-            background: "#dc2626",
-            color: "#fff",
-            textAlign: "center",
-            fontSize: "0.55rem",
-            fontWeight: 900,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            padding: "2px 0",
-            borderTop: "1.5px solid var(--ink)",
-            borderBottom: "1.5px solid var(--ink)",
-            boxShadow: "0 1px 0 var(--shadow)",
-            zIndex: 2,
-            pointerEvents: "none",
-          }}
-        >
+        <span className="src-card-stale mono" aria-label="data is stale">
           Stale
-        </div>
+        </span>
       )}
 
-      <div className="p-4">
-        {/* Tag */}
-        <div className="flex items-center justify-between mb-3">
-          <span
-            className="mono px-1.5 py-0.5"
-            style={{
-              fontSize: "0.6rem",
-              fontWeight: 800,
-              color: "var(--purple-text)",
-              background: "color-mix(in srgb, var(--purple) 8%, transparent)",
-              border: "1px solid color-mix(in srgb, var(--purple) 22%, transparent)",
-            }}
-          >
-            {store.tag}
-          </span>
-          <ExternalLink
-            size={11}
-            style={{ color: "var(--text-dim)" }}
-            className="group-hover:text-purple-600 transition-colors"
-          />
-        </div>
+      <span className="src-card-bar mono">
+        <span className="src-card-tag">{store.tag}</span>
+        <span>{String(index + 1).padStart(2, "0")}/{String(STORES.length).padStart(2, "0")}</span>
+      </span>
 
-        {/* Name */}
-        <p className="font-semibold text-sm mb-0.5" style={{ color: "var(--text)" }}>
-          {store.name}
-        </p>
-
-        {/* Domain */}
-        <p className="mono mb-3" style={{ color: "var(--text-dim)" }}>
+      <span className="src-card-body">
+        <span className="src-card-name">{store.name}</span>
+        <span className="src-card-domain mono">
           {store.domain}
-        </p>
+          <ExternalLink size={11} aria-hidden />
+        </span>
 
-        {/* Parts count */}
-        <div className="pt-2.5" style={{ borderTop: "1px solid var(--ink)" }}>
+        <span className="src-card-count mono">
           {count !== undefined ? (
-            <span
-              className="mono"
-              style={{ color: "var(--text-2)", fontSize: "1.05rem", fontWeight: 900 }}
-            >
+            <>
               {count.toLocaleString()}
-              <span
-                className="font-normal ml-1"
-                style={{ color: "var(--text-dim)", fontSize: "0.68rem" }}
-              >
-                PARTS
-              </span>
-            </span>
+              <span className="src-card-unit">parts</span>
+            </>
           ) : (
-            <span className="mono" style={{ color: "var(--text-dim)" }}>— SYNCING</span>
+            <span className="src-card-unit">— syncing</span>
           )}
-        </div>
-      </div>
-    </motion.a>
+        </span>
+      </span>
+    </a>
   );
 }

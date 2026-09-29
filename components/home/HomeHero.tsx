@@ -67,7 +67,9 @@ export default function HomeHero({ stats }: { stats: Stats | null }) {
 
         <div className="hero-meme-slot fade-up" style={{ animationDelay: "0.2s" }}>
           <div className="hero-meme-card">
-            <HeroMeme />
+            <div className="hero-meme-mat">
+              <HeroMeme />
+            </div>
           </div>
         </div>
 

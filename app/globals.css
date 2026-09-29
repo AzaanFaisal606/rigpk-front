@@ -1226,18 +1226,33 @@ html[data-filtering="1"] .pb-browser-wrapper {
   width: 27.3cqi;
   z-index: 2;
 }
+/* The shadow is a solid block under the whole card rather than a
+   box-shadow. A rotated box-shadow is cut out along the border's edge,
+   and the two antialiased edges leave a light seam of panel showing
+   between border and shadow on the lower and right sides. With the block
+   underneath, the border's edge blends into the shadow instead. The mat's
+   background stops at the padding box for the same reason: painted under
+   the border it bleeds through the border's antialiased outer edge. */
 .hero-meme-card {
+  --meme-shadow: 9px;
   position: relative;
   aspect-ratio: 1 / 1;
   transform: rotate(3deg);
+}
+.hero-meme-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--shadow);
+  transform: translate(var(--meme-shadow), var(--meme-shadow));
+}
+.hero-meme-mat {
+  position: relative;
+  height: 100%;
   padding: 8px;
   background: var(--paper);
+  background-clip: padding-box;
   border: 6px solid var(--ink);
-  box-shadow: 9px 9px 0 var(--shadow);
-  /* Smooth the rotated edges: a transparent outline makes Chromium
-     antialias the border box; backface-visibility does it for WebKit. */
-  outline: 1px solid transparent;
-  backface-visibility: hidden;
 }
 .hero-meme {
   display: block;
@@ -1368,7 +1383,8 @@ html[data-filtering="1"] .pb-browser-wrapper {
     width: min(42cqi, 280px);
     margin: calc(var(--hl-size, 20cqi) * -0.7) 4px 0 0;
   }
-  .hero-meme-card { transform: rotate(4deg); padding: 6px; border-width: 5px; box-shadow: 6px 6px 0 var(--shadow); }
+  .hero-meme-card { --meme-shadow: 6px; transform: rotate(4deg); }
+  .hero-meme-mat { padding: 6px; border-width: 5px; }
   .hero-pitch {
     position: relative;
     right: auto;
@@ -1397,25 +1413,56 @@ html[data-filtering="1"] .pb-browser-wrapper {
 
 
 /* ── Home: sources band ─────────────────────────────────── */
+/* The band is textured like a comic panel: dark halftone in the top
+   right, speed hatching in the bottom left, and a film-strip rail that the
+   retailer cards ride along. The row is a marquee (components/Sources.tsx):
+   three copies of the cards slide left by one copy per loop, edge to edge. */
 .sources-band {
   --gutter: max(clamp(16px, 7vw, 100px), calc((100% - 1240px) / 2));
+  --card-w: 224px;
+  --card-gap: 22px;
+  --rail-ink: rgba(0, 0, 0, 0.28);
   position: relative;
   z-index: 1;
   overflow: hidden;
-  padding: 120px 0 96px;
+  padding: 120px 0 88px;
   background: var(--purple);
   border-top: 3px solid var(--ink);
   border-bottom: 3px solid var(--ink);
 }
-.sources-inner { padding-left: var(--gutter); }
+.sources-band::before,
+.sources-band::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+.sources-band::before {
+  top: 0;
+  right: 0;
+  width: min(62%, 820px);
+  height: 78%;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.22) 1.6px, transparent 1.8px);
+  background-size: 11px 11px;
+  clip-path: polygon(34% 0, 100% 0, 100% 100%);
+}
+.sources-band::after {
+  left: 0;
+  bottom: 0;
+  width: min(48%, 640px);
+  height: 64%;
+  background-image: repeating-linear-gradient(-45deg, transparent 0 22px, rgba(255, 255, 255, 0.13) 22px 25px);
+  clip-path: polygon(0 18%, 100% 100%, 0 100%);
+}
 .sources-head {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
   gap: 10px 24px;
   margin-bottom: 40px;
-  padding-right: var(--gutter);
+  padding: 0 var(--gutter);
 }
 .sources-title {
   margin: 0;
@@ -1425,19 +1472,195 @@ html[data-filtering="1"] .pb-browser-wrapper {
   letter-spacing: -0.035em;
   color: #fff;
   text-wrap: balance;
+  text-shadow: 3px 3px 0 var(--rail-ink);
 }
 .sources-total {
   margin: 0;
+  padding: 4px 10px;
   font-size: 1.05rem;
   font-variant-numeric: tabular-nums;
   color: var(--on-maroon);
+  background: var(--bar);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--rail-ink);
 }
-.sources-scroller { padding: 2px 0 10px; }
-.sources-scroller > :last-child { margin-right: var(--gutter); }
-.sources-scrollbar { padding-right: var(--gutter); }
+
+.sources-marquee {
+  position: relative;
+  z-index: 1;
+  overflow: clip;
+  padding: 4px 0 14px;
+}
+/* Film strip behind the cards: dark stock between ink rules, sprocket
+   holes punched along both edges. */
+.sources-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 58%;
+  transform: translateY(-50%);
+  background:
+    repeating-linear-gradient(90deg, var(--purple) 0 12px, transparent 12px 26px) 0 7px / 100% 7px no-repeat,
+    repeating-linear-gradient(90deg, var(--purple) 0 12px, transparent 12px 26px) 0 calc(100% - 7px) / 100% 7px no-repeat,
+    var(--bar);
+  border-top: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
+  box-shadow: 0 6px 0 var(--rail-ink);
+}
+.sources-track {
+  position: relative;
+  display: flex;
+  width: max-content;
+  animation: sources-marquee 60s linear infinite;
+}
+@keyframes sources-marquee {
+  to { transform: translateX(calc(-100% / 3)); }
+}
+@media (hover: hover) {
+  .sources-marquee:hover .sources-track { animation-play-state: paused; }
+}
+.sources-marquee:focus-within .sources-track { animation-play-state: paused; }
+
+.src-card {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  width: var(--card-w);
+  margin: 0 var(--card-gap) 0 0;
+  overflow: hidden;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--shadow);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.src-card:hover,
+.src-card:focus-visible {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--shadow);
+}
+.src-card:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.src-card-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px 7px 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--bar);
+  border-bottom: 3px solid var(--ink);
+}
+.src-card-bar > :last-child { color: var(--faint); }
+/* The tag is a skewed maroon slug hanging off the bar's left edge. */
+.src-card-tag {
+  padding: 2px 10px 2px 12px;
+  margin-left: -4px;
+  background: var(--purple);
+  box-shadow: var(--gloss);
+  transform: skewX(-12deg);
+}
+.src-card-body {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 14px 12px;
+}
+/* Halftone shading in the lower right, and a hard highlight stroke down
+   the left edge. */
+.src-card-body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(circle, var(--dot) 1.4px, transparent 1.6px);
+  background-size: 7px 7px;
+  clip-path: polygon(100% 22%, 100% 100%, 38% 100%);
+}
+.src-card-body::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  background: var(--purple);
+  opacity: 0.85;
+}
+.src-card-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.src-card-domain {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 3px 0 14px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+.src-card:hover .src-card-domain svg { color: var(--purple-text); }
+.src-card-count {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 2px dashed var(--ink);
+  font-size: 1.55rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.src-card-unit {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.src-card-stale {
+  position: absolute;
+  top: 16px;
+  right: -30px;
+  z-index: 2;
+  width: 110px;
+  padding: 2px 0;
+  transform: rotate(45deg);
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+  color: #fff;
+  background: #dc2626;
+  border-top: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
+  pointer-events: none;
+}
+
+/* Reduced motion: no loop, just the one row to scroll by hand. */
+@media (prefers-reduced-motion: reduce) {
+  .sources-marquee { overflow-x: auto; scrollbar-width: none; }
+  .sources-track { padding: 0 var(--gutter); }
+  .src-card--copy { display: none; }
+}
 @media (max-width: 899px) {
-  .sources-band { padding: 84px 0 44px; }
-  .sources-head { flex-direction: column; align-items: flex-start; margin-bottom: 24px; }
+  .sources-band { --card-w: 184px; --card-gap: 16px; padding: 84px 0 52px; }
+  .sources-band::before { width: 90%; height: 60%; }
+  .sources-band::after { width: 80%; height: 55%; }
+  .sources-head { flex-direction: column; align-items: flex-start; margin-bottom: 28px; }
+  .sources-total { font-size: 0.9rem; }
+  .sources-track { animation-duration: 48s; }
+  .src-card { border-width: 2.5px; box-shadow: 4px 4px 0 var(--shadow); }
+  .src-card-body { padding: 12px 12px 10px 14px; }
+  .src-card-name { font-size: 1rem; }
+  .src-card-domain { font-size: 0.66rem; margin-bottom: 12px; }
+  .src-card-count { font-size: 1.3rem; }
 }
 
 

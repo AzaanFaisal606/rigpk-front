@@ -282,18 +282,6 @@ export function modelDescription(e: ModelEntry, s: ModelSummary): string {
   );
 }
 
-/** Server-rendered intro paragraph for a model page, from live data. */
-export function modelIntro(e: ModelEntry, s: ModelSummary): string {
-  if (s.count === 0 || s.min == null || s.max == null) {
-    return `No ${e.label} is in stock at the stores we track right now. Stock changes weekly, so check back soon or look at the other models below.`;
-  }
-  const range = s.min === s.max ? `at ${formatPkr(s.min)}` : `from ${formatPkr(s.min)} up to ${formatPkr(s.max)}`;
-  return (
-    `We found ${s.count} ${e.label} ${listings(s.count)} across ${storeList(s.stores)}, ${range}. ` +
-    `Prices are checked every week; click a listing to buy it from the store.`
-  );
-}
-
 /** FAQ entries answered from live data. Nothing listed means no FAQ. */
 export function modelFaqs(e: ModelEntry, s: ModelSummary, date: Date): Faq[] {
   if (s.count === 0 || s.min == null || s.max == null) return [];

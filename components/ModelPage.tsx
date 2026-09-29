@@ -16,7 +16,6 @@ import {
   modelDescription,
   modelFaqs,
   modelHeading,
-  modelIntro,
   modelPath,
   modelTitle,
   partsForModel,
@@ -216,10 +215,6 @@ export default async function ModelPage({ category, slug }: { category: ModelCat
           </div>
         ) : (
           <>
-            <p style={{ maxWidth: "52rem", marginTop: "18px", fontSize: "15px", lineHeight: 1.6, color: "var(--text-muted)" }}>
-              {modelIntro(e, summary)}
-            </p>
-
             <SiblingLinks current={e} />
 
             <ModelListings parts={parts} label={e.label} seriesLabel={seriesOf(e).label} />

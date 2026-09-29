@@ -100,25 +100,6 @@ export function budgetDescription(b: Budget, s: BudgetSummary): string {
   );
 }
 
-/** Server-rendered intro paragraph for a budget page, from live data. */
-export function budgetIntro(b: Budget, s: BudgetSummary): string {
-  if (s.count === 0 || s.min == null || s.max == null) {
-    return `No pre-built gaming PCs are listed under ${formatPkr(b.max)} right now. Stock changes weekly, so check back soon or try a higher budget.`;
-  }
-  const parts = [
-    `We found ${s.count} pre-built gaming PC${s.count === 1 ? "" : "s"} under ${b.lakh} (${formatPkr(b.max)}) ` +
-      `across ${listJoin(s.stores)}, from ${formatPkr(s.min)} up to ${formatPkr(s.max)}.`,
-  ];
-  if (s.topGpus.length) {
-    parts.push(`At this budget the most common graphics cards are the ${listJoin(s.topGpus)}.`);
-  }
-  if (s.topCpus.length) {
-    parts.push(`Typical processors include the ${listJoin(s.topCpus)}.`);
-  }
-  parts.push("Listed most expensive first, so the strongest build within budget is at the top.");
-  return parts.join(" ");
-}
-
 export interface Faq {
   q: string;
   a: string;
