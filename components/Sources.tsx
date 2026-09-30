@@ -35,8 +35,10 @@ export default function Sources({ stats }: SourcesProps) {
         )}
       </div>
 
-      <AmbientLoops className="sources-marquee" decorative={false}>
+      <AmbientLoops className="sources-marquee" decorative={false} draggable>
         <div className="sources-rail" aria-hidden />
+        {/* The drag hook eases the loop back in by moving this wrapper. */}
+        <div className="loop-ease">
         <div className="sources-track ambient-loop">
           {Array.from({ length: COPIES }, (_, copy) =>
             STORES.map((store, i) => (
@@ -53,6 +55,7 @@ export default function Sources({ stats }: SourcesProps) {
               />
             )),
           )}
+        </div>
         </div>
       </AmbientLoops>
     </section>

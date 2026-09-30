@@ -36,7 +36,7 @@ export default function BudgetBoxes({ buckets, activeSlug }: Props) {
               alignItems: "stretch",
               gap: "8px",
               padding: "10px",
-              border: active ? "2px solid var(--purple-pale)" : "2px solid var(--ink)",
+              border: active ? "2px solid var(--on-maroon)" : "2px solid var(--ink)",
               boxShadow: "4px 4px 0 var(--shadow)",
               background: "var(--purple)",
               textDecoration: "none",
@@ -76,7 +76,7 @@ export default function BudgetBoxes({ buckets, activeSlug }: Props) {
                   style={{ maxHeight: "88px", maxWidth: "100%", objectFit: "contain" }}
                 />
               ) : (
-                <span style={{ fontFamily: monoFont, fontSize: "9px", color: "var(--purple-pale)", letterSpacing: "1px" }}>
+                <span style={{ fontFamily: monoFont, fontSize: "9px", color: "var(--on-maroon)", letterSpacing: "1px" }}>
                   {"// NO IMAGE"}
                 </span>
               )}
@@ -90,9 +90,9 @@ export default function BudgetBoxes({ buckets, activeSlug }: Props) {
               <span className="pulldown-box-meta"
                 style={{
                   fontFamily: monoFont,
-                  fontSize: "9px",
+                  fontSize: "12px",
                   fontWeight: 700,
-                  color: "var(--purple-pale)",
+                  color: "var(--on-maroon)",
                   letterSpacing: "0.5px",
                   textTransform: "uppercase",
                   whiteSpace: "nowrap",

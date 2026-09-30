@@ -82,9 +82,8 @@ export default function TrendRow({
               {displayName(group.group_key, category)}
             </p>
             <span
-              className="mono inline-block mt-1 px-1.5 py-px"
+              className="mono trend-listings inline-block mt-1 px-1.5 py-px"
               style={{
-                fontSize: "0.55rem",
                 fontWeight: 800,
                 color: "var(--text-muted)",
                 border: "1px solid color-mix(in srgb, var(--ink) 30%, transparent)",

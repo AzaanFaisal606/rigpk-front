@@ -9,9 +9,10 @@ import BuildCards from "@/components/BuildCards";
 import BuildSummary from "@/components/BuildSummary";
 import CompatibilityBanner from "@/components/CompatibilityBanner";
 import { GameBenchmarksPanel } from "@/components/ui/GameBenchmarksPanel";
-import { checkCompatibility } from "@/lib/compatibility";
+import { checkCompatibility, platformFilters } from "@/lib/compatibility";
 import type { Part } from "@/lib/api";
 import { getSharedBuild } from "@/lib/api";
+import type { PickerState } from "@/lib/picker-state";
 
 // Keeps framer-motion (AnimatePresence + PartPickerModal's transitions) out
 // of /build's initial bundle — it only loads once a slot is clicked (Perf #8).
@@ -50,6 +51,8 @@ function BuildPage() {
   const searchParams = useSearchParams();
   const [build, setBuild] = useState<BuildState>(EMPTY_BUILD);
   const [activeSlot, setActiveSlot] = useState<SlotKey | null>(null);
+  // Each slot's picker filters, kept between opens (lib/picker-state.ts).
+  const [pickerStates, setPickerStates] = useState<Partial<Record<SlotKey, PickerState>>>({});
 
   // Depends on the actual "share" value (not just searchParams identity) so
   // that an in-app client-side navigation to a NEW /build?share=CODE — which
@@ -181,6 +184,9 @@ function BuildPage() {
       <PartPickerModalGate
         activeSlot={activeSlot}
         currentPart={activeSlot ? build[activeSlot]?.part ?? null : null}
+        platformFilters={activeSlot ? platformFilters(build, activeSlot) : {}}
+        saved={activeSlot ? pickerStates[activeSlot] : undefined}
+        onStateChange={(slot, state) => setPickerStates((prev) => ({ ...prev, [slot]: state }))}
         onSelect={selectPart}
         onClose={() => setActiveSlot(null)}
       />

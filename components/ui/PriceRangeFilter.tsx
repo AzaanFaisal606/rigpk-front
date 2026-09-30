@@ -93,6 +93,8 @@ export function PriceRangeFilter({
     }
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
+        // Claimed, so a modal around the filter doesn't close on the same key.
+        e.preventDefault();
         setOpen(false);
         btnRef.current?.focus();
       }
@@ -199,7 +201,7 @@ export function PriceRangeFilter({
         aria-haspopup="true"
         aria-expanded={open}
         style={{
-          padding: "5px 10px",
+          padding: "5px 14px",
           border: isActive ? "2px solid var(--purple)" : "2px solid var(--ink)",
           background: isActive ? "var(--purple)" : "var(--paper)",
           color: isActive ? "white" : "var(--text)",
@@ -216,8 +218,9 @@ export function PriceRangeFilter({
           gap: "6px",
         }}
       >
-        <span>{label}</span>
-        <span style={{ opacity: 0.6, fontSize: "8px" }}>{open ? "▲" : "▼"}</span>
+        {/* Counter-skewed so the label reads upright, as in ComicDropdown. */}
+        <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>{label}</span>
+        <span style={{ display: "inline-block", transform: "skewX(8deg)", opacity: 0.6, fontSize: "8px" }}>{open ? "▲" : "▼"}</span>
       </button>
 
       {panel}

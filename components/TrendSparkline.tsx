@@ -30,7 +30,7 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  // The wrap div is exactly W x H with no padding, so its rect doubles as
+  // The wrap div has no padding and the svg fills it, so its rect doubles as
   // the svg's rect — recompute on scroll (row scrolls horizontally, and the
   // page can scroll too) so the fixed-position tooltip doesn't drift off
   // its point. `capture: true` on window also catches scroll events fired
@@ -86,9 +86,9 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
   if (series.length === 0) {
     return (
       <div
-        className="mono flex items-center justify-center"
+        className="mono trend-spark flex items-center justify-center"
         style={{
-          width: W, height: H, fontSize: "0.6rem", fontWeight: 700,
+          fontSize: "0.6rem", fontWeight: 700,
           color: "var(--text-dim)", border: "1.5px solid var(--ink)",
           background: "var(--bg-section)",
         }}
@@ -140,11 +140,17 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
     active != null &&
     (y(active.center_price) < H / 2 || (anchorRect != null && anchorRect.top < NAVBAR_CLEARANCE));
 
+  // The box is sized in CSS (.trend-spark, larger on desktop) and the SVG
+  // scales to fill it, so the tooltip scales and positions by the same factor.
+  const scale = anchorRect ? anchorRect.width / W : 1;
+  const tipW = Math.round(136 * scale);
+
   return (
-    <div ref={wrapRef} style={{ position: "relative", width: W, height: H }}>
+    <div ref={wrapRef} className="trend-spark" style={{ position: "relative" }}>
       <svg
-        width={W}
-        height={H}
+        width="100%"
+        height="100%"
+        viewBox={`0 0 ${W} ${H}`}
         style={{ display: "block", border: "1.5px solid var(--ink)", background: "var(--bg-section)" }}
       >
         {/* center line, dashed across missing scrapes */}
@@ -192,28 +198,28 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
           style={{
             position: "fixed",
             left: Math.min(
-              Math.max(anchorRect.left + x(hover!) - 60, 8),
-              window.innerWidth - 128
+              Math.max(anchorRect.left + x(hover!) * scale - tipW / 2, 8),
+              window.innerWidth - tipW - 8
             ),
             ...(below
               ? { top: anchorRect.bottom + 2, transform: "none" }
               : { top: anchorRect.top - 2, transform: "translateY(-100%)" }),
-            width: 120,
+            width: tipW,
             background: "var(--bar)",
             color: "white",
             border: "1.5px solid var(--ink)",
             boxShadow: "2px 2px 0 var(--purple)",
-            padding: "4px 6px",
-            fontSize: "0.58rem",
+            padding: `${4 * scale}px ${6 * scale}px`,
+            fontSize: `${0.62 * scale}rem`,
             lineHeight: 1.5,
             zIndex: 60,
             pointerEvents: "none",
           }}
         >
-          <div style={{ fontWeight: 800, letterSpacing: "0.5px", color: "var(--purple-pale, #f9e1ed)" }}>
+          <div style={{ fontWeight: 800, letterSpacing: "0.5px", color: "var(--on-maroon)" }}>
             {shortDate(active.scrape_date)}
           </div>
-          <div style={{ fontWeight: 800 }}>{fmt(active.median_price ?? active.center_price)}</div>
+          <div style={{ fontWeight: 800, fontSize: "1.25em" }}>{fmt(active.median_price ?? active.center_price)}</div>
           {active.median_price != null && (
             <div style={{ opacity: 0.7 }}>index {fmt(active.center_price)}</div>
           )}

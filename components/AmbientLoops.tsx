@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useDragLoop } from "@/lib/hooks/useDragLoop";
 
 /**
  * A wrapper for looping animations (the hero lines, the retailer marquee).
@@ -25,13 +26,17 @@ export default function AmbientLoops({
   className,
   children,
   decorative = true,
+  draggable = false,
 }: {
   className?: string;
   children: React.ReactNode;
   /** Hide from assistive tech. Off when the loop carries real links. */
   decorative?: boolean;
+  /** On phones, let the loop be dragged by hand (lib/hooks/useDragLoop.ts). */
+  draggable?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  useDragLoop(ref, draggable);
 
   useEffect(() => {
     const el = ref.current;

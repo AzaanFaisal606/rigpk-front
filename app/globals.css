@@ -626,8 +626,11 @@ html[data-filtering="1"] .pb-browser-wrapper {
   color: var(--text-dim);
   letter-spacing: 1px;
 }
+.trend-listings {
+  font-size: 0.55rem;
+}
 .trend-range-value {
-  font-size: 0.62rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--text-muted);
   white-space: nowrap;
@@ -659,6 +662,155 @@ html[data-filtering="1"] .pb-browser-wrapper {
   }
   .trend-range {
     width: 110px;
+  }
+}
+
+/* Desktop: the page has room to spare, so the whole row steps up. The
+   sparkline's box is sized here too; TrendSparkline scales its SVG and
+   tooltip off the rendered width, so keep the 5:1 ratio. */
+.trend-spark {
+  width: 300px;
+  height: 60px;
+}
+@media (min-width: 1024px) {
+  .trend-row-track {
+    gap: 22px;
+    padding: 14px 20px 14px 0;
+  }
+  .trend-row-pin {
+    padding-left: 20px;
+  }
+  .trend-thumb {
+    width: 64px;
+    height: 64px;
+  }
+  .trend-name {
+    width: 240px;
+  }
+  .trend-name p {
+    font-size: 1.05rem;
+  }
+  .trend-avg {
+    width: 140px;
+  }
+  .trend-avg-value {
+    font-size: 1.15rem;
+  }
+  .trend-range {
+    width: 140px;
+  }
+  .trend-col-label {
+    font-size: 0.6rem;
+  }
+  .trend-range-value {
+    font-size: 0.82rem;
+  }
+  .trend-listings {
+    font-size: 0.62rem;
+  }
+  .trend-spark {
+    width: 380px;
+    height: 76px;
+  }
+  .trend-list {
+    max-height: 560px !important;
+  }
+}
+
+/* ── Part picker (/build) ────────────────────────────────── */
+/* Sizes that change on phones live here; the modal's inline styles set only
+   what's the same at every width (vertical padding stays inline). */
+.picker-backdrop {
+  padding: 24px;
+}
+.picker-dialog {
+  max-height: 86vh;
+  box-shadow: 10px 10px 0 var(--shadow);
+}
+.picker-pad {
+  padding-inline: 22px;
+}
+.picker-row {
+  gap: 14px;
+  padding: 14px 22px;
+}
+.picker-thumb {
+  width: 52px;
+  height: 52px;
+}
+.picker-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.picker-row-end {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.picker-select {
+  padding: 8px 18px;
+}
+.picker-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 8px;
+}
+@media (max-width: 640px) {
+  /* One row that slides sideways, bleeding over the 14px side padding so
+     chips scroll edge to edge. The row's own padding leaves room for the
+     skew overhang and the 2px hard shadow, which the scroller would clip. */
+  .picker-filter-scroll {
+    margin-inline: -14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .picker-filter-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .picker-filter-row {
+    flex-wrap: nowrap;
+    width: max-content;
+    padding: 2px 20px 4px 14px;
+  }
+  .picker-backdrop {
+    padding: 10px;
+  }
+  .picker-dialog {
+    max-height: calc(100dvh - 20px);
+    box-shadow: 5px 5px 0 var(--shadow);
+  }
+  .picker-pad {
+    padding-inline: 14px;
+  }
+  .picker-row {
+    gap: 10px;
+    padding: 12px 14px;
+  }
+  .picker-thumb {
+    width: 40px;
+    height: 40px;
+  }
+  /* Two lines of the name beat one line cut to "AMD R…". */
+  .picker-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+    line-height: 1.3;
+  }
+  .picker-row-end {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .picker-select {
+    padding: 6px 14px;
   }
 }
 
@@ -886,7 +1038,7 @@ html[data-filtering="1"] .pb-browser-wrapper {
   .pulldown-grid .pulldown-box-well img { max-height: 56px !important; }
   .pulldown-grid .pulldown-box-well svg { width: 40px !important; height: 40px !important; }
   .pulldown-grid .pulldown-box-sub { font-size: 9px !important; }
-  .pulldown-grid .pulldown-box-meta { font-size: 8px !important; }
+  .pulldown-grid .pulldown-box-meta { font-size: 10px !important; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pulldown-drawer,
@@ -910,7 +1062,7 @@ html[data-filtering="1"] .pb-browser-wrapper {
   box-shadow: 6px 6px 0 var(--shadow) !important;
 }
 .budget-box:focus-visible {
-  outline: 2px solid var(--purple-pale);
+  outline: 2px solid var(--on-maroon);
   outline-offset: 2px;
 }
 
@@ -1520,7 +1672,9 @@ html[data-filtering="1"] .pb-browser-wrapper {
 @media (hover: hover) {
   .sources-marquee:hover .sources-track { animation-play-state: paused; }
 }
-.sources-marquee:focus-within .sources-track { animation-play-state: paused; }
+/* Keyboard focus only: a tapped card keeps focus after its store opens in a
+   new tab, and :focus-within would leave the row frozen on return. */
+.sources-marquee:has(.src-card:focus-visible) .sources-track { animation-play-state: paused; }
 
 .src-card {
   position: relative;
@@ -1641,6 +1795,20 @@ html[data-filtering="1"] .pb-browser-wrapper {
   border-top: 1.5px solid var(--ink);
   border-bottom: 1.5px solid var(--ink);
   pointer-events: none;
+}
+
+/* Phones: the loop can be dragged and flung by hand (lib/hooks/useDragLoop.ts
+   seeks the animation; nothing scrolls). pan-y leaves vertical page scrolling
+   to the browser and hands horizontal moves to the hook. No callout, so
+   holding a card to stop the row doesn't pop iOS's link preview. */
+@media (max-width: 899px) and (prefers-reduced-motion: no-preference) {
+  .sources-marquee {
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .src-card { -webkit-user-drag: none; }
 }
 
 /* Reduced motion: no loop, just the one row to scroll by hand. */

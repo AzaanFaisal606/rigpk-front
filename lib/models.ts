@@ -25,6 +25,8 @@ export interface ModelSeries {
   label: string;
   category: ModelCategory;
   brand: ModelBrand;
+  /** CPU series only: the socket every model in it uses. */
+  socket?: string;
 }
 
 export const BRAND_LABEL: Record<ModelBrand, string> = {
@@ -46,13 +48,13 @@ export const MODEL_SERIES: readonly ModelSeries[] = [
   { key: "rx-9000", label: "RX 9000 Series", category: "gpu", brand: "amd" },
   { key: "rx-7000", label: "RX 7000 Series", category: "gpu", brand: "amd" },
   { key: "rx-6000", label: "RX 6000 Series", category: "gpu", brand: "amd" },
-  { key: "ryzen-9000", label: "Ryzen 9000", category: "cpu", brand: "amd" },
-  { key: "ryzen-7000", label: "Ryzen 7000", category: "cpu", brand: "amd" },
-  { key: "ryzen-5000", label: "Ryzen 5000", category: "cpu", brand: "amd" },
-  { key: "core-ultra", label: "Core Ultra 200S", category: "cpu", brand: "intel" },
-  { key: "intel-14", label: "14th Gen", category: "cpu", brand: "intel" },
-  { key: "intel-13", label: "13th Gen", category: "cpu", brand: "intel" },
-  { key: "intel-12", label: "12th Gen", category: "cpu", brand: "intel" },
+  { key: "ryzen-9000", label: "Ryzen 9000", category: "cpu", brand: "amd", socket: "AM5" },
+  { key: "ryzen-7000", label: "Ryzen 7000", category: "cpu", brand: "amd", socket: "AM5" },
+  { key: "ryzen-5000", label: "Ryzen 5000", category: "cpu", brand: "amd", socket: "AM4" },
+  { key: "core-ultra", label: "Core Ultra 200S", category: "cpu", brand: "intel", socket: "LGA1851" },
+  { key: "intel-14", label: "14th Gen", category: "cpu", brand: "intel", socket: "LGA1700" },
+  { key: "intel-13", label: "13th Gen", category: "cpu", brand: "intel", socket: "LGA1700" },
+  { key: "intel-12", label: "12th Gen", category: "cpu", brand: "intel", socket: "LGA1700" },
 ];
 
 // [slug, label, models, vram?]
@@ -165,6 +167,23 @@ export const MODELS: readonly ModelEntry[] = [
     ["core-i9-12900k", "Core i9-12900K / KF", ["i9-12900K", "i9-12900KF"]],
   ]),
 ];
+
+/**
+ * The model list as dropdown options, grouped under a header per series
+ * ("NVIDIA RTX 50 Series"). Option values are page slugs. With `socket`,
+ * CPU series on another socket are left out.
+ */
+export function modelDropdownOptions(
+  category: ModelCategory,
+  socket?: string
+): { value: string; label: string; separator?: boolean }[] {
+  return MODEL_SERIES
+    .filter(s => s.category === category && (!socket || !s.socket || s.socket === socket))
+    .flatMap(s => [
+      { value: `__sep__${s.key}`, label: `${BRAND_LABEL[s.brand]} ${s.label}`, separator: true },
+      ...MODELS.filter(m => m.series === s.key).map(m => ({ value: m.slug, label: m.label })),
+    ]);
+}
 
 export function modelBySlug(category: string, slug: string): ModelEntry | undefined {
   return MODELS.find(m => m.category === category && m.slug === slug);

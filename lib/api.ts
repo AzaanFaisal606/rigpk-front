@@ -68,6 +68,7 @@ export interface PartSpecs {
 export interface FilterOptions {
   brand?: string[];
   socket?: string[];
+  model?: string[];
   vram?: string[];
   ddr_type?: string[];
   speed?: string[];
@@ -114,6 +115,8 @@ export interface PartsParams {
   q?: string;
   brand?: string;
   socket?: string;
+  /** Exact specs.model value ("RTX 4060 Ti", "i5-14600KF"). */
+  model?: string;
   vram?: string;
   ddr_type?: string;
   speed?: string;
@@ -141,7 +144,7 @@ export async function getParts(params: PartsParams = {}): Promise<PartsResult> {
   const query = new URLSearchParams();
   const keys: (keyof PartsParams)[] = [
     "category", "source", "min_price", "max_price", "sort", "limit", "offset", "q",
-    "brand", "socket", "vram", "ddr_type", "speed", "chipset", "wattage",
+    "brand", "socket", "model", "vram", "ddr_type", "speed", "chipset", "wattage",
     "rating", "form_factor", "type", "aio_size", "fan_size", "interface", "capacity",
     "screen_size", "resolution", "refresh_rate", "panel",
     "include_specs", "exclude_type",

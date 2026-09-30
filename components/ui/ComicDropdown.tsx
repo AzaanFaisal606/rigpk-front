@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useId, useCallback, type KeyboardEvent } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useId, useCallback, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { monoFont, sansFont } from "@/lib/tokens";
 
@@ -62,6 +62,29 @@ export function ComicDropdown({
       .querySelector(`#${CSS.escape(`${listId}-opt-${activeIndex}`)}`)
       ?.scrollIntoView({ block: "nearest" });
   }, [open, activeIndex, listId]);
+
+  // A trigger near the right edge (a wrapped filter row on a phone) would
+  // push the panel off screen; once it has a width, slide it back in.
+  useLayoutEffect(() => {
+    if (!open || !coords || !panelRef.current) return;
+    const overflow = panelRef.current.getBoundingClientRect().right - (window.innerWidth - 8);
+    if (overflow > 0) setCoords({ top: coords.top, left: Math.max(8, coords.left - overflow) });
+  }, [open, coords]);
+
+  // The trigger can sit in a sideways scroller (the market bar, the /build
+  // picker's filter row on phones); keep the fixed panel under it while that
+  // scrolls. Scrolling the panel's own list is ignored. `capture` because
+  // scroll events don't bubble.
+  useEffect(() => {
+    if (!open) return;
+    function onScroll(e: Event) {
+      if (panelRef.current?.contains(e.target as Node) || !btnRef.current) return;
+      const r = btnRef.current.getBoundingClientRect();
+      setCoords({ top: r.bottom + 4, left: r.left });
+    }
+    window.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    return () => window.removeEventListener("scroll", onScroll, { capture: true });
+  }, [open]);
 
   const openMenu = useCallback(() => {
     if (btnRef.current) {
@@ -181,6 +204,7 @@ export function ComicDropdown({
         border: "2px solid var(--ink)",
         boxShadow: "4px 4px 0 var(--shadow)",
         minWidth: "140px",
+        maxWidth: "calc(100vw - 16px)",
         maxHeight: "280px",
         overflowY: "auto",
       }}

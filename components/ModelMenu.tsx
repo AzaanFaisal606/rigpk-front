@@ -82,9 +82,9 @@ const boxSubStyle: CSSProperties = {
 
 const boxPriceStyle: CSSProperties = {
   fontFamily: monoFont,
-  fontSize: "9px",
+  fontSize: "12px",
   fontWeight: 700,
-  color: "var(--purple-pale)",
+  color: "var(--on-maroon)",
   letterSpacing: "0.5px",
   textTransform: "uppercase",
   whiteSpace: "nowrap",
@@ -130,7 +130,7 @@ function ThumbWell({ thumb, alt }: { thumb: MenuThumb | null | undefined; alt: s
   if (!thumb || failed) {
     return (
       <Well>
-        <span style={{ fontFamily: monoFont, fontSize: "9px", color: "var(--purple-pale)", letterSpacing: "1px" }}>
+        <span style={{ fontFamily: monoFont, fontSize: "9px", color: "var(--on-maroon)", letterSpacing: "1px" }}>
           {"// NO IMAGE"}
         </span>
       </Well>
@@ -349,7 +349,7 @@ export default function ModelMenu({ data, activeSlug, initialPath = [] }: Props)
                     className="budget-box pulldown-box"
                     aria-current={active ? "page" : undefined}
                     title={`${m.label} price in Pakistan`}
-                    style={{ ...boxStyle, border: active ? "2px solid var(--purple-pale)" : "2px solid var(--ink)" }}
+                    style={{ ...boxStyle, border: active ? "2px solid var(--on-maroon)" : "2px solid var(--ink)" }}
                   >
                     <span className="pulldown-box-title" style={boxLabelStyle}>{m.label}</span>
                     <ThumbWell thumb={data?.thumbs[key]} alt={m.label} />

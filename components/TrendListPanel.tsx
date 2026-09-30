@@ -61,6 +61,7 @@ export default function TrendListPanel({
 
       {/* Scrollable list */}
       <div
+        className="trend-list"
         style={{
           maxHeight: "440px",
           overflowY: "auto",
