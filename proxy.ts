@@ -3,6 +3,7 @@ import { DEFAULT_SORT, MARKET_ROUTE_CATEGORIES } from "@/lib/constants";
 import { budgetBySlug } from "@/lib/budgets";
 import { facetBySlug, facetForQuery, facetPath } from "@/lib/facets";
 import { modelBySlug } from "@/lib/models";
+import { partCachePath } from "@/lib/part-slug";
 
 /**
  * /market/[category] has a loading.tsx, which makes Next.js stream the
@@ -54,11 +55,21 @@ export function proxy(request: NextRequest) {
   if (model && !modelBySlug(model[1], model[2])) {
     return NextResponse.rewrite(new URL("/__not_found__", request.url));
   }
+  // /part/<id>-<slug>: only the shape is checked here (no fetch, proxy runs
+  // on every request). A well-formed id that doesn't exist is the page's job.
+  // Every slug variant is rewritten to /part/<id>, so ISR keeps one cached
+  // render per part however many slugs (old names, typos, junk) get requested.
+  const part = pathname.match(/^\/part\/([^/]+)\/?$/);
+  if (part) {
+    const cachePath = partCachePath(part[1]);
+    if (!cachePath) return NextResponse.rewrite(new URL("/__not_found__", request.url));
+    if (cachePath !== pathname) return NextResponse.rewrite(new URL(cachePath, request.url));
+  }
 }
 
 export const config = {
   matcher: [
     "/market/:category", "/market/:category/:facet", "/gaming-pc-under/:budget",
-    "/gpu/:model", "/cpu/:model",
+    "/gpu/:model", "/cpu/:model", "/part/:slug",
   ],
 };

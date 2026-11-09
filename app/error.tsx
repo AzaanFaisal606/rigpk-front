@@ -17,6 +17,10 @@ export default function Error({
       className="flex flex-col items-center justify-center text-center px-6"
       style={{ minHeight: "60vh", background: "var(--bg)" }}
     >
+      {/* Streamed pages can't change their status, so a backend failure on a
+          first render (Render cold start) ships as 200. Keep it out of the
+          index; React 19 hoists this into <head>. */}
+      <meta name="robots" content="noindex" />
       <div
         style={{
           border: "2px solid var(--ink)",

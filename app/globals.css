@@ -2431,7 +2431,7 @@ html[data-filtering="1"] .pb-browser-wrapper {
 .pdm-note { margin: 0; font-size: 11px; color: var(--text-dim); }
 .pdm-note a { color: var(--purple-text); }
 .pdm-overview { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; align-items: start; }
-.pdm-overview h3 { font-weight: 700; font-size: 26px; letter-spacing: -0.04em; margin: 6px 0 12px; color: var(--text); }
+.pdm-overview .pdm-sub { font-weight: 700; font-size: 26px; letter-spacing: -0.04em; margin: 6px 0 12px; color: var(--text); }
 .pdm-overview p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--text-2); }
 .pdm-kicker { font-size: 10px; color: var(--purple-text); letter-spacing: 2px; text-transform: uppercase; }
 .pdm-glance { border: 2px solid var(--ink); box-shadow: 5px 5px 0 var(--shadow); background: var(--paper); }
@@ -2474,6 +2474,30 @@ html[data-filtering="1"] .pb-browser-wrapper {
 .pdm-spec-row:last-child { border-bottom: none; }
 .pdm-spec-row dt { font-size: 10px; color: var(--purple-text); letter-spacing: 1.2px; text-transform: uppercase; line-height: 1.35; }
 .pdm-spec-row dd { margin: 0; font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.35; overflow-wrap: anywhere; }
+/* Inactive tab panels stay in the HTML for crawlers; the attribute must win over each panel's display. */
+.pdm-panel [hidden] { display: none !important; }
+.pdm-model-link {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--purple-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.pdm-model-link:hover { color: var(--purple-hover); }
+.pdm-checked { font-size: 10px; color: var(--text-dim); letter-spacing: 0.6px; }
+
+/* /part/<id> page: the same layout in the page flow instead of an overlay. */
+.pdm-crumbs {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  font-size: 11px; letter-spacing: 0.6px; color: var(--text-dim);
+  margin: 0 0 14px;
+}
+.pdm-crumbs a { color: var(--text-2); text-decoration: none; }
+.pdm-crumbs a:hover { color: var(--purple-text); text-decoration: underline; }
+.pdm.pdm-static { height: auto; margin: 0 auto; overflow: visible; }
+.pdm.pdm-static .pdm-panel { overflow: visible; }
 
 @media (max-width: 760px) {
   .pdm-backdrop { padding: 0; }
@@ -2522,4 +2546,5 @@ html[data-filtering="1"] .pb-browser-wrapper {
   html.pdm-page-mode .pdm { position: sticky; top: 0; height: 100dvh; }
   .pdm-overview { grid-template-columns: 1fr; }
   .pdm-spec-row { grid-template-columns: 120px minmax(0, 1fr); gap: 10px; }
+  .pdm.pdm-static { height: auto; border-width: 3px; box-shadow: 5px 5px 0 var(--shadow); }
 }
