@@ -38,7 +38,7 @@ export default function PartRow({ part }: { part: Part }) {
       href={href}
       target={href ? "_blank" : undefined}
       rel={href ? "noopener noreferrer" : undefined}
-      className="flex items-center px-4 py-3 no-underline part-row"
+      className="px-4 py-3 no-underline part-row"
       style={{ borderBottom: "1px solid var(--ink)" }}
     >
       {/* Thumbnail */}
@@ -64,49 +64,49 @@ export default function PartRow({ part }: { part: Part }) {
         )}
       </div>
 
-      {/* Name + badges */}
-      <div className="flex-1 min-w-0">
-        <p className="font-medium truncate part-row-name" style={{ color: "var(--text)" }}>
-          {part.name}
-        </p>
-        <div className="flex items-center gap-2 mt-1">
+      {/* Name */}
+      <p className="font-medium part-row-name" style={{ color: "var(--text)" }}>
+        {part.name}
+      </p>
+
+      {/* Badges */}
+      <div className="flex items-center gap-2 min-w-0 part-row-meta">
+        <span
+          className="mono px-1.5 py-px"
+          style={{
+            fontSize: "0.6rem",
+            fontWeight: 800,
+            color: "var(--purple-text)",
+            background: "color-mix(in srgb, var(--purple) 8%, transparent)",
+            border: "1px solid color-mix(in srgb, var(--purple) 22%, transparent)",
+          }}
+        >
+          {part.category.toUpperCase()}
+        </span>
+        {part.condition && (
           <span
             className="mono px-1.5 py-px"
             style={{
               fontSize: "0.6rem",
               fontWeight: 800,
-              color: "var(--purple-text)",
-              background: "color-mix(in srgb, var(--purple) 8%, transparent)",
-              border: "1px solid color-mix(in srgb, var(--purple) 22%, transparent)",
+              color: "#fff",
+              background: "var(--bar)",
+              border: "1px solid var(--ink)",
             }}
           >
-            {part.category.toUpperCase()}
+            {part.condition.toUpperCase()}
           </span>
-          {part.condition && (
-            <span
-              className="mono px-1.5 py-px"
-              style={{
-                fontSize: "0.6rem",
-                fontWeight: 800,
-                color: "#fff",
-                background: "var(--bar)",
-                border: "1px solid var(--ink)",
-              }}
-            >
-              {part.condition.toUpperCase()}
-            </span>
-          )}
-          <span
-            className="mono"
-            style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text-muted)" }}
-          >
-            {SOURCE_SHORT[part.source] ?? part.source}
-          </span>
-        </div>
+        )}
+        <span
+          className="mono truncate"
+          style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text-muted)" }}
+        >
+          {SOURCE_SHORT[part.source] ?? part.source}
+        </span>
       </div>
 
       {/* Price */}
-      <div className="flex-shrink-0 text-right">
+      <div className="flex-shrink-0 text-right part-row-price-wrap">
         <span
           className="mono part-row-price"
           style={{

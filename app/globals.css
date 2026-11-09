@@ -815,8 +815,18 @@ html[data-filtering="1"] .pb-browser-wrapper {
 }
 
 /* ── Part row (market list) ──────────────────────────────── */
+/* Desktop: thumb | name over badges | price.
+   Mobile:  thumb | name across the full width, then badges + price on one
+   line, so the name is no longer squeezed by the price column. */
 .part-row {
-  gap: 16px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "thumb name  price"
+    "thumb meta  price";
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 4px;
   border-left: 4px solid transparent;
   background: var(--bg-card);
   transition: background 0.1s, border-left-color 0.1s;
@@ -828,10 +838,8 @@ html[data-filtering="1"] .pb-browser-wrapper {
 .part-row:hover .part-row-name {
   color: var(--purple-text);
 }
-.part-row-name {
-  transition: color 0.1s;
-}
 .part-row-thumb {
+  grid-area: thumb;
   width: 48px;
   height: 48px;
 }
@@ -844,7 +852,19 @@ html[data-filtering="1"] .pb-browser-wrapper {
   height: 20px;
 }
 .part-row-name {
+  grid-area: name;
+  min-width: 0;
   font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.1s;
+}
+.part-row-meta {
+  grid-area: meta;
+}
+.part-row-price-wrap {
+  grid-area: price;
 }
 .part-row-price {
   font-size: 1rem;
@@ -852,21 +872,53 @@ html[data-filtering="1"] .pb-browser-wrapper {
 
 @media (max-width: 640px) {
   .part-row {
-    gap: 10px;
+    grid-template-areas:
+      "thumb name name"
+      "thumb meta price";
+    column-gap: 10px;
+    row-gap: 5px;
+    padding-left: 8px;
+    padding-right: 10px;
   }
   .part-row-thumb {
     width: 38px;
     height: 38px;
+    align-self: start;
+    margin-top: 2px;
   }
   .part-row-icon {
     width: 16px;
     height: 16px;
   }
+  /* Two lines max: line 1 runs the full width, line 2 stops at its midpoint
+     with an ellipsis. The float fills the right half of both lines, but
+     shape-outside limits the wrap area to line 2 only, so line 1 flows
+     past it. Rows stay a uniform two lines tall. */
   .part-row-name {
-    font-size: 0.78rem;
+    --name-lh: 1.3em;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  .part-row-name::before {
+    content: "";
+    float: right;
+    width: 50%;
+    height: calc(var(--name-lh) * 2);
+    shape-outside: inset(var(--name-lh) 0 0 0);
+  }
+  .part-row-meta {
+    align-self: center;
+  }
+  .part-row-price-wrap {
+    align-self: center;
   }
   .part-row-price {
-    font-size: 0.78rem;
+    font-size: 0.74rem;
   }
 }
 
