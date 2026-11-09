@@ -12,18 +12,17 @@ const SUB =
  * moving lines out around the type. They are static, so the blur is
  * rasterised once and never repainted while the lines run underneath.
  *
- * The line breaks differ by layout: three lines on the wide panel, four on
+ * The line breaks differ by layout: three lines on the wide panel, five on
  * the phone. `.hl-br-*` toggle which breaks count.
  */
 function HeadlineText() {
   return (
     <>
-      wallet<br />
-      <span className="hl-accent">pyaaz</span>
-      <br className="hl-br-narrow" />
-      <span className="hl-sp-wide"> </span>kaat<br className="hl-br-wide" />
-      <span className="hl-sp-narrow"> </span>raha<br className="hl-br-narrow" />
-      <span className="hl-sp-wide"> </span>hai<span className="hl-accent">.</span>
+      ram <span className="hl-accent">lelo</span>,<br />
+      bachay<br className="hl-br-narrow" />
+      <span className="hl-sp-wide"> </span>yaad<br />
+      karein<br className="hl-br-narrow" />
+      <span className="hl-sp-wide"> </span>gay<span className="hl-accent">.</span>
     </>
   );
 }

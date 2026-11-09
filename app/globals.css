@@ -1390,7 +1390,7 @@ html[data-filtering="1"] .pb-browser-wrapper {
 /* Wide layout (≥900px): the panel is a fixed-proportion comic splash and
    everything inside is placed in container units (cqi), so it scales as
    one picture from a laptop to a big monitor. Narrow layout: a flowing
-   column with the headline stacked to four lines. */
+   column with the headline stacked to five lines. */
 .home-hero {
   --gutter: max(clamp(16px, 7vw, 100px), calc((100% - 1240px) / 2));
   position: relative;
@@ -1417,7 +1417,7 @@ html[data-filtering="1"] .pb-browser-wrapper {
   left: 4.7cqi;
   top: 5.3cqi;
   z-index: 1;
-  --hl-size: 11.8cqi;
+  --hl-size: 8.86cqi;
 }
 .hero-hl {
   position: relative;
@@ -1452,7 +1452,7 @@ html[data-filtering="1"] .pb-browser-wrapper {
   position: absolute;
   right: 4.5cqi;
   top: 4.1cqi;
-  width: 27.3cqi;
+  width: 30.7cqi;
   z-index: 2;
 }
 /* The shadow is a solid block under the whole card rather than a
@@ -1465,7 +1465,6 @@ html[data-filtering="1"] .pb-browser-wrapper {
 .hero-meme-card {
   --meme-shadow: 9px;
   position: relative;
-  aspect-ratio: 1 / 1;
   transform: rotate(3deg);
 }
 .hero-meme-card::before {
@@ -1477,7 +1476,6 @@ html[data-filtering="1"] .pb-browser-wrapper {
 }
 .hero-meme-mat {
   position: relative;
-  height: 100%;
   padding: 8px;
   background: var(--paper);
   background-clip: padding-box;
@@ -1486,8 +1484,7 @@ html[data-filtering="1"] .pb-browser-wrapper {
 .hero-meme {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   border: 3px solid var(--ink);
 }
 
@@ -1609,7 +1606,7 @@ html[data-filtering="1"] .pb-browser-wrapper {
     right: auto;
     top: auto;
     align-self: flex-end;
-    width: min(42cqi, 280px);
+    width: min(60cqi, 360px);
     margin: calc(var(--hl-size, 20cqi) * -0.7) 4px 0 0;
   }
   .hero-meme-card { --meme-shadow: 6px; transform: rotate(4deg); }

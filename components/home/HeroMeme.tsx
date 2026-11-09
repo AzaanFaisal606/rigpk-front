@@ -1,13 +1,13 @@
-/** The hero's tilted picture card: "my wallet is like an onion" meme. */
+/** The hero's tilted picture card: "I heard he has 32GB of RAM" meme. */
 export default function HeroMeme() {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       className="hero-meme"
-      src="/hero-meme.webp"
-      width={530}
-      height={530}
-      alt="Meme: my wallet is like an onion, when I open it it makes me cry."
+      src="/hero-meme-ram.webp"
+      width={265}
+      height={190}
+      alt="Meme: two girls whispering, 'I heard he has 32GB of RAM'."
       decoding="async"
     />
   );
