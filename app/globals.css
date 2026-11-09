@@ -2483,6 +2483,9 @@ html[data-filtering="1"] .pb-browser-wrapper {
   .pdm-pic { height: 192px; border-right: none; border-bottom: 3px solid var(--ink); }
   .pdm-pic img { max-height: 166px; }
   .pdm-info { padding: 12px 16px 14px; gap: 8px; }
+  /* Close floats over the top-right of the picture, not in the details. */
+  .pdm { position: relative; }
+  .pdm-close { position: absolute; top: 10px; right: 10px; z-index: 3; }
   .pdm-buy { width: auto; align-self: stretch; margin-top: 4px; }
   .pdm-buy-bar { padding: 3px 10px; }
   .pdm-buy-body { gap: 6px; padding: 6px 12px 10px; }
@@ -2497,13 +2500,26 @@ html[data-filtering="1"] .pb-browser-wrapper {
   .pdm-tab:last-child { border-right: none; }
   .pdm-panel { padding: 18px 16px 28px; }
 
-  /* Page mode (set on <html> by PartDetailModal on phones): the sheet is the
-     document, so scrolling it lets mobile Chrome hide its toolbars. */
+  /* Page mode (set on <html> by PartDetailModal on phones). Mobile Chrome
+     only hides its toolbars on a document scroll, never on a fixed overlay
+     or an inner scroller. So the rest of the page is hidden and the document
+     is made a little taller than the screen, with the sheet sticky at the
+     top. The spec panel still scrolls on its own. A swipe anywhere else, or
+     past the end of the panel (scroll chaining), scrolls the document, which
+     hides the toolbars while the sheet stays put. The extra height is
+     always larger than the toolbars, so the sheet stays stuck at max scroll,
+     and overscroll is off so the end of the page neither stretches nor
+     bounces. */
+  html.pdm-page-mode, html.pdm-page-mode body { overscroll-behavior-y: none; }
   html.pdm-page-mode body > *:not(.pdm-backdrop) { display: none !important; }
-  html.pdm-page-mode .pdm-backdrop { position: static; display: block; padding: 0; background: var(--bg); }
-  html.pdm-page-mode .pdm { height: auto; min-height: 100dvh; overflow: visible; }
-  html.pdm-page-mode .pdm-tabs { position: sticky; top: 0; z-index: 2; }
-  html.pdm-page-mode .pdm-panel { flex: none; overflow: visible; min-height: 50dvh; }
+  html.pdm-page-mode .pdm-backdrop {
+    position: static;
+    display: block;
+    padding: 0;
+    height: calc(100lvh + 160px);
+    background: var(--bg);
+  }
+  html.pdm-page-mode .pdm { position: sticky; top: 0; height: 100dvh; }
   .pdm-overview { grid-template-columns: 1fr; }
   .pdm-spec-row { grid-template-columns: 120px minmax(0, 1fr); gap: 10px; }
 }
