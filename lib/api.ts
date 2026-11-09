@@ -259,3 +259,30 @@ export async function getSharedBuild(
     return { ok: false, error: "network" };
   }
 }
+
+/** Retailer description for the part popup. Every list is empty when the store gave none. */
+export interface PartDetails {
+  overview: string | null;
+  highlights: string[];
+  /** [group | null, label, value], labels as the retailer wrote them. */
+  specs: [string | null, string, string][];
+}
+
+// One fetch per part per page session: reopening a popup is instant and costs
+// no extra row reads.
+const detailsCache = new Map<number, PartDetails>();
+
+/** Resolves null on a network/HTTP failure (the popup shows a retry-later note). */
+export async function getPartDetails(id: number, signal?: AbortSignal): Promise<PartDetails | null> {
+  const hit = detailsCache.get(id);
+  if (hit) return hit;
+  try {
+    const res = await fetch(`${API_BASE}/api/parts/${id}/details`, { signal });
+    if (!res.ok) return null;
+    const data = (await res.json()) as PartDetails;
+    detailsCache.set(id, data);
+    return data;
+  } catch {
+    return null;
+  }
+}

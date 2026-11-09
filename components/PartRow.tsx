@@ -1,7 +1,11 @@
+"use client";
+
+import { useCallback, useState } from "react";
 import { Cpu, HardDrive, MemoryStick, MonitorPlay, Zap, Box, CircuitBoard, Wind, Database, Monitor } from "lucide-react";
 import type { Part } from "@/lib/api";
 import { SOURCES } from "@/lib/constants";
 import { isSafeHref } from "@/lib/safe-url";
+import PartDetailModal from "./PartDetailModal";
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
   gpu:         MonitorPlay,
@@ -32,9 +36,23 @@ export default function PartRow({ part }: { part: Part }) {
   // inherited from the framework rather than owned here (L7). An <a> with no
   // href is inert (no navigation, not focusable) so this needs no fallback tag.
   const href = isSafeHref(part.url) ? part.url : undefined;
+  const [open, setOpen] = useState(false);
+  const close = useCallback(() => setOpen(false), []);
+
+  // A plain click opens the detail popup. The row stays a real link to the
+  // retailer, so crawlers follow it and ctrl/cmd/middle/shift-click still
+  // open the store directly.
+  function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    setOpen(true);
+  }
 
   return (
+    <>
     <a
+      onClick={handleClick}
+      aria-haspopup="dialog"
       href={href}
       target={href ? "_blank" : undefined}
       rel={href ? "noopener noreferrer" : undefined}
@@ -119,5 +137,9 @@ export default function PartRow({ part }: { part: Part }) {
         </span>
       </div>
     </a>
+    {/* Sibling, not child: React events from the portal would otherwise
+        bubble to the row's onClick and swallow clicks on the Buy link. */}
+    {open && <PartDetailModal part={part} onClose={close} />}
+    </>
   );
 }

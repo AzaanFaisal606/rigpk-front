@@ -2221,3 +2221,256 @@ html[data-filtering="1"] .pb-browser-wrapper {
   .site-footer-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
 }
 
+
+/* ── Part detail popup (components/PartDetailModal.tsx) ──────
+   Desktop: picture runs flush down to the tabs on the left; name, chips and
+   a compact two-row buy block (price over buttons) sit on the right.
+   Mobile: full-screen sheet, picture on top, everything stacked. */
+.pdm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(17, 17, 18, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.pdm {
+  width: min(960px, 100%);
+  height: min(680px, calc(100dvh - 32px));
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border: 4px solid var(--ink);
+  box-shadow: 10px 10px 0 var(--shadow);
+  overflow: hidden;
+}
+.pdm-head {
+  display: grid;
+  grid-template-columns: 400px minmax(0, 1fr);
+  min-height: 300px;
+  flex-shrink: 0;
+  border-bottom: 3px solid var(--ink);
+}
+.pdm-pic {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-right: 3px solid var(--ink);
+  background-color: var(--paper);
+  background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+.pdm-pic img {
+  max-width: 82%;
+  max-height: 260px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+:root[data-theme="dark"] .pdm-pic img { mix-blend-mode: normal; }
+.pdm-pic-tag {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background: var(--bar);
+  color: #fff;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  padding: 4px 8px;
+  text-transform: uppercase;
+}
+.pdm-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 18px 22px 16px 24px;
+}
+.pdm-info-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.pdm-close {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--text);
+  box-shadow: 3px 3px 0 var(--shadow);
+  cursor: pointer;
+}
+.pdm-name {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.pdm-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.pdm-chip {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--shadow);
+  background: var(--bg-card);
+  color: var(--text);
+  transform: skewX(-10deg);
+}
+/* Fixed width sized for the longest store label ("Buy at Zah Computers"),
+   so the block is the same size for every retailer. */
+.pdm-buy {
+  margin-top: auto;
+  align-self: flex-end;
+  width: 350px;
+  max-width: 100%;
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--shadow);
+  background: var(--paper);
+}
+.pdm-buy-bar {
+  background: var(--bar);
+  color: #fff;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  padding: 4px 10px;
+}
+.pdm-buy-body { display: flex; flex-direction: column; gap: 8px; padding: 8px 14px 12px; }
+.pdm-price { font-size: 21px; line-height: 1.15; letter-spacing: -0.02em; white-space: nowrap; }
+.pdm-buy-row { display: flex; gap: 12px; align-items: center; }
+.pdm-buy-btn {
+  flex: 1;
+  height: 36px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--purple);
+  color: #fff;
+  border: 2px solid var(--ink);
+  box-shadow: var(--gloss), 3px 3px 0 var(--shadow);
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  text-decoration: none;
+  transform: skewX(-6deg);
+}
+.pdm-buy-btn:hover { background: var(--purple-hover); }
+.pdm-icon-btn {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--shadow);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.pdm-tabs {
+  display: flex;
+  flex-shrink: 0;
+  padding: 0 22px;
+  background: var(--bg-section);
+  border-bottom: 3px solid var(--ink);
+  overflow-x: auto;
+}
+.pdm-tab {
+  flex-shrink: 0;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 12px 18px;
+  border: none;
+  border-right: 2px solid var(--ink);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.pdm-tab:first-child { border-left: 2px solid var(--ink); }
+.pdm-tab[aria-selected="true"] { background: var(--purple); color: #fff; }
+.pdm-panel { flex: 1; min-height: 0; overflow-y: auto; padding: 22px; }
+.pdm-note { margin: 0; font-size: 11px; color: var(--text-dim); }
+.pdm-note a { color: var(--purple-text); }
+.pdm-overview { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; align-items: start; }
+.pdm-overview h3 { font-weight: 700; font-size: 26px; letter-spacing: -0.04em; margin: 6px 0 12px; color: var(--text); }
+.pdm-overview p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--text-2); }
+.pdm-kicker { font-size: 10px; color: var(--purple-text); letter-spacing: 2px; text-transform: uppercase; }
+.pdm-glance { border: 2px solid var(--ink); box-shadow: 5px 5px 0 var(--shadow); background: var(--paper); }
+.pdm-glance-bar { background: var(--bar); color: #fff; font-size: 10px; letter-spacing: 2px; padding: 8px 14px; }
+.pdm-glance-more {
+  width: 100%;
+  border: none;
+  border-top: 1.5px dashed var(--border);
+  background: transparent;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--purple-text);
+  padding: 10px;
+  cursor: pointer;
+}
+.pdm-hl { list-style: none; margin: 0; padding: 0; }
+.pdm-hl li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-2);
+}
+.pdm-hl li:last-child { border-bottom: none; }
+.pdm-hl li > span:first-child { color: var(--purple-text); font-size: 12px; flex-shrink: 0; }
+.pdm-specs { margin: 0; border: 2px solid var(--ink); box-shadow: 5px 5px 0 var(--shadow); background: var(--paper); }
+.pdm-spec-row {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 16px;
+  padding: 9px 14px;
+  align-items: baseline;
+  border-bottom: 1.5px dashed var(--border);
+}
+.pdm-spec-row:nth-child(even) { background: var(--paper-alt); }
+.pdm-spec-row:last-child { border-bottom: none; }
+.pdm-spec-row dt { font-size: 10px; color: var(--purple-text); letter-spacing: 1.2px; text-transform: uppercase; line-height: 1.35; }
+.pdm-spec-row dd { margin: 0; font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.35; overflow-wrap: anywhere; }
+
+@media (max-width: 760px) {
+  .pdm-backdrop { padding: 0; }
+  .pdm { width: 100%; height: 100dvh; border-width: 0; box-shadow: none; }
+  .pdm-head { grid-template-columns: 1fr; min-height: 0; }
+  /* Only the tab panel scrolls, as on desktop, so the head is kept compact. */
+  .pdm-pic { height: 192px; border-right: none; border-bottom: 3px solid var(--ink); }
+  .pdm-pic img { max-height: 166px; }
+  .pdm-info { padding: 12px 16px 14px; gap: 8px; }
+  .pdm-buy { width: auto; align-self: stretch; margin-top: 4px; }
+  .pdm-buy-bar { padding: 3px 10px; }
+  .pdm-buy-body { gap: 6px; padding: 6px 12px 10px; }
+  .pdm-price { font-size: 19px; }
+  .pdm-buy-btn, .pdm-icon-btn { height: 32px; }
+  .pdm-buy-row { gap: 12px; }
+  .pdm-icon-btn { width: 32px; }
+  .pdm-tabs { padding: 0; scrollbar-width: none; }
+  .pdm-tabs::-webkit-scrollbar { display: none; }
+  .pdm-tab { flex: 1 0 auto; padding: 11px 12px; font-size: 10px; letter-spacing: 1px; }
+  .pdm-tab:first-child { border-left: none; }
+  .pdm-tab:last-child { border-right: none; }
+  .pdm-panel { padding: 18px 16px 28px; }
+  .pdm-overview { grid-template-columns: 1fr; }
+  .pdm-spec-row { grid-template-columns: 120px minmax(0, 1fr); gap: 10px; }
+}
