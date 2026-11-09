@@ -88,18 +88,38 @@ export default function PartDetailModal({ part, onClose }: { part: Part; onClose
     return () => ctrl.abort();
   }, [part.id]);
 
-  // Esc closes; page behind doesn't scroll; focus moves in and back out.
+  // Esc closes; focus moves in and back out.
+  //
+  // Desktop: a fixed overlay, the page behind locked, only the tab panel scrolls.
+  // Phone: the sheet becomes the page itself. The rest of the page is hidden
+  // and the document scrolls, because mobile Chrome only hides its toolbars on
+  // a document scroll, never on an inner scroll box or a fixed overlay. The
+  // list's scroll position is restored on close.
   useEffect(() => {
     const prev = document.activeElement as HTMLElement | null;
-    closeRef.current?.focus();
+    const root = document.documentElement;
+    const pageMode = window.matchMedia("(max-width: 760px)").matches;
+    const scrollY = window.scrollY;
+    const overflow = document.body.style.overflow;
+    if (pageMode) {
+      root.classList.add("pdm-page-mode");
+      window.scrollTo({ top: 0, behavior: "instant" });
+    } else {
+      document.body.style.overflow = "hidden";
+    }
+    closeRef.current?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", onKey);
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = overflow;
-      prev?.focus?.();
+      if (pageMode) {
+        root.classList.remove("pdm-page-mode");
+        // Instant: the site sets scroll-behavior: smooth, which would animate this jump.
+        window.scrollTo({ top: scrollY, behavior: "instant" });
+      } else {
+        document.body.style.overflow = overflow;
+      }
+      prev?.focus?.({ preventScroll: true });
     };
   }, [onClose]);
 

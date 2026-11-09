@@ -230,10 +230,36 @@ body {
      48px of a 390px viewport's width. !important because these are Tailwind
      utility classes on the same element. */
   .filter-bar-pad {
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
     padding-left: 12px !important;
     padding-right: 12px !important;
+  }
+  /* The market filter bar keeps its desktop proportions on a phone. Drawing
+     its controls at 44px made them nearly touch the bar's borders and
+     stretched the skewed buttons. They stay at their natural ~31px, and the
+     44px target comes from an invisible hit area instead. The row gets 6px
+     of padding so that hit area sits inside the overflow-x scroller, which
+     would otherwise clip it or scroll vertically. */
+  .filter-bar-pad .comic-btn,
+  .filter-bar-pad .filter-search-input {
+    min-height: 0;
+  }
+  /* Same height as the Go button and chips beside it. */
+  .filter-bar-pad .filter-search-input { height: 32px; line-height: 1.2; }
+  .filter-bar-pad .comic-btn { position: relative; }
+  .filter-bar-pad .comic-btn::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+  }
+  .filter-inner-scroll > div {
+    padding-top: 6px;
+    padding-bottom: 6px;
   }
   /* The quantity stepper is the one square control narrow enough to miss the
      target on width as well as height — every other .comic-btn carries a text
@@ -881,10 +907,9 @@ html[data-filtering="1"] .pb-browser-wrapper {
     padding-right: 10px;
   }
   .part-row-thumb {
-    width: 38px;
-    height: 38px;
-    align-self: start;
-    margin-top: 2px;
+    width: 39px;
+    height: 39px;
+    align-self: center;
   }
   .part-row-icon {
     width: 16px;
@@ -2471,6 +2496,14 @@ html[data-filtering="1"] .pb-browser-wrapper {
   .pdm-tab:first-child { border-left: none; }
   .pdm-tab:last-child { border-right: none; }
   .pdm-panel { padding: 18px 16px 28px; }
+
+  /* Page mode (set on <html> by PartDetailModal on phones): the sheet is the
+     document, so scrolling it lets mobile Chrome hide its toolbars. */
+  html.pdm-page-mode body > *:not(.pdm-backdrop) { display: none !important; }
+  html.pdm-page-mode .pdm-backdrop { position: static; display: block; padding: 0; background: var(--bg); }
+  html.pdm-page-mode .pdm { height: auto; min-height: 100dvh; overflow: visible; }
+  html.pdm-page-mode .pdm-tabs { position: sticky; top: 0; z-index: 2; }
+  html.pdm-page-mode .pdm-panel { flex: none; overflow: visible; min-height: 50dvh; }
   .pdm-overview { grid-template-columns: 1fr; }
   .pdm-spec-row { grid-template-columns: 120px minmax(0, 1fr); gap: 10px; }
 }
