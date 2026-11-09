@@ -5,7 +5,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import { ToggleChip } from "@/components/ui/ToggleChip";
 import { monoFont, sansFont } from "@/lib/tokens";
-import { useScrollHide } from "@/lib/hooks/useScrollHide";
+import { useScrollHide, SCROLL_HIDE_TRANSITION } from "@/lib/hooks/useScrollHide";
 import { DEFAULT_SORT } from "@/lib/constants";
 
 const SOURCES = ["zestrogaming.com", "redtech.pk", "techmatched.pk"];
@@ -92,7 +92,7 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
         background: "var(--bg)",
         borderBottom: "2px solid var(--ink)",
         transform: hidden ? "translateY(-100%)" : "translateY(0)",
-        transition: "transform 0.25s ease",
+        transition: SCROLL_HIDE_TRANSITION,
       }}
     >
       <div style={{

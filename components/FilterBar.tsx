@@ -9,7 +9,7 @@ import { PriceRangeFilter } from "@/components/ui/PriceRangeFilter";
 import { sansFont } from "@/lib/tokens";
 import { CATEGORIES, DEFAULT_SORT, SOURCES, SPEC_KEYS } from "@/lib/constants";
 import { specDropdowns } from "@/lib/filter-options";
-import { useScrollHide } from "@/lib/hooks/useScrollHide";
+import { useScrollHide, SCROLL_HIDE_TRANSITION } from "@/lib/hooks/useScrollHide";
 import { publishSearch, subscribeIndexReady } from "@/lib/search-bus";
 
 export default function FilterBar({
@@ -204,7 +204,7 @@ export default function FilterBar({
         background: "var(--bg)",
         borderBottom: "2px solid var(--ink)",
         transform: barHidden ? "translateY(-100%)" : "translateY(0)",
-        transition: "transform 0.25s ease",
+        transition: SCROLL_HIDE_TRANSITION,
       }}
     >
       <div className="max-w-6xl mx-auto px-6 py-3 filter-bar-pad">
