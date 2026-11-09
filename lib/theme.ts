@@ -183,6 +183,47 @@ function animateWipe(rig: HTMLDivElement, leftward: boolean): boolean {
   return true;
 }
 
+/* ── Parking off-screen sections ─────────────────────────────────────────
+
+   Chrome restyles every element on the page twice per switch: when the
+   theme flips, and again in the frame the View Transition ends (a whole-
+   document restyle the browser does itself). On the homepage that's ~830
+   elements, 15–20ms on a Galaxy S23, so the frame that ends the transition
+   overran and the hero lines hitched once as the wipe finished. Most of
+   those elements are below the fold. Sections entirely below the viewport
+   get `content-visibility: hidden` for the length of the switch, which takes
+   them out of both restyles (~220 elements left, 7–11ms), and they come back
+   in an ordinary frame afterwards. Below the fold only: a section above the
+   viewport could change height while hidden and shift what's on screen.
+   Measured in docs/motion.md. */
+
+function belowTheFold(): HTMLElement[] {
+  const fold = window.innerHeight + 50;
+  return Array.from(document.querySelectorAll<HTMLElement>("main > *, body footer"))
+    .filter((el) => el.getBoundingClientRect().top > fold);
+}
+
+function park(els: HTMLElement[]) {
+  for (const el of els) {
+    // Keep the section's height while its contents are skipped.
+    el.style.containIntrinsicSize = `auto ${Math.round(el.getBoundingClientRect().height)}px`;
+    el.style.contentVisibility = "hidden";
+  }
+}
+
+/** One section per frame: all at once is a ~740-element restyle in a single frame. */
+function unpark(els: HTMLElement[]) {
+  const queue = [...els];
+  const step = () => {
+    const el = queue.shift();
+    if (!el) return;
+    el.style.contentVisibility = "";
+    el.style.containIntrinsicSize = "";
+    requestAnimationFrame(step);
+  };
+  step();
+}
+
 /**
  * Switch theme with the "scene change" wipe. Browsers without View
  * Transitions switch instantly; reduced-motion users get a short cross-fade.
@@ -202,6 +243,7 @@ export function switchTheme(next: Theme, onSwap?: () => void): Promise<void> {
   const leftward = next === "dark";
   root.dataset.wipe = reduced ? "fade" : leftward ? "left" : "right";
   const rig = reduced ? null : buildRig();
+  const parked = belowTheFold();
 
   const transition = document.startViewTransition(() => {
     // Hover/background transitions would otherwise play out inside the
@@ -209,6 +251,7 @@ export function switchTheme(next: Theme, onSwap?: () => void): Promise<void> {
     // renames the new root (see globals.css) so old and new get groups of
     // their own and the old one can be windowed.
     root.classList.add("theme-switching");
+    park(parked);
     apply(next);
     onSwap?.();
     if (rig) document.body.appendChild(rig);
@@ -220,6 +263,7 @@ export function switchTheme(next: Theme, onSwap?: () => void): Promise<void> {
     rig?.remove();
     root.classList.remove("theme-switching");
     delete root.dataset.wipe;
+    unpark(parked);
   };
   const timer = window.setTimeout(cleanup, 2000);
 
@@ -231,10 +275,18 @@ export function switchTheme(next: Theme, onSwap?: () => void): Promise<void> {
       .catch(() => transition.skipTransition());
   }
 
+  // The browser restyles the page in the frame the transition ends. Our
+  // cleanup (and un-parking) restyles too, so it waits two frames to keep
+  // that work out of the frame that ends the transition.
   return transition.finished
     .catch(() => {})
     .then(() => {
       window.clearTimeout(timer);
-      cleanup();
+      return new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          cleanup();
+          resolve();
+        }));
+      });
     });
 }

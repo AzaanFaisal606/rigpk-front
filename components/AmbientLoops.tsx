@@ -18,10 +18,25 @@ import { useDragLoop } from "@/lib/hooks/useDragLoop";
  * "new" snapshot, and picks them up again after the transition from where
  * they stopped, so the lines froze for the whole wipe and then seemed to
  * restart. Main-thread changes do show up in that snapshot. So for the
- * wipe, CSS pauses the loops (globals.css) and this steps them from the
- * main thread instead, one seek per frame, then hands them back on the
- * same clock. Nothing is repainted: it's still only transforms.
+ * wipe, this marks the wrapper `data-hold` (CSS pauses the loops,
+ * globals.css), steps them from the main thread instead, one seek per
+ * frame, then hands them back on the same clock. Nothing is repainted:
+ * it's still only transforms.
+ *
+ * WebKit only. Blink and Gecko keep compositor animations running inside
+ * the snapshot, and there the hold is pure cost: ~100 strips restyled on
+ * the main thread every frame of the wipe, then all handed back to the
+ * compositor at once as the wipe ends (measured on Android Chrome,
+ * docs/motion.md).
  */
+function holdsLoopsInWipe(): boolean {
+  // Every iOS browser is WebKit and none says "Chrome/" (iOS Chrome says
+  // "CriOS/"). Desktop Safari and Epiphany are WebKit too. Blink browsers
+  // (Chrome, Edge, Samsung Internet, Android WebView) all carry "Chrome/".
+  const ua = navigator.userAgent;
+  return /AppleWebKit\//.test(ua) && !/(Chrome|Chromium)\//.test(ua);
+}
+
 export default function AmbientLoops({
   className,
   children,
@@ -50,7 +65,7 @@ export default function AmbientLoops({
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || typeof MutationObserver === "undefined") return;
+    if (!el || typeof MutationObserver === "undefined" || !holdsLoopsInWipe()) return;
     const root = document.documentElement;
     const clock = () => Number(document.timeline.currentTime ?? performance.now());
 
@@ -76,11 +91,13 @@ export default function AmbientLoops({
         held = el
           .getAnimations({ subtree: true })
           .map((anim) => ({ anim, from: Number(anim.currentTime ?? 0) }));
+        el.setAttribute("data-hold", "");
         frame = requestAnimationFrame(step);
       } else if (!wiping && held) {
         cancelAnimationFrame(frame);
         seek();
         held = null;
+        el.removeAttribute("data-hold");
       }
     });
     mo.observe(root, { attributes: true, attributeFilter: ["data-wipe"] });

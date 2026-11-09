@@ -306,11 +306,12 @@ body {
 }
 /* Decorative loops (the hero lines) pause off screen. */
 [data-offscreen] .ambient-loop { animation-play-state: paused !important; }
-/* During the theme wipe the loops come off the compositor: WebKit freezes
-   compositor animations inside the transition's live snapshot. Paused here,
-   components/AmbientLoops.tsx steps them from the main thread instead, so
-   they keep flowing on the incoming side. */
-:root[data-wipe] .ambient-loop { animation-play-state: paused !important; }
+/* During the theme wipe, in WebKit only, the loops come off the compositor:
+   WebKit freezes compositor animations inside the transition's live snapshot.
+   components/AmbientLoops.tsx sets data-hold on its wrapper, the loops are
+   paused here, and it steps them from the main thread instead, so they keep
+   flowing on the incoming side. Other engines leave them on the compositor. */
+[data-hold] .ambient-loop { animation-play-state: paused !important; }
 @media (prefers-reduced-motion: reduce) {
   .ambient-loop { animation: none !important; }
 }
@@ -1180,9 +1181,19 @@ html[data-filtering="1"] .pb-browser-wrapper {
   :root { --wipe-band: 104px; }
 }
 
-.theme-switching *,
-.theme-switching *::before,
-.theme-switching *::after {
+/* No transitions while the theme flips, or they play out inside the live
+   snapshot and smear the reveal. Listed, not `.theme-switching *`: a universal
+   rule makes toggling the class restyle the whole page (~830 elements, 20ms+
+   on a phone), and that restyle landing as the wipe ends was the hero-line
+   hitch (docs/motion.md). Any class that gets a `transition` must be added
+   here. Inline `style={{ transition }}` is caught by the attribute selector. */
+.theme-switching :is(
+  .card, .btn-primary, .pb-browser-wrapper, .hero-cta, .feature-card,
+  .navbar-menu-item, .part-row, .part-row-name, .pulldown-drawer,
+  .pulldown-body, .pulldown-lip, .pulldown-caret, .budget-box, .theme-btn,
+  .src-card, .cp-market-row, .cp-trend, .cp-budget, .pdm-icon-btn,
+  [style*="transition"]
+) {
   transition: none !important;
 }
 
