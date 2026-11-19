@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import ModelPage, { modelMetadata } from "@/components/ModelPage";
 import { MODELS } from "@/lib/models";
 
-// Static per model, refreshed hourly (ISR), like the budget pages. Unknown
+// Static per model, refreshed daily (ISR, MODEL_REVALIDATE), like the budget pages. Unknown
 // slugs 404 here and, with a real 404 status, in proxy.ts.
-export const revalidate = 3600;
+export const revalidate = 86400;
 export const dynamicParams = false;
 
 export function generateStaticParams() {

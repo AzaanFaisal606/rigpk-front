@@ -324,7 +324,7 @@ export default async function PartsList({ category, searchParams, baseParams, he
             >
               {/* Prev */}
               {hasPrev ? (
-                <Link
+                <Link prefetch={false}
                   href={pageUrl(offset - LIMIT)}
                   style={{
                     padding: "7px 18px",
@@ -366,7 +366,7 @@ export default async function PartsList({ category, searchParams, baseParams, he
 
               {/* Next */}
               {hasNext ? (
-                <Link
+                <Link prefetch={false}
                   href={pageUrl(offset + LIMIT)}
                   style={{
                     padding: "7px 18px",

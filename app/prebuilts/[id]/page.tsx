@@ -91,7 +91,7 @@ export default async function PrebuiltDetailPage({ params }: PageProps) {
         <nav style={{ display: "flex", alignItems: "center", gap: "6px", fontFamily: monoFont, fontSize: "10px", fontWeight: 700, color: "var(--faint)", letterSpacing: "1px", textTransform: "uppercase", flexWrap: "nowrap", overflow: "hidden" }}>
           <Link href="/" style={{ color: "var(--faint)", textDecoration: "none", flexShrink: 0 }}>RIGPK</Link>
           <span style={{ flexShrink: 0 }}>›</span>
-          <Link href="/prebuilts" style={{ color: "var(--faint)", textDecoration: "none", flexShrink: 0 }}>PRE-BUILTS</Link>
+          <Link prefetch={false} href="/prebuilts" style={{ color: "var(--faint)", textDecoration: "none", flexShrink: 0 }}>PRE-BUILTS</Link>
           <span style={{ flexShrink: 0 }}>›</span>
           <span className="pb-spec-breadcrumb-name" style={{ color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{prebuilt.name}</span>
         </nav>

@@ -24,10 +24,11 @@ import { getBudgetBuckets, getBudgetCatalogue } from "@/lib/budget-data";
 import { cleanPrebuiltName, SITE_URL } from "@/lib/seo";
 import { monoFont, sansFont } from "@/lib/tokens";
 
-// Static per budget, refreshed hourly (ISR) — the backend sits on a cold-
-// starting free tier, so these landing pages must not wait on it per request.
+// Static per budget, refreshed daily (ISR, BUDGET_REVALIDATE) — prebuilts
+// only change on the weekly scrape, and the backend sits on a cold-starting
+// free tier, so these landing pages must not wait on it per request.
 // Kept literal: Next reads segment config statically.
-export const revalidate = 3600;
+export const revalidate = 86400;
 // Unknown budgets 404. proxy.ts does the same before rendering, which is what
 // guarantees a real 404 status (the root loading.tsx would otherwise stream
 // the not-found UI with a 200).
@@ -91,7 +92,7 @@ function SiblingLinks({ current }: { current: Budget }) {
       {BUDGETS.map(b => {
         const active = b.slug === current.slug;
         return (
-          <Link
+          <Link prefetch={false}
             key={b.slug}
             href={`/gaming-pc-under/${b.slug}`}
             aria-current={active ? "page" : undefined}
@@ -199,7 +200,7 @@ export default async function BudgetPage({ params }: PageProps) {
         >
           <Link href="/" style={{ color: "var(--faint)", textDecoration: "none" }}>RIGPK</Link>
           <span>›</span>
-          <Link href="/prebuilts" style={{ color: "var(--faint)", textDecoration: "none" }}>PRE-BUILTS</Link>
+          <Link prefetch={false} href="/prebuilts" style={{ color: "var(--faint)", textDecoration: "none" }}>PRE-BUILTS</Link>
           <span>›</span>
           <span style={{ color: "var(--text)" }}>UNDER {budget.short}</span>
         </nav>
@@ -241,7 +242,7 @@ export default async function BudgetPage({ params }: PageProps) {
 
             {all.length > listed.length && (
               <p style={{ marginTop: "24px", fontFamily: monoFont, fontSize: "11px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" }}>
-                <Link href={`/prebuilts?max_price=${budget.max}`} style={{ color: "var(--purple-text)" }}>
+                <Link prefetch={false} href={`/prebuilts?max_price=${budget.max}`} style={{ color: "var(--purple-text)" }}>
                   See all {all.length} PCs under {budget.short} →
                 </Link>
               </p>

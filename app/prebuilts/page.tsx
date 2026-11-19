@@ -99,7 +99,7 @@ async function PrebuiltGrid({
 
       {!failed && (hasPrev || hasNext) && (
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "32px" }}>
-          <Link
+          <Link prefetch={false}
             href={hasPrev ? pageUrl(offset - LIMIT) : "#"}
             style={{
               padding: "8px 18px",
@@ -136,7 +136,7 @@ async function PrebuiltGrid({
             </span>
           </span>
 
-          <Link
+          <Link prefetch={false}
             href={hasNext ? pageUrl(offset + LIMIT) : "#"}
             style={{
               padding: "8px 18px",

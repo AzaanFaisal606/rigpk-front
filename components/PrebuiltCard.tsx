@@ -42,7 +42,7 @@ export default function PrebuiltCard({ prebuilt }: Props) {
   const c = prebuilt.components;
 
   return (
-    <Link
+    <Link prefetch={false}
       href={`/prebuilts/${prebuilt.id}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

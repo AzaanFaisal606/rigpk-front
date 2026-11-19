@@ -5,7 +5,7 @@ import { BUDGETS } from "@/lib/budgets";
 import { allFacetRoutes, facetPath } from "@/lib/facets";
 import { MODELS, modelPath } from "@/lib/models";
 import { SITE_URL as BASE } from "@/lib/seo";
-import { getIndexableParts, partPath } from "@/lib/part-page";
+import { getIndexableParts, PART_REVALIDATE, partPath } from "@/lib/part-page";
 
 /** scraped_at as a Date, or undefined when it doesn't parse. */
 function toDate(s: string | null | undefined): Date | undefined {
@@ -14,19 +14,21 @@ function toDate(s: string | null | undefined): Date | undefined {
   return Number.isNaN(d.getTime()) ? undefined : d;
 }
 
-// Rebuilt once a day: part pages are the bulk of it and only change on the
-// weekly scrape, and each build is one full read of the indexable parts.
-export const revalidate = 86400;
+// Rebuilt once a week (PART_REVALIDATE; segment config must be a literal):
+// part pages are the bulk of it and only change on the weekly scrape, and each
+// build is one full read of the indexable parts.
+export const revalidate = 604800;
 
 // Static pages carry no lastModified: stamping them with the request time
 // told crawlers everything changed on every fetch, which made the field useless.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ~144 active prebuilts as of the last DB snapshot — 200 covers the whole
   // catalogue in one page (backend caps `limit` at 200).
-  // Day-long fetch: the default 30s window set the whole sitemap's revalidate
-  // to 30s (a route revalidates at its shortest fetch), rebuilding it — and
-  // re-reading every indexable part — on nearly every crawler hit.
-  const prebuiltsResult = await getPrebuilts({ limit: 200 }, { revalidate: 86400 });
+  // Week-long fetch, same as the route: the default 30s window set the whole
+  // sitemap's revalidate to 30s (a route revalidates at its shortest fetch),
+  // rebuilding it — and re-reading every indexable part — on nearly every
+  // crawler hit.
+  const prebuiltsResult = await getPrebuilts({ limit: 200 }, { revalidate: PART_REVALIDATE });
   const prebuiltUrls: MetadataRoute.Sitemap = prebuiltsResult.ok
     ? prebuiltsResult.items.map(p => ({
         url: `${BASE}/prebuilts/${p.id}`,
@@ -39,7 +41,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Only indexable part pages (active, priced, with retailer content): the
   // rest are noindex, and a sitemap must not list pages it asks to drop.
   // At runtime a failed fetch throws, so ISR keeps serving the last good
-  // sitemap instead of caching one with every part missing for a day. At
+  // sitemap instead of caching one with every part missing for a week. At
   // build time (Render may be cold) it leaves them out rather than failing
   // the deploy. No lastModified: last_seen_at moves on every scrape, which
   // would make the field meaningless to crawlers.

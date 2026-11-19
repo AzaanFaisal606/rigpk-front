@@ -108,7 +108,7 @@ export default function MarketResultsMeta({
       }}
     >
       {hasPrev ? (
-        <Link
+        <Link prefetch={false}
           href={pageUrl(offset - limit)}
           style={{
             padding: "7px 18px",
@@ -146,7 +146,7 @@ export default function MarketResultsMeta({
         {currentPage} / {totalPages}
       </span>
       {hasNext ? (
-        <Link
+        <Link prefetch={false}
           href={pageUrl(offset + limit)}
           style={{
             padding: "7px 18px",

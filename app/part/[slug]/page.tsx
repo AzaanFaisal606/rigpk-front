@@ -16,11 +16,13 @@ import { SITE_URL, storeName } from "@/lib/seo";
 import { monoFont } from "@/lib/tokens";
 
 // Built on the first request, then served from cache and regenerated in the
-// background at most once a day (PART_REVALIDATE). Nothing is prebuilt: ~7.7k
-// listings would make every deploy hammer the Render free tier. The page must
+// background at most once a week (PART_REVALIDATE, matching the weekly scrape;
+// segment config must be a literal, so it can't import the constant). Nothing
+// is prebuilt: ~7.7k listings would make every deploy hammer the Render free
+// tier. The page must
 // never read searchParams or headers, or it turns dynamic and every hit
 // becomes a render + backend call. See docs/product-pages.md.
-export const revalidate = 86400;
+export const revalidate = 604800;
 
 export function generateStaticParams() {
   return [];
@@ -35,7 +37,7 @@ const loadPart = cache(async (slug: string): Promise<PartPage | null> => {
   const id = parsePartParam(slug);
   if (id === null) return null;
   const p = await getPartPage(id);
-  // A backend outage must not be cached as a 404 for a day: throw, so the
+  // A backend outage must not be cached as a 404 for a week: throw, so the
   // error boundary shows and ISR keeps serving the last good page.
   if (p === "error") throw new Error(`part ${id}: backend unavailable`);
   if (!p || !p.is_active) return null;
@@ -67,7 +69,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: { canonical: url },
     // Empty (no retailer content) and out-of-stock listings stay out of the
     // index but keep passing link equity; they become indexable on their own
-    // at the next daily regeneration once details or a price arrive.
+    // at the next weekly regeneration once details or a price arrive.
     ...(!partIsIndexable(p) && { robots: { index: false, follow: true } }),
     openGraph: {
       title,

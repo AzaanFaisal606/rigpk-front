@@ -7,11 +7,13 @@ import { ChevronDown } from "lucide-react";
 import { sansFont } from "@/lib/tokens";
 import ThemeButton from "./ThemeButton";
 
+// /market and /prebuilts read searchParams, so every prefetch is an uncached
+// function render. Only the static/ISR pages keep Next's default prefetch.
 const NAV_LINKS = [
-  { href: "/market", label: "Market", match: (p: string) => p === "/market" },
-  { href: "/build", label: "Build PC", match: (p: string) => p === "/build" },
-  { href: "/trends", label: "Trends", match: (p: string) => p.startsWith("/trends") },
-  { href: "/prebuilts", label: "Pre-Builts", match: (p: string) => p.startsWith("/prebuilts") },
+  { href: "/market", label: "Market", prefetch: false, match: (p: string) => p === "/market" },
+  { href: "/build", label: "Build PC", prefetch: undefined, match: (p: string) => p === "/build" },
+  { href: "/trends", label: "Trends", prefetch: undefined, match: (p: string) => p.startsWith("/trends") },
+  { href: "/prebuilts", label: "Pre-Builts", prefetch: false, match: (p: string) => p.startsWith("/prebuilts") },
 ];
 
 export default function Navbar() {
@@ -58,7 +60,7 @@ export default function Navbar() {
               too (just hidden), so crawlers always see the nav links. */}
           <nav className="navbar-nav flex items-center gap-2">
             {NAV_LINKS.map(l => (
-              <NavButton key={l.href} href={l.href} active={l.match(pathname)}>{l.label}</NavButton>
+              <NavButton key={l.href} href={l.href} prefetch={l.prefetch} active={l.match(pathname)}>{l.label}</NavButton>
             ))}
           </nav>
 
@@ -97,10 +99,12 @@ function navButtonStyle(active: boolean, hovered: boolean): React.CSSProperties 
 
 function NavButton({
   href,
+  prefetch,
   active,
   children,
 }: {
   href: string;
+  prefetch?: boolean;
   active: boolean;
   children: React.ReactNode;
 }) {
@@ -109,6 +113,7 @@ function NavButton({
   return (
     <Link
       href={href}
+      prefetch={prefetch}
       className="navbar-nav-btn"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -184,6 +189,7 @@ function MobileNavMenu({ pathname }: { pathname: string }) {
               <Link
                 key={l.href}
                 href={l.href}
+                prefetch={l.prefetch}
                 onClick={() => setOpen(false)}
                 aria-current={active ? "page" : undefined}
                 className={`navbar-menu-item${active ? " navbar-menu-item--active" : ""}`}

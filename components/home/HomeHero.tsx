@@ -75,7 +75,7 @@ export default function HomeHero({ stats }: { stats: Stats | null }) {
         <div className="hero-pitch fade-up" style={{ animationDelay: "0.25s" }}>
           <p className="hero-pitch-text">{SUB}</p>
           <div className="hero-pitch-ctas">
-            <Link href="/market" className="hero-cta hero-cta--primary">
+            <Link prefetch={false} href="/market" className="hero-cta hero-cta--primary">
               <span>Browse Market →</span>
             </Link>
             <Link href="/build" className="hero-cta hero-cta--secondary">

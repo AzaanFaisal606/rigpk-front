@@ -7,11 +7,13 @@ export { partSlug, partPath, parsePartParam, PART_PARAM_RE } from "./part-slug";
 
 /**
  * Part pages (/part/<id>-<slug>) are built on their first request and cached
- * for a day (ISR). Prices move on the weekly scrape, and every regeneration is
- * a Vercel ISR write plus a backend call on the Render free tier, so a shorter
- * window buys nothing and costs quota. See docs/product-pages.md.
+ * for 7 days (ISR). Prices move on the weekly scrape, and every regeneration
+ * is a Vercel function render, an ISR write and a backend call on the Render
+ * free tier, so a shorter window buys nothing and costs quota. The literal
+ * `revalidate` in app/part/[slug]/page.tsx and app/sitemap.ts must match.
+ * See docs/product-pages.md.
  */
-export const PART_REVALIDATE = 86400;
+export const PART_REVALIDATE = 604800;
 
 /** A listing as the part page gets it: the market row plus its retailer details. */
 export interface PartPage extends Part {

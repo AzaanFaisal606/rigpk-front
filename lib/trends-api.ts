@@ -38,7 +38,9 @@ export async function getTrendGroups(
   try {
     const res = await fetch(
       `${API_BASE}/api/trends/groups?category=${category}`,
-      { next: { revalidate: 300 } }
+      // Daily: trend points only move on the weekly scrape. The homepage reads
+      // the same URL, so this sets its ISR window too.
+      { next: { revalidate: 86400 } }
     );
     if (!res.ok) return { ok: false, error: "http", status: res.status };
     const data = await res.json();

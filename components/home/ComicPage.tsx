@@ -57,7 +57,7 @@ function MarketRows({ groups }: { groups: TrendGroup[] }) {
     <ul className="cp-market-list">
       {groups.map(g => (
         <li key={g.group_key}>
-          <Link href={modelHref(g.group_key)} className="cp-market-row">
+          <Link prefetch={false} href={modelHref(g.group_key)} className="cp-market-row">
             <span className="cp-market-name">{g.group_key}</span>
             <span className="cp-market-count">{g.sample_count} listings</span>
             <span className="cp-market-price">
@@ -82,7 +82,7 @@ function MarketFallback() {
     <ul className="cp-market-list">
       {FALLBACK_CATEGORIES.map(c => (
         <li key={c.href}>
-          <Link href={c.href} className="cp-market-row">
+          <Link prefetch={false} href={c.href} className="cp-market-row">
             <span className="cp-market-name">{c.label}</span>
             <span className="cp-market-price">→</span>
           </Link>
@@ -145,7 +145,7 @@ export default function ComicPage({ gpuGroups }: { gpuGroups: TrendGroup[] | nul
           <div className="cp-content cp-content--market">
             <div className="cp-market-copy">
               <PanelLabel label="Market" caption="live prices from every PK shop. no more calling 14 uncles." />
-              <Link href="/market" className="cp-arrow-link">Browse market →</Link>
+              <Link prefetch={false} href="/market" className="cp-arrow-link">Browse market →</Link>
             </div>
             <div className="cp-market-card">
               <p className="cp-card-head">Most listed GPUs right now</p>
@@ -181,13 +181,13 @@ export default function ComicPage({ gpuGroups }: { gpuGroups: TrendGroup[] | nul
             <PanelLabel label="Pre-builts" caption="already built. just add rupees." />
             <nav className="cp-budgets" aria-label="Gaming PCs by budget">
               {BUDGETS.map(b => (
-                <Link key={b.slug} href={`/gaming-pc-under/${b.slug}`} className="cp-budget">
+                <Link prefetch={false} key={b.slug} href={`/gaming-pc-under/${b.slug}`} className="cp-budget">
                   <span className="cp-budget-under">Under</span>
                   <span className="cp-budget-amount">{b.short}</span>
                 </Link>
               ))}
             </nav>
-            <Link href="/prebuilts" className="cp-arrow-link">All pre-builts →</Link>
+            <Link prefetch={false} href="/prebuilts" className="cp-arrow-link">All pre-builts →</Link>
           </div>
         </Panel>
       </div>

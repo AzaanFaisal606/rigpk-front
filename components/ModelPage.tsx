@@ -81,7 +81,7 @@ function SiblingLinks({ current }: { current: ModelEntry }) {
         {seriesOf(current).label}
       </span>
       {siblings(current).map(m => (
-        <Link
+        <Link prefetch={false}
           key={m.slug}
           href={modelPath(m)}
           style={{
@@ -187,7 +187,7 @@ export default async function ModelPage({ category, slug }: { category: ModelCat
         >
           <Link href="/" style={{ color: "var(--faint)", textDecoration: "none" }}>RIGPK</Link>
           <span>›</span>
-          <Link href={`/market/${category}`} style={{ color: "var(--faint)", textDecoration: "none" }}>{categoryLabel}</Link>
+          <Link prefetch={false} href={`/market/${category}`} style={{ color: "var(--faint)", textDecoration: "none" }}>{categoryLabel}</Link>
           <span>›</span>
           <span style={{ color: "var(--text)" }}>{e.label}</span>
         </nav>
