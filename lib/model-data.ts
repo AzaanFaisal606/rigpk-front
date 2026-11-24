@@ -1,13 +1,7 @@
 import { cache } from "react";
 import { API_BASE, type Part } from "./api";
+import { CATALOG_FETCH } from "./catalog-cache";
 import type { ModelCategory } from "./models";
-
-/**
- * Model pages and the model pulldown both revalidate daily: listings only change
- * on the weekly scrape. The literal `revalidate` in app/gpu/[model]/page.tsx and
- * app/cpu/[model]/page.tsx must match.
- */
-export const MODEL_REVALIDATE = 86400;
 
 const PAGE_LIMIT = 100; // backend cap on `limit` for /api/parts
 
@@ -29,7 +23,7 @@ export async function fetchCatalogue(
     for (let offset = 0; offset === 0 || offset < total; offset += PAGE_LIMIT) {
       const res = await fetcher(
         `${API_BASE}/api/parts?category=${category}&limit=${PAGE_LIMIT}&offset=${offset}`,
-        { next: { revalidate: MODEL_REVALIDATE } }
+        { next: CATALOG_FETCH }
       );
       if (!res.ok) return { ok: false };
       const data = await res.json();
@@ -46,8 +40,8 @@ export async function fetchCatalogue(
 
 /**
  * One fetch per category, shared by generateMetadata, the page and the
- * pulldown within a render. Across renders the daily fetch cache holds it,
- * so traffic doesn't multiply the API calls.
+ * pulldown within a render. Across renders the fetch cache holds it until the
+ * next scrape, so traffic doesn't multiply the API calls.
  */
 export const getCategoryCatalogue = cache(
   (category: ModelCategory): Promise<CatalogueResult> => fetchCatalogue(category)

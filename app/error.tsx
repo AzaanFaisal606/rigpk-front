@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { monoFont } from "@/lib/tokens";
 
 // Kept deliberately plain — an error page that itself fetches something can
 // fail twice. No network calls, no data-dependent components.
@@ -13,68 +12,28 @@ export default function Error({
   reset: () => void;
 }) {
   return (
-    <div
-      className="flex flex-col items-center justify-center text-center px-6"
-      style={{ minHeight: "60vh", background: "var(--bg)" }}
-    >
+    <div className="status-page flex flex-col items-center justify-center text-center px-6">
       {/* Streamed pages can't change their status, so a backend failure on a
           first render (Render cold start) ships as 200. Keep it out of the
           index; React 19 hoists this into <head>. */}
       <meta name="robots" content="noindex" />
-      <div
-        style={{
-          border: "2px solid var(--ink)",
-          boxShadow: "6px 6px 0 var(--shadow)",
-          background: "var(--bg-card)",
-          padding: "40px 32px",
-          maxWidth: "440px",
-        }}
-      >
-        <p
-          style={{
-            fontFamily: monoFont,
-            fontSize: "0.9rem",
-            fontWeight: 900,
-            color: "var(--purple-text)",
-            letterSpacing: "3px",
-            textTransform: "uppercase",
-          }}
-        >
+      <div className="status-card">
+        <p className="status-title status-title--error">
           {"// SOMETHING WENT WRONG"}
         </p>
-        <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "12px" }}>
+        <p className="status-text status-text--loose">
           The page hit an unexpected error. This is on us, not your connection.
         </p>
-        <div className="flex items-center justify-center gap-3" style={{ marginTop: "24px" }}>
+        <div className="status-actions flex items-center justify-center gap-3">
           <button
             onClick={() => reset()}
-            style={{
-              border: "2px solid var(--ink)",
-              boxShadow: "2px 2px 0 var(--shadow)",
-              background: "var(--purple)",
-              color: "white",
-              padding: "8px 16px",
-              fontSize: "0.8rem",
-              fontWeight: 700,
-              transform: "skewX(-8deg)",
-              cursor: "pointer",
-            }}
+            className="status-btn status-btn--primary"
           >
             Try again
           </button>
           <Link
             href="/"
-            style={{
-              border: "2px solid var(--ink)",
-              boxShadow: "2px 2px 0 var(--shadow)",
-              background: "var(--paper)",
-              color: "var(--text)",
-              padding: "8px 16px",
-              fontSize: "0.8rem",
-              fontWeight: 700,
-              transform: "skewX(-8deg)",
-              display: "inline-block",
-            }}
+            className="status-btn status-btn--secondary"
           >
             Go home
           </Link>

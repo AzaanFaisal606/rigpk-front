@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import type { TrendGroup, TrendCategory, TrendGroupsResult } from "@/lib/trends-api";
 import { TREND_WHITELIST } from "@/lib/constants";
 import TrendRow from "@/components/TrendRow";
-import { monoFont } from "@/lib/tokens";
 
 const TITLES: Record<TrendCategory, string> = {
   gpu: "Graphics Cards",
@@ -33,53 +32,21 @@ export default function TrendListPanel({
   }, [category, groups]);
 
   return (
-    <div
-      style={{
-        border: "2px solid var(--ink)",
-        boxShadow: "8px 8px 0 var(--shadow)",
-        background: "var(--bg-card)",
-        overflow: "hidden",
-      }}
-    >
+    <div className="trend-panel">
       {/* Black header bar */}
-      <div
-        className="flex items-center justify-between px-4"
-        style={{
-          background: "var(--bar)",
-          color: "white",
-          height: "40px",
-          fontFamily: monoFont,
-          fontSize: "0.7rem",
-          fontWeight: 800,
-          letterSpacing: "2px",
-          textTransform: "uppercase",
-        }}
-      >
+      <div className="trend-panel-bar flex items-center justify-between px-4">
         <span>{TITLES[category]}</span>
-        <span style={{ opacity: 0.6, fontSize: "0.6rem" }}>{rows.length} TRACKED</span>
+        <span className="trend-panel-count">{rows.length} TRACKED</span>
       </div>
 
       {/* Scrollable list */}
-      <div
-        className="trend-list"
-        style={{
-          maxHeight: "440px",
-          overflowY: "auto",
-          overflowX: "hidden",
-        }}
-      >
+      <div className="trend-list">
         {!result.ok ? (
-          <div
-            className="mono px-4 py-8 text-center"
-            style={{ fontSize: "0.72rem", color: "var(--purple-text)", fontWeight: 700 }}
-          >
+          <div className="mono px-4 py-8 text-center trend-panel-msg trend-panel-msg--error">
             {"// TRENDS TEMPORARILY UNAVAILABLE"}
           </div>
         ) : rows.length === 0 ? (
-          <div
-            className="mono px-4 py-8 text-center"
-            style={{ fontSize: "0.72rem", color: "var(--text-dim)", fontWeight: 700 }}
-          >
+          <div className="mono px-4 py-8 text-center trend-panel-msg trend-panel-msg--empty">
             No trend data available
           </div>
         ) : (

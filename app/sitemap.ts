@@ -5,7 +5,8 @@ import { BUDGETS } from "@/lib/budgets";
 import { allFacetRoutes, facetPath } from "@/lib/facets";
 import { MODELS, modelPath } from "@/lib/models";
 import { SITE_URL as BASE } from "@/lib/seo";
-import { getIndexableParts, PART_REVALIDATE, partPath } from "@/lib/part-page";
+import { getIndexableParts, partPath } from "@/lib/part-page";
+import { CATALOG_FETCH } from "@/lib/catalog-cache";
 
 /** scraped_at as a Date, or undefined when it doesn't parse. */
 function toDate(s: string | null | undefined): Date | undefined {
@@ -14,21 +15,22 @@ function toDate(s: string | null | undefined): Date | undefined {
   return Number.isNaN(d.getTime()) ? undefined : d;
 }
 
-// Rebuilt once a week (PART_REVALIDATE; segment config must be a literal):
-// part pages are the bulk of it and only change on the weekly scrape, and each
-// build is one full read of the indexable parts.
-export const revalidate = 604800;
+// Rebuilt after each scrape (lib/catalog-cache.ts; the literal is the
+// CATALOG_REVALIDATE backstop, segment config can't import it): part pages are
+// the bulk of it and only change then, and each build is one full read of the
+// indexable parts.
+export const revalidate = 2592000;
 
 // Static pages carry no lastModified: stamping them with the request time
 // told crawlers everything changed on every fetch, which made the field useless.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ~144 active prebuilts as of the last DB snapshot — 200 covers the whole
   // catalogue in one page (backend caps `limit` at 200).
-  // Week-long fetch, same as the route: the default 30s window set the whole
+  // Same window and tag as the route: the default 30s window set the whole
   // sitemap's revalidate to 30s (a route revalidates at its shortest fetch),
   // rebuilding it — and re-reading every indexable part — on nearly every
   // crawler hit.
-  const prebuiltsResult = await getPrebuilts({ limit: 200 }, { revalidate: PART_REVALIDATE });
+  const prebuiltsResult = await getPrebuilts({ limit: 200 }, CATALOG_FETCH);
   const prebuiltUrls: MetadataRoute.Sitemap = prebuiltsResult.ok
     ? prebuiltsResult.items.map(p => ({
         url: `${BASE}/prebuilts/${p.id}`,

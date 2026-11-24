@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PHASE_PRODUCTION_BUILD } from "next/constants";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
@@ -26,7 +25,7 @@ import {
   type ModelEntry,
 } from "@/lib/models";
 import { SITE_URL } from "@/lib/seo";
-import { monoFont, sansFont } from "@/lib/tokens";
+import { failOrRender } from "@/lib/keep-stale";
 
 export async function modelMetadata(category: ModelCategory, slug: string): Promise<Metadata> {
   const e = modelBySlug(category, slug);
@@ -49,57 +48,22 @@ export async function modelMetadata(category: ModelCategory, slug: string): Prom
   };
 }
 
-/**
- * A failed catalogue fetch must not be cached as this page's content. At
- * runtime, throwing makes ISR keep serving the last good render and retry on
- * the next request. During `next build` (no previous render to fall back on)
- * and in dev, render the failure state instead of breaking the build.
- */
-function failOrRender(): boolean {
-  const canKeepStale =
-    process.env.NODE_ENV === "production" && process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD;
-  if (canKeepStale) throw new Error("Model page: parts catalogue fetch failed");
-  return true;
-}
-
-const labelStyle = {
-  fontFamily: monoFont,
-  fontSize: "10px",
-  fontWeight: 800,
-  color: "var(--faint)",
-  letterSpacing: "2px",
-  textTransform: "uppercase" as const,
-};
-
 function SiblingLinks({ current }: { current: ModelEntry }) {
   return (
     <nav
       aria-label={`Other ${seriesOf(current).label} models`}
-      style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px", margin: "20px 0 28px" }}
+      className="landing-siblings landing-siblings--labelled"
     >
-      <span style={{ ...labelStyle, fontSize: "9px", color: "var(--text-dim)", marginRight: "2px" }}>
+      <span className="landing-series">
         {seriesOf(current).label}
       </span>
       {siblings(current).map(m => (
         <Link prefetch={false}
           key={m.slug}
           href={modelPath(m)}
-          style={{
-            padding: "7px 14px",
-            border: "2px solid var(--ink)",
-            boxShadow: "2px 2px 0 var(--shadow)",
-            background: "var(--paper)",
-            color: "var(--text)",
-            fontFamily: sansFont,
-            fontSize: "12px",
-            fontWeight: 700,
-            letterSpacing: "-0.005em",
-            textDecoration: "none",
-            transform: "skewX(-8deg)",
-            display: "inline-block",
-          }}
+          className="landing-sibling"
         >
-          <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>{m.label}</span>
+          <span className="skew-label">{m.label}</span>
         </Link>
       ))}
     </nav>
@@ -113,7 +77,7 @@ export default async function ModelPage({ category, slug }: { category: ModelCat
   if (!e) notFound();
 
   const res = await getCategoryCatalogue(category);
-  const failed = !res.ok && failOrRender();
+  const failed = !res.ok && failOrRender("Model page: parts catalogue fetch failed");
   const parts = res.ok ? partsForModel(res.items, e) : [];
   const summary = summarizeModel(parts);
   const now = new Date();
@@ -168,48 +132,33 @@ export default async function ModelPage({ category, slug }: { category: ModelCat
       <Navbar />
 
       {/* Header strip: breadcrumb, with the model pulldown hanging off it. */}
-      <div style={{ position: "relative", zIndex: 30, background: "var(--bg)", borderBottom: "2px solid var(--ink)" }}>
-        <nav
-          aria-label="Breadcrumb"
-          style={{
-            maxWidth: "80rem",
-            margin: "0 auto",
-            padding: "12px 24px",
-            display: "flex",
-            gap: "6px",
-            fontFamily: monoFont,
-            fontSize: "10px",
-            fontWeight: 700,
-            color: "var(--faint)",
-            letterSpacing: "1px",
-            textTransform: "uppercase",
-          }}
-        >
-          <Link href="/" style={{ color: "var(--faint)", textDecoration: "none" }}>RIGPK</Link>
+      <div className="landing-strip">
+        <nav aria-label="Breadcrumb" className="crumb-bar landing-crumbs">
+          <Link href="/">RIGPK</Link>
           <span>›</span>
-          <Link prefetch={false} href={`/market/${category}`} style={{ color: "var(--faint)", textDecoration: "none" }}>{categoryLabel}</Link>
+          <Link prefetch={false} href={`/market/${category}`}>{categoryLabel}</Link>
           <span>›</span>
-          <span style={{ color: "var(--text)" }}>{e.label}</span>
+          <span className="crumb-here">{e.label}</span>
         </nav>
         <Suspense fallback={null}>
           <ModelPulldown activeSlug={`${category}/${e.slug}`} initialPath={[category, e.brand, e.series]} />
         </Suspense>
       </div>
 
-      <main className="pb-browser-wrapper" style={{ width: "100%", maxWidth: "80rem", margin: "0 auto", padding: "40px 24px 32px" }}>
-        <h1 style={{ fontFamily: sansFont, fontWeight: 700, fontSize: "clamp(1.9rem, 4vw, 2.5rem)", lineHeight: 1.05, letterSpacing: "-0.03em", color: "var(--text)", margin: 0 }}>
+      <main className="pb-browser-wrapper landing-main landing-main--fill">
+        <h1 className="page-title">
           {modelHeading(e)}
         </h1>
-        <p style={{ ...labelStyle, color: "var(--purple-text)", marginTop: "8px" }}>
+        <p className="landing-kicker">
           Prices for {monthYear(now)}
         </p>
 
         {failed ? (
-          <div style={{ padding: "80px 0", textAlign: "center" }}>
-            <p style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 900, color: "var(--purple-text)", letterSpacing: "1.5px" }}>
+          <div className="catalog-failed">
+            <p className="catalog-failed-title">
               {"// SEARCH FAILED"}
             </p>
-            <p style={{ fontFamily: sansFont, fontSize: "14px", color: "var(--text-muted)", letterSpacing: "-0.005em", marginTop: "8px" }}>
+            <p className="catalog-failed-text">
               Couldn&apos;t reach the server. Reload to try again.
             </p>
           </div>
@@ -222,21 +171,21 @@ export default async function ModelPage({ category, slug }: { category: ModelCat
             {faqs.length > 0 && (
               <section
                 aria-labelledby="model-faq"
-                style={{ marginTop: "48px", border: "2px solid var(--ink)", boxShadow: "10px 10px 0 var(--shadow)", background: "var(--paper)", overflow: "hidden" }}
+                className="landing-faq"
               >
                 <h2
                   id="model-faq"
-                  style={{ margin: 0, background: "var(--bar)", color: "white", padding: "10px 16px", fontFamily: monoFont, fontSize: "11px", fontWeight: 800, letterSpacing: "2px", textTransform: "uppercase" }}
+                  className="landing-faq-title"
                 >
                   FAQ · {e.label} price
                 </h2>
-                <div style={{ padding: "8px 16px 16px" }}>
+                <div className="landing-faq-list">
                   {faqs.map(f => (
-                    <div key={f.q} style={{ padding: "14px 0", borderBottom: "1.5px dashed var(--border)" }}>
-                      <h3 style={{ margin: 0, fontFamily: sansFont, fontSize: "14px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.005em" }}>
+                    <div key={f.q} className="landing-faq-item">
+                      <h3 className="landing-faq-q">
                         {f.q}
                       </h3>
-                      <p style={{ margin: "6px 0 0", fontSize: "14px", lineHeight: 1.6, color: "var(--text-muted)" }}>{f.a}</p>
+                      <p className="landing-faq-a">{f.a}</p>
                     </div>
                   ))}
                 </div>

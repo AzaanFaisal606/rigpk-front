@@ -1,19 +1,10 @@
 import { API_BASE, type Part, type PartDetails } from "./api";
+import { CATALOG_FETCH } from "./catalog-cache";
 import { MODELS, type ModelEntry } from "./models";
 import { monthYear } from "./budgets";
 import { formatPkr, storeName } from "./seo";
 
 export { partSlug, partPath, parsePartParam, PART_PARAM_RE } from "./part-slug";
-
-/**
- * Part pages (/part/<id>-<slug>) are built on their first request and cached
- * for 7 days (ISR). Prices move on the weekly scrape, and every regeneration
- * is a Vercel function render, an ISR write and a backend call on the Render
- * free tier, so a shorter window buys nothing and costs quota. The literal
- * `revalidate` in app/part/[slug]/page.tsx and app/sitemap.ts must match.
- * See docs/product-pages.md.
- */
-export const PART_REVALIDATE = 604800;
 
 /** A listing as the part page gets it: the market row plus its retailer details. */
 export interface PartPage extends Part {
@@ -60,7 +51,7 @@ export async function getPartPage(id: number): Promise<PartPage | null | "error"
     // A hung Render cold start must not burn function time; a timeout is
     // "error", so the last good page keeps being served.
     const res = await fetch(`${API_BASE}/api/parts/${id}`, {
-      next: { revalidate: PART_REVALIDATE },
+      next: CATALOG_FETCH,
       signal: AbortSignal.timeout(25_000),
     });
     if (res.status === 404) return null;
@@ -75,7 +66,7 @@ export async function getPartPage(id: number): Promise<PartPage | null | "error"
 export async function getIndexableParts(): Promise<SitemapPart[] | null> {
   try {
     const res = await fetch(`${API_BASE}/api/parts/sitemap`, {
-      next: { revalidate: PART_REVALIDATE },
+      next: CATALOG_FETCH,
       signal: AbortSignal.timeout(25_000),
     });
     if (!res.ok) return null;

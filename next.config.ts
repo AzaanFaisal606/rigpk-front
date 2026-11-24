@@ -5,10 +5,10 @@ import type { NextConfig } from "next";
 const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 // M-5: no security headers existed at all. `script-src`/`style-src` need
-// 'unsafe-inline' because Next injects an inline bootstrap script and this
-// app uses inline `style` props throughout — tighten to a nonce once Next 16
+// 'unsafe-inline' because Next injects an inline bootstrap script and a few
+// components set runtime-computed `style` props — tighten to a nonce once Next 16
 // nonce support is confirmed. `img-src https:` covers the ~11 retailer
-// thumbnail hosts (see next.config.ts remotePatterns / CLAUDE.md `SOURCES`)
+// thumbnail hosts (see `remotePatterns` below)
 // without hardcoding each one twice.
 const CSP = [
   "default-src 'self'",

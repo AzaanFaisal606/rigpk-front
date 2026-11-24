@@ -8,6 +8,7 @@ import { getStats } from "@/lib/api";
 import { getTrendGroups } from "@/lib/trends-api";
 import { SITE_URL } from "@/lib/seo";
 import type { Metadata } from "next";
+import { failOrRender } from "@/lib/keep-stale";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -17,6 +18,7 @@ export default async function Home() {
   // Same URL and revalidate as /trends, so this shares its data cache entry
   // and costs the backend nothing extra.
   const [statsResult, gpuResult] = await Promise.all([getStats(), getTrendGroups("gpu")]);
+  if (!statsResult.ok || !gpuResult.ok) failOrRender("Homepage: stats or trends fetch failed");
   const stats = statsResult.ok ? statsResult.data : null;
   const gpuGroups = gpuResult.ok ? gpuResult.data : null;
 

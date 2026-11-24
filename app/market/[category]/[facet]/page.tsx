@@ -59,7 +59,7 @@ export default async function FacetPage({ params, searchParams }: PageProps) {
   const baseParams = { [facet.key]: facet.value };
 
   return (
-    <div className="flex flex-col flex-1" style={{ background: "var(--bg)" }}>
+    <div className="page-bg flex flex-col flex-1">
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -82,7 +82,7 @@ export default async function FacetPage({ params, searchParams }: PageProps) {
       <main className="flex flex-col flex-1">
         <Suspense
           fallback={
-            <div className="py-20 text-center mono" style={{ color: "var(--text-dim)" }}>
+            <div className="market-loading py-20 text-center mono">
               Loading…
             </div>
           }

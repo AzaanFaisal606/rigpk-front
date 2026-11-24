@@ -123,16 +123,9 @@ export default function PartRow({ part }: { part: Part }) {
       aria-haspopup="dialog"
       href={path}
       className="px-4 py-3 no-underline part-row"
-      style={{ borderBottom: "1px solid var(--ink)" }}
     >
       {/* Thumbnail */}
-      <div
-        className="flex-shrink-0 flex items-center justify-center overflow-hidden part-row-thumb"
-        style={{
-          background: "var(--bg-section)",
-          border: "1.5px solid var(--ink)",
-        }}
-      >
+      <div className="flex-shrink-0 flex items-center justify-center overflow-hidden part-row-thumb">
         {part.thumbnail_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -144,61 +137,33 @@ export default function PartRow({ part }: { part: Part }) {
             decoding="async"
           />
         ) : (
-          <Icon className="part-row-icon" style={{ color: "var(--text-dim)" }} />
+          <Icon className="part-row-icon" />
         )}
       </div>
 
       {/* Name */}
-      <p className="font-medium part-row-name" style={{ color: "var(--text)" }}>
+      <p className="font-medium part-row-name">
         {part.name}
       </p>
 
       {/* Badges */}
       <div className="flex items-center gap-2 min-w-0 part-row-meta">
-        <span
-          className="mono px-1.5 py-px"
-          style={{
-            fontSize: "0.6rem",
-            fontWeight: 800,
-            color: "var(--purple-text)",
-            background: "color-mix(in srgb, var(--purple) 8%, transparent)",
-            border: "1px solid color-mix(in srgb, var(--purple) 22%, transparent)",
-          }}
-        >
+        <span className="mono px-1.5 py-px part-row-badge part-row-badge--cat">
           {part.category.toUpperCase()}
         </span>
         {part.condition && (
-          <span
-            className="mono px-1.5 py-px"
-            style={{
-              fontSize: "0.6rem",
-              fontWeight: 800,
-              color: "#fff",
-              background: "var(--bar)",
-              border: "1px solid var(--ink)",
-            }}
-          >
+          <span className="mono px-1.5 py-px part-row-badge part-row-badge--cond">
             {part.condition.toUpperCase()}
           </span>
         )}
-        <span
-          className="mono truncate"
-          style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text-muted)" }}
-        >
+        <span className="mono truncate part-row-source">
           {SOURCE_SHORT[part.source] ?? part.source}
         </span>
       </div>
 
       {/* Price */}
       <div className="flex-shrink-0 text-right part-row-price-wrap">
-        <span
-          className="mono part-row-price"
-          style={{
-            fontWeight: 900,
-            whiteSpace: "nowrap",
-            color: part.price_pkr ? "var(--text)" : "var(--text-dim)",
-          }}
-        >
+        <span className={`mono part-row-price${part.price_pkr ? "" : " part-row-price--oos"}`}>
           {formatPrice(part.price_pkr)}
         </span>
       </div>

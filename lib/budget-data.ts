@@ -1,17 +1,10 @@
 // Server-only: pulls in thumb-check (sharp).
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
+import { CATALOG_FETCH, CATALOG_REVALIDATE, CATALOG_TAG } from "./catalog-cache";
 import { BUDGETS, MAX_BUDGET, prebuiltsInBudget, type Budget } from "./budgets";
 import { getAllPrebuiltsUnder, type PrebuiltsResult } from "./prebuilts-api";
 import { pickBackgroundlessThumbSettled } from "./thumb-check";
-
-/**
- * Budget pages and the pulldown revalidate daily. Prebuilt data only changes
- * on the weekly scrape; the page title carries the month, which a day's lag
- * can't get wrong for long. The literal `revalidate` in
- * app/gaming-pc-under/[budget]/page.tsx must match.
- */
-export const BUDGET_REVALIDATE = 86400;
 
 /**
  * One fetch covers every bucket: all prebuilts under the largest budget,
@@ -19,7 +12,7 @@ export const BUDGET_REVALIDATE = 86400;
  * generateMetadata and the page within a render.
  */
 export const getBudgetCatalogue = cache(
-  (): Promise<PrebuiltsResult> => getAllPrebuiltsUnder(MAX_BUDGET, BUDGET_REVALIDATE)
+  (): Promise<PrebuiltsResult> => getAllPrebuiltsUnder(MAX_BUDGET, CATALOG_FETCH)
 );
 
 export interface BudgetBucket {
@@ -66,7 +59,8 @@ export async function buildBudgetBuckets(): Promise<BudgetBucket[]> {
  * /prebuilts render does no thumbnail work at all on a hit.
  */
 const getCachedBuckets = unstable_cache(buildBudgetBuckets, ["budget-buckets-v1"], {
-  revalidate: BUDGET_REVALIDATE,
+  revalidate: CATALOG_REVALIDATE,
+  tags: [CATALOG_TAG],
 });
 
 /** Null when the catalogue fetch failed; the boxes then render without data. */

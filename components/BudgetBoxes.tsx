@@ -2,7 +2,6 @@ import Link from "next/link";
 import { BUDGETS } from "@/lib/budgets";
 import type { BudgetBucket } from "@/lib/budget-data";
 import { formatPkr } from "@/lib/seo";
-import { monoFont, sansFont } from "@/lib/tokens";
 
 interface Props {
   /** Null when the catalogue fetch failed — boxes still render as plain links. */
@@ -30,42 +29,11 @@ export default function BudgetBoxes({ buckets, activeSlug }: Props) {
             className="budget-box pulldown-box"
             aria-current={active ? "page" : undefined}
             title={`Best gaming PC under ${budget.short.toLowerCase()} (${budget.lakh}) in Pakistan`}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "stretch",
-              gap: "8px",
-              padding: "10px",
-              border: active ? "2px solid var(--on-maroon)" : "2px solid var(--ink)",
-              boxShadow: "4px 4px 0 var(--shadow)",
-              background: "var(--purple)",
-              textDecoration: "none",
-              color: "white",
-              minWidth: 0,
-            }}
           >
-            <span className="pulldown-box-title"
-              style={{
-                fontFamily: sansFont,
-                fontSize: "17px",
-                fontWeight: 700,
-                letterSpacing: "-0.005em",
-                color: "white",
-              }}
-            >
+            <span className="pulldown-box-title">
               {"< "}{budget.short}
             </span>
-            <span className="pulldown-box-well"
-              style={{
-                height: "96px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "1.5px solid var(--ink)",
-                background: "var(--purple-hover)",
-                overflow: "hidden",
-              }}
-            >
+            <span className="pulldown-box-well">
               {bucket?.thumb ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -73,33 +41,21 @@ export default function BudgetBoxes({ buckets, activeSlug }: Props) {
                   alt={`Gaming PC under ${budget.short}`}
                   referrerPolicy="no-referrer"
                   loading="lazy"
-                  style={{ maxHeight: "88px", maxWidth: "100%", objectFit: "contain" }}
+                  className="pulldown-box-img"
                 />
               ) : (
-                <span style={{ fontFamily: monoFont, fontSize: "9px", color: "var(--on-maroon)", letterSpacing: "1px" }}>
+                <span className="pulldown-box-noimg">
                   {"// NO IMAGE"}
                 </span>
               )}
             </span>
-            <span className="pulldown-box-sub" style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase" }}>
+            <span className="pulldown-box-sub">
               {bucket ? `${bucket.count} PC${bucket.count === 1 ? "" : "S"}` : budget.lakh}
             </span>
             {/* Buckets are cumulative, so they all share the same cheapest PC —
                 the top price is what tells them apart. */}
             {bucket?.maxPrice != null && (
-              <span className="pulldown-box-meta"
-                style={{
-                  fontFamily: monoFont,
-                  fontSize: "12px",
-                  fontWeight: 700,
-                  color: "var(--on-maroon)",
-                  letterSpacing: "0.5px",
-                  textTransform: "uppercase",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
+              <span className="pulldown-box-meta">
                 up to {formatPkr(bucket.maxPrice)}
               </span>
             )}

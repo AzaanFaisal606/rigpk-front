@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   BRAND_LABEL,
@@ -15,7 +15,6 @@ import {
 import type { MenuThumb, ModelMenuData } from "@/lib/model-menu-data";
 import { BrandLogo, CategoryIcon } from "@/components/ModelMenuArt";
 import { formatPkr } from "@/lib/seo";
-import { monoFont, sansFont } from "@/lib/tokens";
 
 interface Props {
   /** Null when the catalogue fetch failed — every level and link still renders. */
@@ -48,58 +47,6 @@ function crumbLabel(path: string[], depth: number): string {
   return MODEL_SERIES.find(s => s.key === key)?.label ?? key;
 }
 
-const boxStyle: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "stretch",
-  gap: "6px",
-  padding: "10px",
-  border: "2px solid var(--ink)",
-  boxShadow: "4px 4px 0 var(--shadow)",
-  background: "var(--purple)",
-  textDecoration: "none",
-  color: "white",
-  textAlign: "left",
-  cursor: "pointer",
-  minWidth: 0,
-};
-
-const boxLabelStyle: CSSProperties = {
-  fontFamily: sansFont,
-  fontSize: "16px",
-  fontWeight: 700,
-  letterSpacing: "-0.005em",
-  color: "white",
-};
-
-const boxSubStyle: CSSProperties = {
-  fontFamily: monoFont,
-  fontSize: "10px",
-  fontWeight: 800,
-  letterSpacing: "1px",
-  textTransform: "uppercase",
-};
-
-const boxPriceStyle: CSSProperties = {
-  fontFamily: monoFont,
-  fontSize: "12px",
-  fontWeight: 700,
-  color: "var(--on-maroon)",
-  letterSpacing: "0.5px",
-  textTransform: "uppercase",
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-};
-
-const trailTextStyle: CSSProperties = {
-  fontFamily: monoFont,
-  fontSize: "10px",
-  fontWeight: 800,
-  letterSpacing: "1px",
-  textTransform: "uppercase",
-};
-
 /**
  * The darker maroon well every box has, backing its icon, logo or transparent
  * thumbnail. A photo shot on white gets a white well instead, so it reads as a
@@ -107,17 +54,7 @@ const trailTextStyle: CSSProperties = {
  */
 function Well({ children, photo = false }: { children: ReactNode; photo?: boolean }) {
   return (
-    <span
-      className="pulldown-box-well"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        border: "1.5px solid var(--ink)",
-        background: photo ? "white" : "var(--purple-hover)",
-        overflow: "hidden",
-      }}
-    >
+    <span className={photo ? "pulldown-box-well pulldown-box-well--photo" : "pulldown-box-well"}>
       {children}
     </span>
   );
@@ -130,7 +67,7 @@ function ThumbWell({ thumb, alt }: { thumb: MenuThumb | null | undefined; alt: s
   if (!thumb || failed) {
     return (
       <Well>
-        <span style={{ fontFamily: monoFont, fontSize: "9px", color: "var(--on-maroon)", letterSpacing: "1px" }}>
+        <span className="pulldown-box-noimg">
           {"// NO IMAGE"}
         </span>
       </Well>
@@ -145,7 +82,7 @@ function ThumbWell({ thumb, alt }: { thumb: MenuThumb | null | undefined; alt: s
         referrerPolicy="no-referrer"
         loading="lazy"
         onError={() => setFailed(true)}
-        style={{ maxHeight: "88%", maxWidth: "100%", objectFit: "contain" }}
+        className="pulldown-box-img pulldown-box-img--fit"
       />
     </Well>
   );
@@ -153,10 +90,10 @@ function ThumbWell({ thumb, alt }: { thumb: MenuThumb | null | undefined; alt: s
 
 function NavBox({ label, sub, art, onClick }: { label: string; sub: string; art: ReactNode; onClick: () => void }) {
   return (
-    <button type="button" className="budget-box pulldown-box" onClick={onClick} style={boxStyle}>
-      <span className="pulldown-box-title" style={boxLabelStyle}>{label} ›</span>
+    <button type="button" className="budget-box pulldown-box" onClick={onClick}>
+      <span className="pulldown-box-title">{label} ›</span>
       {art}
-      <span className="pulldown-box-sub" style={boxSubStyle}>{sub}</span>
+      <span className="pulldown-box-sub">{sub}</span>
     </button>
   );
 }
@@ -184,53 +121,30 @@ export default function ModelMenu({ data, activeSlug, initialPath = [] }: Props)
     setPath(next);
   }
 
-  const crumbButton: CSSProperties = {
-    ...trailTextStyle,
-    background: "none",
-    border: "none",
-    padding: 0,
-    color: "rgba(255,255,255,0.55)",
-    cursor: "pointer",
-    textDecoration: "underline",
-    textUnderlineOffset: "3px",
-  };
-
   return (
     // Bleeds over the drawer's 18px padding so the header bar and the
     // halftone reach its edges.
-    <div ref={rootRef} style={{ margin: "-18px" }}>
+    <div ref={rootRef} className="model-menu">
       {/* Header bar, as on every panel: title and trail on the left (each
           crumb goes back to its level), Back on the right. */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "12px",
-          padding: "10px 18px",
-          minHeight: "46px",
-          background: "var(--bar)",
-          borderBottom: "2px solid var(--ink)",
-          color: "white",
-        }}
-      >
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 14px", minWidth: 0 }}>
-          <span className="model-menu-title" style={{ ...trailTextStyle, fontSize: "11px", letterSpacing: "2px", color: "white" }}>
+      <div className="model-menu-bar">
+        <div className="model-menu-head">
+          <span className="model-menu-trail model-menu-title">
             {"// SHOP BY MODEL"}
           </span>
-          <nav aria-label="Model menu level" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px" }}>
+          <nav aria-label="Model menu level" className="model-menu-crumbs">
             {path.length === 0 ? (
-              <span style={{ ...trailTextStyle, color: "white" }}>ALL</span>
+              <span className="model-menu-trail model-menu-here">ALL</span>
             ) : (
-              <button type="button" onClick={() => go([])} style={crumbButton}>ALL</button>
+              <button type="button" onClick={() => go([])} className="model-menu-trail model-menu-crumb">ALL</button>
             )}
             {path.map((_, depth) => (
-              <span key={depth} style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                <span aria-hidden style={{ ...trailTextStyle, color: "rgba(255,255,255,0.35)" }}>›</span>
+              <span key={depth} className="model-menu-step">
+                <span aria-hidden className="model-menu-trail model-menu-sep">›</span>
                 {depth === path.length - 1 ? (
-                  <span style={{ ...trailTextStyle, color: "white" }}>{crumbLabel(path, depth)}</span>
+                  <span className="model-menu-trail model-menu-here">{crumbLabel(path, depth)}</span>
                 ) : (
-                  <button type="button" onClick={() => go(path.slice(0, depth + 1))} style={crumbButton}>
+                  <button type="button" onClick={() => go(path.slice(0, depth + 1))} className="model-menu-trail model-menu-crumb">
                     {crumbLabel(path, depth)}
                   </button>
                 )}
@@ -238,57 +152,31 @@ export default function ModelMenu({ data, activeSlug, initialPath = [] }: Props)
             ))}
           </nav>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "14px", flexShrink: 0 }}>
+        <div className="model-menu-actions">
           {/* Skewed maroon slashes, the same lean as the site's chips. */}
-          <span aria-hidden className="model-menu-slashes" style={{ display: "flex", gap: "4px" }}>
+          <span aria-hidden className="model-menu-slashes">
+            {/* Opacity per slash (0.35, 0.6, 1) is set by position in globals.css. */}
             {[0.35, 0.6, 1].map(o => (
-              <span key={o} style={{ width: "7px", height: "16px", background: "var(--purple-accent)", opacity: o, transform: "skewX(-20deg)" }} />
+              <span key={o} />
             ))}
           </span>
           {path.length > 0 && (
             <button
               type="button"
               onClick={() => go(path.slice(0, -1))}
-              style={{
-                padding: "4px 10px",
-                border: "2px solid var(--ink)",
-                boxShadow: "2px 2px 0 var(--purple)",
-                background: "var(--paper)",
-                color: "var(--text)",
-                fontFamily: sansFont,
-                fontSize: "12px",
-                fontWeight: 700,
-                letterSpacing: "-0.005em",
-                transform: "skewX(-8deg)",
-                cursor: "pointer",
-                flexShrink: 0,
-                // Clear of the drawer's right border: the skew leans the top
-                // corner out and the hard shadow adds 2px more.
-                marginRight: "4px",
-              }}
+              className="model-menu-back"
             >
-              <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>‹ Back</span>
+              <span className="skew-label">‹ Back</span>
             </button>
           )}
         </div>
       </div>
 
-      <div style={{ position: "relative", padding: "18px" }}>
+      <div className="model-menu-body">
         {/* Black halftone, densest in the bottom-right corner and fading out
             toward the header: comic shading so the drawer isn't one flat block. */}
-        <span
-          aria-hidden
-          style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-            backgroundImage: "radial-gradient(circle, rgba(0,0,0,0.32) 1.2px, transparent 1.6px)",
-            backgroundSize: "9px 9px",
-            maskImage: "linear-gradient(to top left, black 0%, transparent 65%)",
-            WebkitMaskImage: "linear-gradient(to top left, black 0%, transparent 65%)",
-          }}
-        />
-        <div style={{ position: "relative" }}>
+        <span aria-hidden className="model-menu-dots" />
+        <div className="model-menu-levels">
           {/* Root: GPU / CPU */}
           <div className="model-box-grid pulldown-grid" hidden={!sameKeys(path, [])}>
             {CATEGORIES.map(c => (
@@ -349,16 +237,15 @@ export default function ModelMenu({ data, activeSlug, initialPath = [] }: Props)
                     className="budget-box pulldown-box"
                     aria-current={active ? "page" : undefined}
                     title={`${m.label} price in Pakistan`}
-                    style={{ ...boxStyle, border: active ? "2px solid var(--on-maroon)" : "2px solid var(--ink)" }}
                   >
-                    <span className="pulldown-box-title" style={boxLabelStyle}>{m.label}</span>
+                    <span className="pulldown-box-title">{m.label}</span>
                     <ThumbWell thumb={data?.thumbs[key]} alt={m.label} />
                     {count && (
-                      <span className="pulldown-box-sub" style={boxSubStyle}>
+                      <span className="pulldown-box-sub">
                         {count.count} listing{count.count === 1 ? "" : "s"}
                       </span>
                     )}
-                    {count?.min != null && <span className="pulldown-box-meta" style={boxPriceStyle}>from {formatPkr(count.min)}</span>}
+                    {count?.min != null && <span className="pulldown-box-meta">from {formatPkr(count.min)}</span>}
                   </Link>
                 );
               })}

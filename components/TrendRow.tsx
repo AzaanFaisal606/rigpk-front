@@ -1,7 +1,6 @@
 "use client";
 
 import { Cpu, MemoryStick, MonitorPlay } from "lucide-react";
-import { useState } from "react";
 import type { TrendGroup, TrendCategory } from "@/lib/trends-api";
 import TrendSparkline from "@/components/TrendSparkline";
 
@@ -30,66 +29,39 @@ export default function TrendRow({
   category: TrendCategory;
 }) {
   const Icon = CAT_ICON[category];
-  const [hovered, setHovered] = useState(false);
 
-  // Sizing lives in CSS media queries (.trend-*) rather than an isMobile
-  // hook — the row must render identically on the server, and every column
-  // stays mounted at all widths now that the row scrolls horizontally.
-  const bg = hovered ? "var(--purple-pale)" : "var(--bg-card)";
-
+  // Sizing and hover live in CSS (.trend-*) rather than an isMobile hook or
+  // hover state — the row must render identically on the server, and every
+  // column stays mounted at all widths now that the row scrolls horizontally.
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        borderBottom: "1px solid var(--ink)",
-        borderLeft: hovered ? "4px solid var(--purple)" : "4px solid transparent",
-        background: bg,
-        transition: "background 0.1s, border-left-color 0.1s",
-      }}
-    >
+    <div className="trend-row">
       {/* Each row is its own scrollport, so rows scroll independently. */}
       <div className="trend-row-scroll">
         <div className="trend-row-track">
           {/* Thumbnail — pinned left so the row stays identifiable while
               the numbers and chart scroll past it. */}
-          <div className="trend-row-pin" style={{ background: bg }}>
+          <div className="trend-row-pin">
             <div className="trend-thumb flex items-center justify-center overflow-hidden">
               {group.thumbnail_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={group.thumbnail_url}
                   alt={group.group_key}
-                  className="object-contain"
-                  style={{ maxWidth: "100%", maxHeight: "100%" }}
+                  className="object-contain trend-thumb-img"
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <Icon size={20} style={{ color: "var(--text-dim)" }} />
+                <Icon size={20} className="trend-thumb-icon" />
               )}
             </div>
           </div>
 
           {/* Name + listings */}
           <div className="trend-name">
-            <p
-              className="font-bold truncate"
-              style={{
-                color: hovered ? "var(--purple-text)" : "var(--text)",
-                transition: "color 0.1s",
-              }}
-            >
+            <p className="font-bold truncate trend-row-name">
               {displayName(group.group_key, category)}
             </p>
-            <span
-              className="mono trend-listings inline-block mt-1 px-1.5 py-px"
-              style={{
-                fontWeight: 800,
-                color: "var(--text-muted)",
-                border: "1px solid color-mix(in srgb, var(--ink) 30%, transparent)",
-                whiteSpace: "nowrap",
-              }}
-            >
+            <span className="mono trend-listings inline-block mt-1 px-1.5 py-px">
               {group.sample_count} LISTINGS
             </span>
           </div>
@@ -97,10 +69,7 @@ export default function TrendRow({
           {/* Real median. The chart line is an index and drifts from it. */}
           <div className="trend-avg text-right">
             <div className="trend-col-label mono">{group.median_price != null ? "MEDIAN" : "INDEX"}</div>
-            <div
-              className="mono trend-avg-value"
-              style={{ fontWeight: 900, whiteSpace: "nowrap", color: "var(--text)" }}
-            >
+            <div className="mono trend-avg-value">
               {fmt(group.median_price ?? group.latest_price)}
             </div>
           </div>

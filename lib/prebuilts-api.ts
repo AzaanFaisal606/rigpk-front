@@ -39,9 +39,15 @@ export type PrebuiltsResult =
   | { ok: true; items: Prebuilt[]; total: number }
   | { ok: false; error: "network" | "http"; status?: number };
 
+/** Data-cache options for the fetch; the default 30s window suits the live browser. */
+export interface FetchCacheOptions {
+  revalidate?: number;
+  tags?: string[];
+}
+
 export async function getPrebuilts(
   params: PrebuiltsParams = {},
-  opts: { revalidate?: number } = {}
+  opts: FetchCacheOptions = {}
 ): Promise<PrebuiltsResult> {
   const qs = new URLSearchParams();
   if (params.source)                qs.set("source", params.source);
@@ -56,7 +62,7 @@ export async function getPrebuilts(
 
   try {
     const res = await fetch(`${API_BASE}/api/prebuilts?${qs}`, {
-      next: { revalidate: opts.revalidate ?? 30 },
+      next: { revalidate: opts.revalidate ?? 30, tags: opts.tags },
     });
     if (!res.ok) return { ok: false, error: "http", status: res.status };
     const data = await res.json();
@@ -76,14 +82,14 @@ const PAGE_LIMIT = 200; // backend cap on `limit`
  */
 export async function getAllPrebuiltsUnder(
   maxPrice: number,
-  revalidate: number
+  cacheOpts: FetchCacheOptions
 ): Promise<PrebuiltsResult> {
   const items: Prebuilt[] = [];
   let total = 0;
   for (let offset = 0; offset === 0 || offset < total; offset += PAGE_LIMIT) {
     const page = await getPrebuilts(
       { max_price: maxPrice, sort: "price_desc", limit: PAGE_LIMIT, offset },
-      { revalidate }
+      cacheOpts
     );
     if (!page.ok) return page;
     total = page.total;

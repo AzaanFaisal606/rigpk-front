@@ -1,51 +1,19 @@
 import Link from "next/link";
-import { monoFont } from "@/lib/tokens";
 
 // Plain — no fetching. Handles notFound() calls and any unmatched URL.
 export default function NotFound() {
   return (
-    <div
-      className="flex flex-col items-center justify-center text-center px-6"
-      style={{ minHeight: "60vh", background: "var(--bg)" }}
-    >
-      <div
-        style={{
-          border: "2px solid var(--ink)",
-          boxShadow: "6px 6px 0 var(--shadow)",
-          background: "var(--bg-card)",
-          padding: "40px 32px",
-          maxWidth: "440px",
-        }}
-      >
-        <p
-          style={{
-            fontFamily: monoFont,
-            fontSize: "0.9rem",
-            fontWeight: 900,
-            color: "var(--text-dim)",
-            letterSpacing: "3px",
-            textTransform: "uppercase",
-          }}
-        >
+    <div className="status-page flex flex-col items-center justify-center text-center px-6">
+      <div className="status-card">
+        <p className="status-title status-title--empty">
           {"// 404 NOT FOUND"}
         </p>
-        <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "12px" }}>
+        <p className="status-text status-text--loose">
           Couldn&apos;t find that page.
         </p>
         <Link
           href="/"
-          style={{
-            border: "2px solid var(--ink)",
-            boxShadow: "2px 2px 0 var(--shadow)",
-            background: "var(--purple)",
-            color: "white",
-            padding: "8px 16px",
-              fontSize: "0.8rem",
-            fontWeight: 700,
-            transform: "skewX(-8deg)",
-            display: "inline-block",
-            marginTop: "24px",
-          }}
+          className="status-btn status-btn--primary status-btn--spaced"
         >
           Go home
         </Link>

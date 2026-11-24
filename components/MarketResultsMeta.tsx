@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { monoFont, sansFont } from "@/lib/tokens";
 import { buildPageUrl } from "@/lib/constants";
 import { subscribeIndexReady, subscribeSearch, subscribeTotal } from "@/lib/search-bus";
 
@@ -55,14 +54,7 @@ export default function MarketResultsMeta({
 
   if (part === "count") {
     return (
-      <span
-        style={{
-          fontFamily: monoFont,
-          fontSize: "10px",
-          color: "rgba(255,255,255,0.45)",
-          fontWeight: 600,
-        }}
-      >
+      <span className="market-list-count">
         {total.toLocaleString()} results
       </span>
     );
@@ -71,7 +63,7 @@ export default function MarketResultsMeta({
   if (part === "range") {
     if (total === 0) return null;
     return (
-      <span style={{ fontFamily: monoFont, fontSize: "0.65rem", color: "var(--text-dim)" }}>
+      <span className="market-range">
         {offset + 1}–{Math.min(offset + limit, total)} of {total.toLocaleString()}
       </span>
     );
@@ -99,74 +91,29 @@ export default function MarketResultsMeta({
   }
 
   return (
-    <div
-      style={{
-        marginTop: "20px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
+    <div className="market-pager">
       {hasPrev ? (
         <Link prefetch={false}
           href={pageUrl(offset - limit)}
-          style={{
-            padding: "7px 18px",
-            border: "2px solid var(--ink)",
-            boxShadow: "3px 3px 0 var(--shadow)",
-            background: "var(--paper)",
-            color: "var(--text)",
-            fontFamily: sansFont,
-            fontSize: "12px",
-            fontWeight: 700,
-            letterSpacing: "-0.005em",
-            textDecoration: "none",
-            transform: "skewX(-8deg)",
-            display: "inline-block",
-          }}
+          className="market-pager-btn market-pager-btn--prev"
         >
           ← Prev
         </Link>
       ) : (
-        <span style={{ width: 80 }} />
+        <span className="market-pager-spacer" />
       )}
-      <span
-        style={{
-          fontFamily: monoFont,
-          fontSize: "10px",
-          fontWeight: 700,
-          color: "var(--text-dim)",
-          letterSpacing: "1px",
-          border: "1.5px solid var(--border)",
-          padding: "5px 14px",
-          transform: "skewX(-6deg)",
-          display: "inline-block",
-        }}
-      >
+      <span className="market-pager-page">
         {currentPage} / {totalPages}
       </span>
       {hasNext ? (
         <Link prefetch={false}
           href={pageUrl(offset + limit)}
-          style={{
-            padding: "7px 18px",
-            border: "2px solid var(--ink)",
-            boxShadow: "3px 3px 0 var(--shadow)",
-            background: "var(--purple)",
-            color: "white",
-            fontFamily: sansFont,
-            fontSize: "12px",
-            fontWeight: 700,
-            letterSpacing: "-0.005em",
-            textDecoration: "none",
-            transform: "skewX(-8deg)",
-            display: "inline-block",
-          }}
+          className="market-pager-btn market-pager-btn--next"
         >
           Next →
         </Link>
       ) : (
-        <span style={{ width: 80 }} />
+        <span className="market-pager-spacer" />
       )}
     </div>
   );

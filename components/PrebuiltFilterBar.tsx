@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState, useTransition, type ReactNode
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import { ToggleChip } from "@/components/ui/ToggleChip";
-import { monoFont, sansFont } from "@/lib/tokens";
 import { useScrollHide, SCROLL_HIDE_TRANSITION } from "@/lib/hooks/useScrollHide";
 import { DEFAULT_SORT } from "@/lib/constants";
 
@@ -85,33 +84,13 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
 
   return (
     <div
-      style={{
-        position: "sticky",
-        top: "52px",
-        zIndex: 40,
-        background: "var(--bg)",
-        borderBottom: "2px solid var(--ink)",
-        transform: hidden ? "translateY(-100%)" : "translateY(0)",
-        transition: SCROLL_HIDE_TRANSITION,
-      }}
+      className={hidden ? "pb-filterbar pb-filterbar--hidden" : "pb-filterbar"}
+      style={{ transition: SCROLL_HIDE_TRANSITION }}
     >
-      <div style={{
-        overflowX: "auto",
-        scrollbarWidth: "none",
-      }}>
-      <div
-        style={{
-          maxWidth: "80rem",
-          margin: "0 auto",
-          padding: "12px 24px",
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          minWidth: "max-content",
-        }}
-      >
+      <div className="pb-filter-scroll">
+      <div className="pb-filter-row">
         {/* Search */}
-        <div style={{ position: "relative", display: "flex", alignItems: "center", flexShrink: 0 }}>
+        <div className="pb-filter-search-wrap">
           <input
             value={searchInput}
             onChange={e => setSearchInput(e.target.value)}
@@ -123,25 +102,14 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
             autoCapitalize="off"
             spellCheck={false}
             enterKeyHint="search"
-            style={{
-              padding: "5px 26px 5px 10px",
-              border: searchInput ? "2px solid var(--purple)" : "2px solid var(--ink)",
-              boxShadow: searchInput ? "2px 2px 0 var(--purple)" : "2px 2px 0 var(--shadow)",
-              fontFamily: sansFont,
-              fontSize: "13px",
-              fontWeight: 700,
-              background: "var(--paper)",
-              color: "var(--text)",
-              outline: "none",
-              width: "180px",
-            }}
+            className={searchInput ? "pb-filter-search pb-filter-search--filled" : "pb-filter-search"}
           />
           {isPending && (
-            <span aria-hidden className="filter-pending-dot" style={{ position: "absolute", right: "9px" }} />
+            <span aria-hidden className="filter-pending-dot pb-filter-pending" />
           )}
         </div>
 
-        <div style={{ width: "1px", height: "20px", background: "var(--ink)", flexShrink: 0 }} />
+        <div className="pb-filter-sep" />
 
         {/* Retailer */}
         <ComicDropdown
@@ -152,11 +120,11 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
           onClear={() => push({ source: undefined })}
         />
 
-        <div style={{ width: "1px", height: "20px", background: "var(--ink)", flexShrink: 0 }} />
+        <div className="pb-filter-sep" />
 
         {/* CPU brand */}
-        <span style={{ fontFamily: monoFont, fontSize: "9px", fontWeight: 800, color: "var(--grey-500)", letterSpacing: "1px" }}>CPU</span>
-        <div style={{ display: "flex", gap: "4px" }}>
+        <span className="pb-filter-label">CPU</span>
+        <div className="pb-filter-chips">
           {CPU_BRANDS.map(b => (
             <ToggleChip
               key={b}
@@ -167,11 +135,11 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
           ))}
         </div>
 
-        <div style={{ width: "1px", height: "20px", background: "var(--ink)", flexShrink: 0 }} />
+        <div className="pb-filter-sep" />
 
         {/* GPU brand */}
-        <span style={{ fontFamily: monoFont, fontSize: "9px", fontWeight: 800, color: "var(--grey-500)", letterSpacing: "1px" }}>GPU</span>
-        <div style={{ display: "flex", gap: "4px" }}>
+        <span className="pb-filter-label">GPU</span>
+        <div className="pb-filter-chips">
           {GPU_BRANDS.map(b => (
             <ToggleChip
               key={b}
@@ -182,37 +150,27 @@ export default function PrebuiltFilterBar({ pulldown }: Props = {}) {
           ))}
         </div>
 
-        <div style={{ width: "1px", height: "20px", background: "var(--ink)", flexShrink: 0 }} />
+        <div className="pb-filter-sep" />
 
         {/* Price range */}
-        <span style={{ fontFamily: monoFont, fontSize: "9px", fontWeight: 800, color: "var(--grey-500)", letterSpacing: "1px" }}>PRICE</span>
+        <span className="pb-filter-label">PRICE</span>
         <input
           value={minPrice}
           onChange={e => push({ min_price: e.target.value || undefined })}
           placeholder="MIN"
           type="number"
-          style={{
-            width: "70px", padding: "5px 8px",
-            border: "2px solid var(--ink)", boxShadow: "2px 2px 0 var(--shadow)",
-            fontFamily: monoFont, fontSize: "10px", fontWeight: 700,
-            background: "var(--paper)", color: "var(--text)", outline: "none",
-          }}
+          className="pb-filter-price"
         />
-        <span style={{ fontFamily: monoFont, fontSize: "10px", color: "var(--grey-500)" }}>—</span>
+        <span className="pb-filter-dash">—</span>
         <input
           value={maxPrice}
           onChange={e => push({ max_price: e.target.value || undefined })}
           placeholder="MAX"
           type="number"
-          style={{
-            width: "70px", padding: "5px 8px",
-            border: "2px solid var(--ink)", boxShadow: "2px 2px 0 var(--shadow)",
-            fontFamily: monoFont, fontSize: "10px", fontWeight: 700,
-            background: "var(--paper)", color: "var(--text)", outline: "none",
-          }}
+          className="pb-filter-price"
         />
 
-        <div style={{ width: "1px", height: "20px", background: "var(--ink)", flexShrink: 0 }} />
+        <div className="pb-filter-sep" />
 
         {/* Sort */}
         <ComicDropdown

@@ -25,12 +25,12 @@ export default async function MarketPage({ searchParams }: PageProps) {
   const resolvedParams = await searchParams;
 
   return (
-    <div className="flex flex-col flex-1" style={{ background: "var(--bg)" }}>
+    <div className="page-bg flex flex-col flex-1">
       <Navbar />
       <main className="flex flex-col flex-1">
         <Suspense
           fallback={
-            <div className="py-20 text-center mono" style={{ color: "var(--text-dim)" }}>
+            <div className="market-loading py-20 text-center mono">
               Loading…
             </div>
           }

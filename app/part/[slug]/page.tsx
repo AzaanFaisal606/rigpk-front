@@ -13,16 +13,14 @@ import {
 } from "@/lib/part-page";
 import { isSafeHref } from "@/lib/safe-url";
 import { SITE_URL, storeName } from "@/lib/seo";
-import { monoFont } from "@/lib/tokens";
 
-// Built on the first request, then served from cache and regenerated in the
-// background at most once a week (PART_REVALIDATE, matching the weekly scrape;
-// segment config must be a literal, so it can't import the constant). Nothing
-// is prebuilt: ~7.7k listings would make every deploy hammer the Render free
-// tier. The page must
+// Built on the first request, then served from cache until a scrape refreshes
+// it (lib/catalog-cache.ts; the literal is its CATALOG_REVALIDATE backstop,
+// since segment config can't import a constant). Nothing is prebuilt: ~7.7k
+// listings would make every deploy hammer the Render free tier. The page must
 // never read searchParams or headers, or it turns dynamic and every hit
 // becomes a render + backend call. See docs/product-pages.md.
-export const revalidate = 604800;
+export const revalidate = 2592000;
 
 export function generateStaticParams() {
   return [];
@@ -101,7 +99,7 @@ export default async function PartPageRoute({ params }: PageProps) {
   ];
 
   return (
-    <div className="flex flex-col flex-1" style={{ background: "var(--bg)" }}>
+    <div className="flex flex-col flex-1 pd-page">
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -146,15 +144,15 @@ export default async function PartPageRoute({ params }: PageProps) {
         }}
       />
       <Navbar />
-      <main className="flex flex-col flex-1 w-full" style={{ maxWidth: 1008, margin: "0 auto", padding: "20px 16px 48px" }}>
-        <nav aria-label="Breadcrumb" className="pdm-crumbs" style={{ fontFamily: monoFont }}>
+      <main className="flex flex-col flex-1 w-full pd-main">
+        <nav aria-label="Breadcrumb" className="pdm-crumbs">
           {crumbs.map(c => (
-            <span key={c.href} style={{ display: "contents" }}>
+            <span key={c.href} className="pdm-crumb">
               <Link href={c.href} prefetch={false}>{c.name}</Link>
               <span aria-hidden="true">›</span>
             </span>
           ))}
-          <span aria-current="page" style={{ color: "var(--text)" }}>{store}</span>
+          <span aria-current="page" className="pdm-crumb-here">{store}</span>
         </nav>
         <article className="pdm pdm-static">
           <PartDetail part={p} details={p.details} variant="page" checked={checkedDate(p.last_seen_at)} />

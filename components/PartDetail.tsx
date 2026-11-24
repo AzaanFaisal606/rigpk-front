@@ -7,7 +7,6 @@ import type { Part, PartDetails } from "@/lib/api";
 import { fullImageUrl, modelForPart, partChips, partPath } from "@/lib/part-page";
 import { isSafeHref } from "@/lib/safe-url";
 import { SITE_URL, storeName } from "@/lib/seo";
-import { monoFont, sansFont } from "@/lib/tokens";
 
 type Tab = "overview" | "highlights" | "specs";
 
@@ -25,8 +24,8 @@ function formatPrice(p: number | null): string {
 
 function Chip({ label }: { label: string }) {
   return (
-    <span className="pdm-chip" style={{ fontFamily: monoFont }}>
-      <span style={{ display: "inline-block", transform: "skewX(10deg)" }}>{label}</span>
+    <span className="pdm-chip">
+      <span className="skew-label-10">{label}</span>
     </span>
   );
 }
@@ -36,7 +35,7 @@ function Highlights({ items }: { items: string[] }) {
     <ul className="pdm-hl">
       {items.map((h, i) => (
         <li key={i}>
-          <span aria-hidden="true" style={{ fontFamily: monoFont }}>+</span>
+          <span aria-hidden="true">+</span>
           <span>{h}</span>
         </li>
       ))}
@@ -49,7 +48,7 @@ function SpecTable({ rows }: { rows: PartDetails["specs"] }) {
     <dl className="pdm-specs">
       {rows.map(([group, label, value], i) => (
         <div key={i} className="pdm-spec-row">
-          <dt style={{ fontFamily: monoFont }}>{group ? `${group} · ${label}` : label}</dt>
+          <dt>{group ? `${group} · ${label}` : label}</dt>
           <dd>{value}</dd>
         </div>
       ))}
@@ -133,21 +132,21 @@ export default function PartDetail({ part, details, failed, variant, titleId, ch
               onError={() => { if (part.thumbnail_url && imgSrc !== part.thumbnail_url) setImgSrc(part.thumbnail_url); else setImgSrc(null); }}
             />
           ) : (
-            <span style={{ fontFamily: monoFont, fontSize: 11, color: "var(--text-dim)" }}>NO IMAGE</span>
+            <span className="pdm-pic-empty">NO IMAGE</span>
           )}
-          <span className="pdm-pic-tag" style={{ fontFamily: monoFont }}>{part.source}</span>
+          <span className="pdm-pic-tag">{part.source}</span>
         </div>
 
         <div className="pdm-info">
           <div className="pdm-info-top">
-            <span style={{ fontFamily: monoFont, fontSize: 12, color: "var(--text-2)" }}>
+            <span className="pdm-meta">
               {part.source} {"//"} {part.category.toUpperCase()}
               {part.condition ? ` · ${part.condition.toUpperCase()}` : ""}
             </span>
             {closeButton}
           </div>
-          <Heading id={titleId} className="pdm-name" style={{ fontFamily: sansFont, fontSize: nameFontPx(part.name) }}>
-            {words.join(" ")}{words.length ? " " : ""}<span style={{ fontStyle: "italic" }}>{last}</span>
+          <Heading id={titleId} className="pdm-name" style={{ fontSize: nameFontPx(part.name) }}>
+            {words.join(" ")}{words.length ? " " : ""}<span className="pdm-name-last">{last}</span>
           </Heading>
           {chips.length > 0 && <div className="pdm-chips">{chips.map(c => <Chip key={c} label={c} />)}</div>}
           {model && (
@@ -156,16 +155,15 @@ export default function PartDetail({ part, details, failed, variant, titleId, ch
               prefetch={false}
               onClick={e => { if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) onLeave?.(); }}
               className="pdm-model-link"
-              style={{ fontFamily: monoFont }}
             >
               All {model.label} prices in Pakistan →
             </Link>
           )}
 
           <div className="pdm-buy">
-            <div className="pdm-buy-bar" style={{ fontFamily: monoFont }}>◼ PRICE · {store.toUpperCase()}</div>
+            <div className="pdm-buy-bar">◼ PRICE · {store.toUpperCase()}</div>
             <div className="pdm-buy-body">
-              <div className="pdm-price" style={{ fontFamily: monoFont, color: part.price_pkr === null ? "var(--text-dim)" : "var(--purple-text)" }}>
+              <div className={part.price_pkr === null ? "pdm-price pdm-price--oos" : "pdm-price"}>
                 {formatPrice(part.price_pkr)}
               </div>
               <div className="pdm-buy-row">
@@ -174,30 +172,27 @@ export default function PartDetail({ part, details, failed, variant, titleId, ch
                   target={href ? "_blank" : undefined}
                   rel={href ? "noopener noreferrer" : undefined}
                   className="pdm-buy-btn"
-                  style={{ fontFamily: sansFont }}
                 >
-                  <span style={{ display: "inline-block", transform: "skewX(6deg)" }}>Buy at {store} ↗</span>
+                  <span className="skew-label-6">Buy at {store} ↗</span>
                 </a>
                 <button
                   className="pdm-icon-btn"
                   onClick={() => setLiked(l => !l)}
                   aria-label="Like"
                   aria-pressed={liked}
-                  style={{ background: liked ? "var(--danger-pale)" : "var(--paper)" }}
                 >
                   <Heart size={16} color={liked ? "#dc2626" : "var(--text)"} fill={liked ? "#dc2626" : "none"} />
                 </button>
                 <button
-                  className="pdm-icon-btn"
+                  className={copied ? "pdm-icon-btn pdm-icon-btn--copied" : "pdm-icon-btn"}
                   onClick={handleShare}
                   aria-label={copied ? "Link copied" : "Share"}
-                  style={{ background: copied ? "#16a34a" : "var(--paper)" }}
                 >
                   <Share2 size={16} color={copied ? "white" : "var(--text)"} />
                 </button>
               </div>
               {checked && (
-                <div className="pdm-checked" style={{ fontFamily: monoFont }}>Price checked {checked}</div>
+                <div className="pdm-checked">Price checked {checked}</div>
               )}
             </div>
           </div>
@@ -213,7 +208,6 @@ export default function PartDetail({ part, details, failed, variant, titleId, ch
               aria-selected={active === k}
               className="pdm-tab"
               onClick={() => setTab(k)}
-              style={{ fontFamily: monoFont }}
             >
               {label}
             </button>
@@ -223,10 +217,10 @@ export default function PartDetail({ part, details, failed, variant, titleId, ch
 
       <div className="pdm-panel">
         {!details && !failed && (
-          <p className="pdm-note" style={{ fontFamily: monoFont }}>Loading details…</p>
+          <p className="pdm-note">Loading details…</p>
         )}
         {(failed || (details && tabs.length === 0)) && (
-          <p className="pdm-note" style={{ fontFamily: monoFont }}>
+          <p className="pdm-note">
             {failed ? "Couldn't load details right now." : "No details from this retailer."}
             {href && <> See the full listing on <a href={href} target="_blank" rel="noopener noreferrer">{store} ↗</a></>}
           </p>
@@ -234,18 +228,18 @@ export default function PartDetail({ part, details, failed, variant, titleId, ch
         {details && counts.overview > 0 && (
           <div role="tabpanel" hidden={active !== "overview"} className="pdm-overview">
             <div>
-              <div className="pdm-kicker" style={{ fontFamily: monoFont }}>— From the retailer</div>
-              <SubHeading className="pdm-sub" style={{ fontFamily: sansFont }}>
-                What it <span style={{ color: "var(--purple-text)", fontStyle: "italic" }}>is.</span>
+              <div className="pdm-kicker">— From the retailer</div>
+              <SubHeading className="pdm-sub">
+                What it <span className="pdm-sub-accent">is.</span>
               </SubHeading>
               <p>{details.overview}</p>
             </div>
             {counts.highlights > 0 && (
               <div className="pdm-glance">
-                <div className="pdm-glance-bar" style={{ fontFamily: monoFont }}>◼ AT A GLANCE</div>
-                <div style={{ padding: "4px 14px" }}><Highlights items={details.highlights.slice(0, 4)} /></div>
+                <div className="pdm-glance-bar">◼ AT A GLANCE</div>
+                <div className="pdm-glance-list"><Highlights items={details.highlights.slice(0, 4)} /></div>
                 {counts.highlights > 4 && (
-                  <button className="pdm-glance-more" onClick={() => setTab("highlights")} style={{ fontFamily: monoFont }}>
+                  <button className="pdm-glance-more" onClick={() => setTab("highlights")}>
                     All {counts.highlights} highlights →
                   </button>
                 )}
@@ -254,14 +248,14 @@ export default function PartDetail({ part, details, failed, variant, titleId, ch
           </div>
         )}
         {details && counts.highlights > 0 && (
-          <div role="tabpanel" hidden={active !== "highlights"} style={{ maxWidth: 720 }}>
+          <div role="tabpanel" hidden={active !== "highlights"} className="pdm-hl-panel">
             <Highlights items={details.highlights} />
           </div>
         )}
         {details && counts.specs > 0 && (
           <div role="tabpanel" hidden={active !== "specs"}>
             <SpecTable rows={details.specs} />
-            <p className="pdm-note" style={{ fontFamily: monoFont, marginTop: 14 }}>Specs as listed by {store}.</p>
+            <p className="pdm-note pdm-note--specs">Specs as listed by {store}.</p>
           </div>
         )}
       </div>

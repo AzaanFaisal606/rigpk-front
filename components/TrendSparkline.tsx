@@ -85,14 +85,7 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
 
   if (series.length === 0) {
     return (
-      <div
-        className="mono trend-spark flex items-center justify-center"
-        style={{
-          fontSize: "0.6rem", fontWeight: 700,
-          color: "var(--text-dim)", border: "1.5px solid var(--ink)",
-          background: "var(--bg-section)",
-        }}
-      >
+      <div className="mono trend-spark trend-spark-empty flex items-center justify-center">
         NO DATA
       </div>
     );
@@ -146,12 +139,12 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
   const tipW = Math.round(136 * scale);
 
   return (
-    <div ref={wrapRef} className="trend-spark" style={{ position: "relative" }}>
+    <div ref={wrapRef} className="trend-spark trend-spark-wrap">
       <svg
         width="100%"
         height="100%"
         viewBox={`0 0 ${W} ${H}`}
-        style={{ display: "block", border: "1.5px solid var(--ink)", background: "var(--bg-section)" }}
+        className="trend-spark-svg"
       >
         {/* center line, dashed across missing scrapes */}
         {centerSegments.map((sg, i) => (
@@ -176,7 +169,7 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
               onPointerEnter={e => { if (e.pointerType === "mouse") setHover(i); }}
               onPointerLeave={e => { if (e.pointerType === "mouse") setHover(null); }}
               onClick={() => handleTap(i)}
-              style={{ cursor: "crosshair" }}
+              className="trend-spark-hit"
             />
             <rect
               x={x(i) - 2.5}
@@ -194,34 +187,25 @@ export default function TrendSparkline({ series }: { series: TrendPoint[] }) {
 
       {active && anchorRect && createPortal(
         <div
-          className="mono"
+          className={`mono trend-tip${below ? "" : " trend-tip--above"}`}
           style={{
-            position: "fixed",
+            // Measured and scaled to the rendered chart.
             left: Math.min(
               Math.max(anchorRect.left + x(hover!) * scale - tipW / 2, 8),
               window.innerWidth - tipW - 8
             ),
-            ...(below
-              ? { top: anchorRect.bottom + 2, transform: "none" }
-              : { top: anchorRect.top - 2, transform: "translateY(-100%)" }),
+            top: below ? anchorRect.bottom + 2 : anchorRect.top - 2,
             width: tipW,
-            background: "var(--bar)",
-            color: "white",
-            border: "1.5px solid var(--ink)",
-            boxShadow: "2px 2px 0 var(--purple)",
             padding: `${4 * scale}px ${6 * scale}px`,
             fontSize: `${0.62 * scale}rem`,
-            lineHeight: 1.5,
-            zIndex: 60,
-            pointerEvents: "none",
           }}
         >
-          <div style={{ fontWeight: 800, letterSpacing: "0.5px", color: "var(--on-maroon)" }}>
+          <div className="trend-tip-date">
             {shortDate(active.scrape_date)}
           </div>
-          <div style={{ fontWeight: 800, fontSize: "1.25em" }}>{fmt(active.median_price ?? active.center_price)}</div>
+          <div className="trend-tip-price">{fmt(active.median_price ?? active.center_price)}</div>
           {active.median_price != null && (
-            <div style={{ opacity: 0.7 }}>index {fmt(active.center_price)}</div>
+            <div className="trend-tip-index">index {fmt(active.center_price)}</div>
           )}
         </div>,
         document.body

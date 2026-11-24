@@ -8,7 +8,6 @@ import FacetLinks from "@/components/FacetLinks";
 import ModelPulldown from "@/components/ModelPulldown";
 import { getParts } from "@/lib/api";
 import { str } from "@/lib/utils";
-import { monoFont, sansFont } from "@/lib/tokens";
 import { buildPageUrl, CATEGORY_NAMES, DEFAULT_SORT, SPEC_KEYS } from "@/lib/constants";
 
 const LIMIT = 50;
@@ -117,16 +116,7 @@ export default async function PartsList({ category, searchParams, baseParams, he
         {/* Section header */}
         <div className="flex items-end justify-between mb-5">
           <div>
-            <h1
-              style={{
-                fontFamily: sansFont,
-                fontSize: "clamp(1.6rem, 3vw, 2.1rem)",
-                fontWeight: 700,
-                letterSpacing: "-0.03em",
-                color: "var(--text)",
-                lineHeight: 1,
-              }}
-            >
+            <h1 className="market-h1">
               {heading}
             </h1>
           </div>
@@ -150,7 +140,7 @@ export default async function PartsList({ category, searchParams, baseParams, he
             )
           ) : (
             total > 0 && (
-              <span style={{ fontFamily: monoFont, fontSize: "0.65rem", color: "var(--text-dim)" }}>
+              <span className="market-range">
                 {offset + 1}–{Math.min(offset + LIMIT, total)} of {total.toLocaleString()}
               </span>
             )
@@ -160,33 +150,10 @@ export default async function PartsList({ category, searchParams, baseParams, he
         {category && <FacetLinks category={category} activeFacet={activeFacet} />}
 
         {/* Parts list card — bigger shadow like PartPickerModal */}
-        <div
-          style={{
-            border: "2px solid var(--ink)",
-            boxShadow: "10px 10px 0 var(--shadow)",
-            overflow: "hidden",
-          }}
-        >
+        <div className="market-list-card">
           {/* Black header bar */}
-          <div
-            style={{
-              background: "var(--bar)",
-              color: "white",
-              padding: "12px 20px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <span
-              style={{
-                fontFamily: monoFont,
-                fontSize: "11px",
-                fontWeight: 800,
-                letterSpacing: "2px",
-                textTransform: "uppercase",
-              }}
-            >
+          <div className="market-list-bar">
+            <span className="market-list-bar-title">
               {shortLabel} — Parts List
             </span>
             {category ? (
@@ -206,14 +173,7 @@ export default async function PartsList({ category, searchParams, baseParams, he
                 failed={failed}
               />
             ) : (
-              <span
-                style={{
-                  fontFamily: monoFont,
-                  fontSize: "10px",
-                  color: "rgba(255,255,255,0.45)",
-                  fontWeight: 600,
-                }}
-              >
+              <span className="market-list-count">
                 {total.toLocaleString()} results
               </span>
             )}
@@ -228,27 +188,11 @@ export default async function PartsList({ category, searchParams, baseParams, he
             // still server-navigates (FilterBar's clientPathActive is false
             // until the index actually loads), and a failed re-fetch lands
             // right back here.
-            <div
-              style={{
-                padding: "64px 24px",
-                textAlign: "center",
-                background: "var(--bg-card)",
-                borderTop: "1px solid var(--ink)",
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: monoFont,
-                  fontSize: "0.9rem",
-                  fontWeight: 900,
-                  color: "var(--purple-text)",
-                  letterSpacing: "3px",
-                  textTransform: "uppercase",
-                }}
-              >
+            <div className="market-empty">
+              <p className="status-title status-title--error">
                 {"// SEARCH FAILED"}
               </p>
-              <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "8px" }}>
+              <p className="status-text">
                 Couldn&apos;t reach the server. Reload to try again.
               </p>
             </div>
@@ -266,27 +210,11 @@ export default async function PartsList({ category, searchParams, baseParams, he
               offset={offset}
             />
           ) : items.length === 0 ? (
-            <div
-              style={{
-                padding: "64px 24px",
-                textAlign: "center",
-                background: "var(--bg-card)",
-                borderTop: "1px solid var(--ink)",
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: monoFont,
-                  fontSize: "0.9rem",
-                  fontWeight: 900,
-                  color: "var(--text-dim)",
-                  letterSpacing: "3px",
-                  textTransform: "uppercase",
-                }}
-              >
+            <div className="market-empty">
+              <p className="status-title status-title--empty">
                 {"// NO PARTS FOUND"}
               </p>
-              <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "8px" }}>
+              <p className="status-text">
                 Try adjusting your filters
               </p>
             </div>
@@ -314,53 +242,21 @@ export default async function PartsList({ category, searchParams, baseParams, he
           />
         ) : (
           !failed && totalPages > 1 && (
-            <div
-              style={{
-                marginTop: "20px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
+            <div className="market-pager">
               {/* Prev */}
               {hasPrev ? (
                 <Link prefetch={false}
                   href={pageUrl(offset - LIMIT)}
-                  style={{
-                    padding: "7px 18px",
-                    border: "2px solid var(--ink)",
-                    boxShadow: "3px 3px 0 var(--shadow)",
-                    background: "var(--paper)",
-                    color: "var(--text)",
-                    fontFamily: sansFont,
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    letterSpacing: "-0.005em",
-                    textDecoration: "none",
-                    transform: "skewX(-8deg)",
-                    display: "inline-block",
-                  }}
+                  className="market-pager-btn market-pager-btn--prev"
                 >
                   ← Prev
                 </Link>
               ) : (
-                <span style={{ width: 80 }} />
+                <span className="market-pager-spacer" />
               )}
 
               {/* Page indicator */}
-              <span
-                style={{
-                  fontFamily: monoFont,
-                  fontSize: "10px",
-                  fontWeight: 700,
-                  color: "var(--text-dim)",
-                  letterSpacing: "1px",
-                  border: "1.5px solid var(--border)",
-                  padding: "5px 14px",
-                  transform: "skewX(-6deg)",
-                  display: "inline-block",
-                }}
-              >
+              <span className="market-pager-page">
                 {currentPage} / {totalPages}
               </span>
 
@@ -368,25 +264,12 @@ export default async function PartsList({ category, searchParams, baseParams, he
               {hasNext ? (
                 <Link prefetch={false}
                   href={pageUrl(offset + LIMIT)}
-                  style={{
-                    padding: "7px 18px",
-                    border: "2px solid var(--ink)",
-                    boxShadow: "3px 3px 0 var(--shadow)",
-                    background: "var(--purple)",
-                    color: "white",
-                    fontFamily: sansFont,
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    letterSpacing: "-0.005em",
-                    textDecoration: "none",
-                    transform: "skewX(-8deg)",
-                    display: "inline-block",
-                  }}
+                  className="market-pager-btn market-pager-btn--next"
                 >
                   Next →
                 </Link>
               ) : (
-                <span style={{ width: 80 }} />
+                <span className="market-pager-spacer" />
               )}
             </div>
           )

@@ -242,13 +242,6 @@ export default function PartPickerModal({ slot, currentPart, platformFilters, sa
       exit={{ opacity: 0 }}
       onClick={onClose}
       className="picker-backdrop"
-      style={{
-        position: "fixed", inset: 0,
-        background: "var(--scrim)",
-        backdropFilter: "blur(4px)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        zIndex: 200,
-      }}
     >
       <motion.div
         ref={dialogRef}
@@ -261,62 +254,36 @@ export default function PartPickerModal({ slot, currentPart, platformFilters, sa
         exit={{ opacity: 0, scale: 0.97 }}
         transition={{ duration: 0.15 }}
         onClick={(e) => e.stopPropagation()}
-        // Max height and shadow size live in globals.css (.picker-dialog) so
-        // phones can take more of the screen.
+        // Max height and shadow size change on phones (.picker-dialog in
+        // globals.css) so they can take more of the screen.
         className="picker-dialog"
-        style={{
-          width: "820px", maxWidth: "100%",
-          background: "var(--bg-card)",
-          border: "2px solid var(--ink)",
-          display: "flex", flexDirection: "column",
-        }}
       >
         {/* Header */}
-        <div
-          className="picker-pad"
-          style={{
-            background: "var(--bar)", color: "white",
-            paddingBlock: "16px",
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-          }}
-        >
+        <div className="picker-pad picker-header">
           <span
             id={headingId}
-            className="mono"
-            style={{ fontSize: "12px", fontWeight: 800, letterSpacing: "2px", textTransform: "uppercase" }}
+            className="mono picker-title"
           >
             Select — {SLOT_LABELS[slot]}
           </span>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="comic-btn"
-            style={{
-              background: "none", border: "none", color: "white", fontSize: "18px", fontWeight: 800,
-              cursor: "pointer", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
-              padding: "0 4px",
-            }}
+            className="comic-btn picker-close"
           >
             ✕
           </button>
         </div>
 
         {/* Search */}
-        <div className="picker-pad" style={{ paddingBlock: "16px", borderBottom: "1px solid var(--border)" }}>
+        <div className="picker-pad picker-search">
           <input
             autoFocus
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={`Search ${SLOT_LABELS[slot]}s...`}
             aria-label={`Search ${SLOT_LABELS[slot]}s`}
-            className="comic-input"
-            style={{
-              width: "100%", padding: "10px 14px",
-              border: "2px solid var(--ink)",
-              background: "var(--paper)", fontSize: "13px", outline: "none",
-              boxShadow: "2px 2px 0 var(--shadow)",
-              fontFamily: "inherit",
-            }}
+            className="comic-input picker-search-input"
           />
         </div>
 
@@ -324,7 +291,7 @@ export default function PartPickerModal({ slot, currentPart, platformFilters, sa
             rows on desktop and become one sideways-scrolling row on phones
             (.picker-filter-* in globals.css). The panels portal out, so the
             scroller can't clip them. */}
-        <div className="picker-pad" style={{ paddingBlock: "12px", borderBottom: "2px solid var(--ink)", flexShrink: 0 }}>
+        <div className="picker-pad picker-filters">
           <div className="picker-filter-scroll">
           <div className="picker-filter-row">
             {hasModels && (
@@ -363,27 +330,14 @@ export default function PartPickerModal({ slot, currentPart, platformFilters, sa
           </div>
           </div>
           {matched.length > 0 && (
-            <div
-              style={{
-                display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px",
-                marginTop: "10px",
-              }}
-            >
-              <span
-                className="mono"
-                style={{ fontSize: "10px", letterSpacing: "1px", textTransform: "uppercase", color: "var(--purple-text)" }}
-              >
+            <div className="picker-matched">
+              <span className="mono picker-matched-note">
                 {`// Matched to your build: ${matched.join(" · ")}`}
               </span>
               <button
                 type="button"
                 onClick={clearPlatform}
-                style={{
-                  background: "none", border: "none", padding: 0,
-                  fontFamily: "var(--sans)", fontSize: "12px", fontWeight: 700,
-                  color: "var(--text-muted)", cursor: "pointer",
-                  textDecoration: "underline", textUnderlineOffset: "3px",
-                }}
+                className="picker-show-all"
               >
                 Show all
               </button>
@@ -392,13 +346,13 @@ export default function PartPickerModal({ slot, currentPart, platformFilters, sa
         </div>
 
         {/* Part list */}
-        <div style={{ overflowY: "auto", flex: 1 }}>
+        <div className="picker-list">
           {loading ? (
-            <div style={{ padding: "40px", textAlign: "center", color: "var(--text-dim)" }} className="mono">
+            <div className="mono picker-list-msg">
               Loading…
             </div>
           ) : parts.length === 0 ? (
-            <div style={{ padding: "40px", textAlign: "center", color: "var(--text-dim)" }} className="mono">
+            <div className="mono picker-list-msg">
               No parts found
             </div>
           ) : (
@@ -407,95 +361,46 @@ export default function PartPickerModal({ slot, currentPart, platformFilters, sa
               return (
                 <div
                   key={part.id}
-                  className="picker-row"
-                  style={{
-                    display: "flex", alignItems: "center",
-                    borderBottom: "1px solid var(--border)",
-                    background: isCurrent ? "var(--purple-pale)" : "transparent",
-                    borderLeft: isCurrent ? "3px solid var(--purple)" : "3px solid transparent",
-                    cursor: "pointer",
-                    transition: "background 0.1s",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isCurrent) (e.currentTarget as HTMLDivElement).style.background = "var(--purple-pale)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.background = isCurrent ? "var(--purple-pale)" : "transparent";
-                  }}
+                  className={`picker-row${isCurrent ? " picker-row--current" : ""}`}
                 >
                   {/* Thumbnail */}
-                  <div
-                    className="picker-thumb"
-                    style={{
-                      background: "var(--bg-section)",
-                      border: "1.5px solid var(--border)",
-                      flexShrink: 0,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      overflow: "hidden",
-                    }}
-                  >
+                  <div className="picker-thumb">
                     {part.thumbnail_url ? (
                       <img
                         src={part.thumbnail_url}
                         alt={part.name}
                         referrerPolicy="no-referrer"
-                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                        className="picker-thumb-img"
                       />
                     ) : (
-                      <span style={{ fontSize: "9px", color: "var(--text-dim)" }}>IMG</span>
+                      <span className="picker-thumb-none">IMG</span>
                     )}
                   </div>
 
                   {/* Info */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="picker-info">
                     {/* One line on desktop, two on phones (globals.css). */}
-                    <p className="picker-name" style={{ fontSize: "13px", fontWeight: 600, color: "var(--text)" }}>
+                    <p className="picker-name">
                       {part.name}
                     </p>
-                    <p
-                      style={{
-                        fontSize: "11px", color: "var(--text-muted)", marginTop: "3px",
-                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                      }}
-                    >
+                    <p className="picker-specs">
                       {Object.values(part.specs ?? {}).filter(Boolean).slice(0, 3).join(" · ")}
                     </p>
                   </div>
 
                   {/* Price and Select: side by side on desktop, stacked on phones. */}
                   <div className="picker-row-end">
-                  <div style={{ textAlign: "right", flexShrink: 0 }}>
-                    <p style={{ fontSize: "14px", fontWeight: 800, color: "var(--text)" }}>
+                  <div className="picker-price-wrap">
+                    <p className="picker-price">
                       {part.price_pkr != null ? "Rs\u00a0" + part.price_pkr.toLocaleString("en-PK") : "—"}
                     </p>
-                    <p style={{ fontSize: "9px", color: "var(--text-dim)", marginTop: "2px" }}>{part.source}</p>
+                    <p className="picker-source">{part.source}</p>
                   </div>
 
                   {/* Select button */}
                   <button
                     onClick={() => onSelect(part)}
-                    className="picker-select"
-                    style={{
-                      background: isCurrent ? "var(--purple)" : "var(--bg)",
-                      border: "2px solid var(--ink)",
-                      boxShadow: "2px 2px 0 var(--shadow)",
-                      fontSize: "11px", fontWeight: 700, letterSpacing: "-0.005em",
-                      color: isCurrent ? "white" : "var(--text)",
-                      cursor: "pointer",
-                      transform: "skewX(-8deg)",
-                      flexShrink: 0,
-                      fontFamily: "var(--sans)",
-                    }}
-                    onMouseEnter={(e) => {
-                      const btn = e.currentTarget as HTMLButtonElement;
-                      btn.style.background = "var(--purple)";
-                      btn.style.color = "white";
-                    }}
-                    onMouseLeave={(e) => {
-                      const btn = e.currentTarget as HTMLButtonElement;
-                      btn.style.background = isCurrent ? "var(--purple)" : "var(--bg)";
-                      btn.style.color = isCurrent ? "white" : "var(--text)";
-                    }}
+                    className={`picker-select${isCurrent ? " picker-select--current" : ""}`}
                   >
                     {isCurrent ? "Selected ✓" : "Select"}
                   </button>
@@ -507,16 +412,8 @@ export default function PartPickerModal({ slot, currentPart, platformFilters, sa
         </div>
 
         {/* Footer */}
-        <div
-          className="picker-pad"
-          style={{
-            paddingBlock: "14px",
-            borderTop: "2px solid var(--ink)",
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-            background: "var(--bg)",
-          }}
-        >
-          <span className="mono" style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: 600 }}>
+        <div className="picker-pad picker-footer">
+          <span className="mono picker-count">
             {total} {SLOT_LABELS[slot]}s found
           </span>
           <ComicDropdown

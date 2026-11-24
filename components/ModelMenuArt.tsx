@@ -21,7 +21,7 @@ export function BrandLogo({ brand }: { brand: ModelBrand }) {
       role="img"
       aria-label={`${BRAND_NAMES[brand]} logo`}
       fill="currentColor"
-      style={{ width: "64px", height: "64px", color: "white" }}
+      className="model-menu-logo"
     >
       <path d={BRAND_PATHS[brand]} />
     </svg>

@@ -8,7 +8,6 @@ import PrebuiltFilterBar from "@/components/PrebuiltFilterBar";
 import BudgetPulldown from "@/components/BudgetPulldown";
 import { getPrebuilts } from "@/lib/prebuilts-api";
 import { str } from "@/lib/utils";
-import { monoFont, sansFont } from "@/lib/tokens";
 import { buildPageUrl, DEFAULT_SORT } from "@/lib/constants";
 import { hasQueryParams } from "@/lib/seo";
 
@@ -79,81 +78,44 @@ async function PrebuiltGrid({
   return (
     <>
       {failed ? (
-        <div style={{ padding: "80px 0", textAlign: "center" }}>
-          <p style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 900, color: "var(--purple-text)", letterSpacing: "1.5px" }}>
+        <div className="catalog-failed">
+          <p className="catalog-failed-title">
             {"// SEARCH FAILED"}
           </p>
-          <p style={{ fontFamily: sansFont, fontSize: "14px", color: "var(--text-muted)", letterSpacing: "-0.005em", marginTop: "8px" }}>
+          <p className="catalog-failed-text">
             Couldn&apos;t reach the server. Reload to try again.
           </p>
         </div>
       ) : items.length === 0 ? (
-        <div style={{ padding: "80px 0", textAlign: "center", fontFamily: monoFont, fontSize: "13px", color: "var(--faint)", letterSpacing: "1.5px" }}>
+        <div className="pb-empty">
           {"// NO PREBUILTS FOUND"}
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "28px" }} className="pb-browser-grid">
+        <div className="pb-browser-grid">
           {items.map(p => <PrebuiltCard key={p.id} prebuilt={p} />)}
         </div>
       )}
 
       {!failed && (hasPrev || hasNext) && (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "32px" }}>
+        <div className="pb-pager">
           <Link prefetch={false}
             href={hasPrev ? pageUrl(offset - LIMIT) : "#"}
-            style={{
-              padding: "8px 18px",
-              border: "2px solid var(--ink)",
-              boxShadow: "3px 3px 0 var(--shadow)",
-              background: hasPrev ? "var(--paper)" : "var(--bg)",
-              color: hasPrev ? "var(--text)" : "var(--faint)",
-              fontFamily: sansFont,
-              fontSize: "12px",
-              fontWeight: 700,
-              letterSpacing: "-0.005em",
-              textDecoration: "none",
-              transform: "skewX(-8deg)",
-              pointerEvents: hasPrev ? "auto" : "none",
-            }}
+            className={hasPrev ? "pb-pager-btn" : "pb-pager-btn pb-pager-btn--off"}
           >
-            <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>← Prev</span>
+            <span className="skew-label">← Prev</span>
           </Link>
 
-          <span
-            style={{
-              fontFamily: monoFont,
-              fontSize: "10px",
-              fontWeight: 700,
-              color: "var(--grey-500)",
-              border: "1.5px solid var(--border)",
-              padding: "5px 12px",
-              transform: "skewX(-6deg)",
-              display: "inline-block",
-            }}
-          >
-            <span style={{ display: "inline-block", transform: "skewX(6deg)" }}>
+          <span className="pb-pager-count">
+            <span className="skew-label-6">
               {page} / {pages}
             </span>
           </span>
 
           <Link prefetch={false}
             href={hasNext ? pageUrl(offset + LIMIT) : "#"}
-            style={{
-              padding: "8px 18px",
-              border: "2px solid var(--ink)",
-              boxShadow: "3px 3px 0 var(--shadow)",
-              background: hasNext ? "var(--purple)" : "var(--bg)",
-              color: hasNext ? "white" : "var(--faint)",
-              fontFamily: sansFont,
-              fontSize: "12px",
-              fontWeight: 700,
-              letterSpacing: "-0.005em",
-              textDecoration: "none",
-              transform: "skewX(-8deg)",
-              pointerEvents: hasNext ? "auto" : "none",
-            }}
+            className={hasNext ? "pb-pager-btn pb-pager-btn--next" : "pb-pager-btn pb-pager-btn--off"}
           >
-            <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>Next →</span>
+            <span className="skew-label">Next →</span>
           </Link>
         </div>
       )}
@@ -171,15 +133,15 @@ export default async function PrebuiltsPage({ searchParams }: PageProps) {
         <PrebuiltFilterBar pulldown={<Suspense fallback={null}><BudgetPulldown /></Suspense>} />
       </Suspense>
 
-      <main className="pb-browser-wrapper" style={{ maxWidth: "80rem", margin: "0 auto", padding: "32px 24px" }}>
-        <div style={{ marginBottom: "28px" }}>
-          <h1 style={{ fontFamily: sansFont, fontWeight: 700, fontSize: "clamp(1.9rem, 4vw, 2.5rem)", lineHeight: 1.05, letterSpacing: "-0.03em", color: "var(--text)", margin: 0 }}>
+      <main className="pb-browser-wrapper">
+        <div className="pb-browser-head">
+          <h1 className="page-title">
             Pre-Built PCs
           </h1>
         </div>
 
         <Suspense fallback={
-          <div style={{ padding: "80px 0", textAlign: "center", fontFamily: monoFont, fontSize: "12px", color: "var(--faint)", letterSpacing: "1.5px" }}>
+          <div className="pb-empty pb-empty--loading">
             {"// LOADING..."}
           </div>
         }>

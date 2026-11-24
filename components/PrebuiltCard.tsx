@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import PCThumb from "./PCThumb";
 import type { Prebuilt } from "@/lib/prebuilts-api";
-import { monoFont, sansFont } from "@/lib/tokens";
 
 function truncate(s: string | undefined, n: number): string {
   if (!s) return "—";
@@ -13,21 +11,7 @@ function truncate(s: string | undefined, n: number): string {
 
 function Chip({ label }: { label: string }) {
   return (
-    <span
-      style={{
-        display: "inline-block",
-        fontFamily: monoFont,
-        fontSize: "9px",
-        fontWeight: 800,
-        letterSpacing: "0.8px",
-        textTransform: "uppercase",
-        padding: "2px 7px",
-        border: "1px solid var(--ink)",
-        boxShadow: "1px 1px 0 var(--shadow)",
-        background: "var(--paper)",
-        color: "var(--text)",
-      }}
-    >
+    <span className="pb-card-chip">
       {label}
     </span>
   );
@@ -38,53 +22,17 @@ interface Props {
 }
 
 export default function PrebuiltCard({ prebuilt }: Props) {
-  const [hovered, setHovered] = useState(false);
   const c = prebuilt.components;
 
   return (
     <Link prefetch={false}
       href={`/prebuilts/${prebuilt.id}`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        borderTop: "none",
-        borderRight: "2px solid var(--ink)",
-        borderBottom: "2px solid var(--ink)",
-        borderLeft: hovered ? "4px solid var(--purple)" : "4px solid transparent",
-        boxShadow: hovered ? "6px 6px 0 var(--purple)" : "6px 6px 0 var(--shadow)",
-        background: hovered ? "var(--purple-pale)" : "var(--paper)",
-        transition: "background 0.1s",
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-        textDecoration: "none",
-      }}
+      className="pb-card"
     >
       {/* Thumbnail */}
-      <div
-        style={{
-          borderBottom: "2px solid var(--ink)",
-          height: 200,
-          background: "var(--bg)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          overflow: "hidden",
-          position: "relative",
-        }}
-      >
+      <div className="pb-card-thumb">
         {/* Halftone bg */}
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage:
-              "radial-gradient(circle, color-mix(in srgb, var(--purple) 10%, transparent) 1px, transparent 1px)",
-            backgroundSize: "10px 10px",
-            pointerEvents: "none",
-          }}
-        />
+        <div aria-hidden className="pb-card-dots" />
         {prebuilt.thumbnail_url ? (
           <img
             src={prebuilt.thumbnail_url}
@@ -94,63 +42,29 @@ export default function PrebuiltCard({ prebuilt }: Props) {
             height={240}
             loading="lazy"
             decoding="async"
-            style={{
-              position: "relative",
-              maxWidth: "80%",
-              maxHeight: "80%",
-              width: "auto",
-              height: "auto",
-              aspectRatio: "4 / 3",
-              objectFit: "contain",
-              display: "block",
-            }}
+            className="pb-card-img"
           />
         ) : (
-          <div style={{ position: "relative" }}>
+          <div className="pb-card-pc">
             <PCThumb scale={0.85} />
           </div>
         )}
         {/* Source label */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            right: 0,
-            background: "var(--bar)",
-            color: "white",
-            fontFamily: monoFont,
-            fontSize: "9px",
-            fontWeight: 800,
-            letterSpacing: "1.5px",
-            textTransform: "uppercase",
-            padding: "4px 10px",
-          }}
-        >
+        <div className="corner-tag">
           {prebuilt.source}
         </div>
       </div>
 
       {/* Content */}
-      <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
+      <div className="pb-card-body">
         {/* Name */}
-        <div
-          style={{
-            fontWeight: 700,
-            fontSize: "0.875rem",
-            lineHeight: 1.35,
-            color: hovered ? "var(--purple-text)" : "var(--text)",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-          }}
-        >
+        <div className="pb-card-name">
           {prebuilt.name}
         </div>
 
         {/* Component chips */}
         {c && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+          <div className="pb-card-chips">
             {c.cpu      && <Chip label={truncate(c.cpu, 30)} />}
             {c.gpu      && <Chip label={truncate(c.gpu, 30)} />}
             {c.ram      && <Chip label={truncate(c.ram, 30)} />}
@@ -159,41 +73,18 @@ export default function PrebuiltCard({ prebuilt }: Props) {
         )}
 
         {/* Spacer */}
-        <div style={{ flex: 1 }} />
+        <div className="pb-card-spacer" />
 
         {/* Price */}
-        <div
-          style={{
-            fontFamily: monoFont,
-            fontWeight: 900,
-            fontSize: "1.1rem",
-            color: "var(--text)",
-            letterSpacing: "-0.01em",
-          }}
-        >
+        <div className="pb-card-price">
           {prebuilt.price_pkr
             ? `Rs ${prebuilt.price_pkr.toLocaleString("en-PK")}`
             : "—"}
         </div>
 
         {/* CTA — the whole card is the link (L46); this is now decorative */}
-        <span
-          style={{
-            display: "inline-block",
-            textAlign: "center",
-            padding: "7px 14px",
-            background: "var(--purple)",
-            color: "white",
-            border: "2px solid var(--ink)",
-            boxShadow: "var(--gloss), 3px 3px 0 var(--shadow)",
-            fontFamily: sansFont,
-            fontSize: "13px",
-            fontWeight: 700,
-            letterSpacing: "-0.005em",
-            transform: "skewX(-8deg)",
-          }}
-        >
-          <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>
+        <span className="pb-card-cta">
+          <span className="skew-label">
             View specs →
           </span>
         </span>

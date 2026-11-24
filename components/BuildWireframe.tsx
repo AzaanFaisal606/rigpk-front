@@ -7,11 +7,6 @@ import { PCChassisSVG } from "./PCChassis";
 const INK = "var(--line-art)";
 // Theme tokens: SVG presentation attributes resolve var(), so dark mode flips these too.
 const PURPLE = "var(--purple)";
-const CARD = "var(--bg-card)";
-const DIM = "var(--faint)";
-const TEXT2 = "var(--text-2)";
-const MONO = "var(--mono)";
-const SANS = "var(--sans)";
 
 // Coordinate space 960 × 540 (aspect ~16:9 — less vertical stretch than before).
 // Chassis occupies x=320–620 (width 300), y=30–510 (height 480). Wider, shorter look.
@@ -60,7 +55,7 @@ function DiagLines() {
   }
   return (
     <svg
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: 0.35 }}
+      className="wireframe-layer wireframe-diag"
       viewBox="0 0 1400 900"
       preserveAspectRatio="xMidYMid slice"
     >
@@ -73,7 +68,7 @@ function CalloutLines({ build }: { build: BuildState }) {
   return (
     <svg
       viewBox="0 0 960 540"
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+      className="wireframe-layer wireframe-callouts"
     >
       {SLOT_ANCHORS.map(({ slot, side, caseX, caseY, railY }) => {
         const selected = build[slot] != null;
@@ -130,58 +125,33 @@ function LabelCard({
   return (
     <div
       onClick={() => onSlotClick(slot)}
+      className={`wireframe-card wireframe-card--${side}${selected ? " wireframe-card--selected" : ""}`}
       style={{
-        position: "absolute",
+        // Placed in % of the drawing so the callout lines always meet it.
         top: `calc(${topPct}% - 30px)`,
         left: `${leftPct}%`,
         width: `${widthPct}%`,
-        // Inner padding: left cards inset from left wall; right cards inset from right wall
-        // Box sizing accounts for the percentage-based width
-        boxSizing: "border-box" as const,
-        paddingTop: 8,
-        paddingBottom: 8,
-        paddingLeft: side === "left" ? 10 : 12,
-        paddingRight: side === "left" ? 12 : 10,
-        background: selected ? "var(--bg-card)" : "var(--bg)",
-        border: `2px solid ${selected ? PURPLE : "var(--ink)"}`,
-        boxShadow: `3px 3px 0 ${selected ? PURPLE : "var(--shadow)"}`,
-        cursor: "pointer",
-        transition: "transform 0.12s",
-        zIndex: 3,
       }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translate(-2px, -2px)"; }}
-      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translate(0, 0)"; }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
-        <span style={{
-          fontFamily: MONO, fontSize: 9, fontWeight: 800,
-          color: selected ? PURPLE : DIM,
-          letterSpacing: 1.5, textTransform: "uppercase",
-        }}>
+      <div className="wireframe-card-head">
+        <span className="wireframe-card-label">
           {SLOT_LABELS[slot]}
         </span>
-        {selected && <span style={{ color: PURPLE, fontSize: 11, fontWeight: 900 }}>✓</span>}
+        {selected && <span className="wireframe-card-check">✓</span>}
       </div>
 
       {part ? (
         <>
-          <div style={{
-            fontFamily: SANS, fontSize: 11, fontWeight: 700, color: INK,
-            lineHeight: 1.25, marginBottom: 2,
-            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          }}>
+          <div className="wireframe-card-name">
             {part.name}
           </div>
-          <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, color: TEXT2 }}>
+          <div className="wireframe-card-price">
             Rs {part.price_pkr != null ? part.price_pkr.toLocaleString("en-PK") : "—"}
-            <span style={{ color: DIM, marginLeft: 6 }}>· {part.source}</span>
+            <span className="wireframe-card-source">· {part.source}</span>
           </div>
         </>
       ) : (
-        <div style={{
-          fontFamily: MONO, fontSize: 10, fontWeight: 700,
-          color: DIM, fontStyle: "italic",
-        }}>
+        <div className="wireframe-card-empty">
           + click to select {SLOT_SUB[slot].toLowerCase()}
         </div>
       )}
@@ -191,55 +161,33 @@ function LabelCard({
 
 export default function BuildWireframe({ build, onSlotClick }: Props) {
   return (
-    <section
-      className="build-wireframe"
-      style={{
-        flexDirection: "column",
-        alignItems: "flex-start",
-        padding: "32px 32px 24px",
-        background: "var(--bg)",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
+    <section className="build-wireframe">
       <DiagLines />
       <h1
-        className="font-black fade-up"
-        style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "var(--text)", marginBottom: "20px", position: "relative", animationDelay: "0.3s" }}
+        className="font-black fade-up wireframe-title"
+        style={{ animationDelay: "0.3s" }}
       >
         Build a PC
       </h1>
 
       {/* Framed container — full left column width */}
-      <div style={{
-        position: "relative",
-        width: "100%",
-        background: CARD,
-        border: `2px solid var(--ink)`,
-        boxShadow: `6px 6px 0 var(--shadow)`,
-        overflow: "hidden",
-        flexShrink: 0,
-      }}>
+      <div className="wireframe-frame">
         {/* Corner annotations */}
-        <div style={{ position: "absolute", top: 10, left: 14, fontFamily: MONO, fontSize: 9, color: DIM, letterSpacing: 1.5, zIndex: 2, pointerEvents: "none" }}>
+        <div className="wireframe-corner wireframe-corner--tl">
           ◼ SIDE VIEW · MID-TOWER ATX
         </div>
-        <div style={{ position: "absolute", top: 10, right: 14, fontFamily: MONO, fontSize: 9, color: DIM, letterSpacing: 1.5, zIndex: 2, pointerEvents: "none" }}>
+        <div className="wireframe-corner wireframe-corner--tr">
           SCALE 1:4 · CLICK ANY CALLOUT
         </div>
-        <div style={{ position: "absolute", bottom: 10, left: 14, fontFamily: MONO, fontSize: 9, color: DIM, letterSpacing: 1.5, zIndex: 2, pointerEvents: "none" }}>
+        <div className="wireframe-corner wireframe-corner--bl">
           REV A · 2026.04
         </div>
-        <div style={{ position: "absolute", bottom: 10, right: 14, fontFamily: MONO, fontSize: 9, color: PURPLE, letterSpacing: 1.5, zIndex: 2, pointerEvents: "none" }}>
+        <div className="wireframe-corner wireframe-corner--br">
           PARTS: 8 SLOTS
         </div>
 
         {/* 960×540 coordinate space */}
-        <div style={{
-          position: "relative",
-          width: "100%",
-          aspectRatio: "960 / 540",
-        }}>
+        <div className="wireframe-canvas">
           <PCChassisSVG />
           <CalloutLines build={build} />
           {SLOT_ANCHORS.map((anchor) => (
@@ -254,16 +202,16 @@ export default function BuildWireframe({ build, onSlotClick }: Props) {
       </div>
 
       {/* Legend — same width as framed container so "scroll for parts" aligns with right edge */}
-      <div style={{ marginTop: 14, display: "flex", gap: 16, alignItems: "center", position: "relative", width: "100%" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 10, color: TEXT2 }}>
+      <div className="wireframe-legend">
+        <div className="wireframe-legend-item">
           <svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke={INK} strokeWidth="1.5" strokeDasharray="4 3" /></svg>
           empty slot
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 10, color: TEXT2 }}>
+        <div className="wireframe-legend-item">
           <svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke={PURPLE} strokeWidth="2" /></svg>
           selected
         </div>
-        <div style={{ marginLeft: "auto", fontFamily: MONO, fontSize: 10, color: DIM }}>↓ scroll for parts</div>
+        <div className="wireframe-legend-hint">↓ scroll for parts</div>
       </div>
     </section>
   );

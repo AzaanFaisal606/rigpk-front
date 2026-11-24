@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
-import { sansFont } from "@/lib/tokens";
 import ThemeButton from "./ThemeButton";
 
 // /market and /prebuilts read searchParams, so every prefetch is an uncached
@@ -20,38 +19,21 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <header
-      className="sticky top-0 z-50"
-      style={{
-        background: "var(--bg)",
-        borderBottom: "2px solid var(--ink)",
-      }}
-    >
-      <div className="navbar-inner max-w-6xl mx-auto px-6 flex items-center" style={{ height: "52px" }}>
+    <header className="navbar-header sticky top-0 z-50">
+      <div className="navbar-inner max-w-6xl mx-auto px-6 flex items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 no-underline flex-shrink-0">
-          <div
-            className="flex items-center justify-center w-7 h-7"
-            style={{
-              background: "var(--purple)",
-              border: "2px solid var(--ink)",
-              boxShadow: "2px 2px 0 var(--shadow)",
-              overflow: "hidden",
-            }}
-          >
+          <div className="navbar-logo flex items-center justify-center w-7 h-7">
             <img
               src="/logo.png"
               alt="RigPK"
               width={28}
               height={28}
-              style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
+              className="navbar-logo-img"
             />
           </div>
-          <span
-            className="font-bold"
-            style={{ color: "var(--text)", fontSize: "1.1rem", letterSpacing: "-0.02em" }}
-          >
-            Rig<span style={{ color: "var(--purple-text)" }}>PK</span>
+          <span className="navbar-brand font-bold">
+            Rig<span className="navbar-brand-accent">PK</span>
           </span>
         </Link>
 
@@ -74,27 +56,8 @@ export default function Navbar() {
   );
 }
 
-function navButtonStyle(active: boolean, hovered: boolean): React.CSSProperties {
-  return {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "6px",
-    padding: "6px 14px",
-    background: active
-      ? hovered ? "var(--purple-hover)" : "var(--purple)"
-      : hovered ? "color-mix(in srgb, var(--purple) 6%, transparent)" : "var(--paper)",
-    color: active ? "white" : "var(--text)",
-    border: "2px solid var(--ink)",
-    boxShadow: active ? "var(--gloss), 2px 2px 0 var(--shadow)" : "2px 2px 0 var(--shadow)",
-    transform: "skewX(-8deg)",
-    fontFamily: sansFont,
-    fontSize: "0.82rem",
-    fontWeight: 700,
-    letterSpacing: "-0.005em",
-    textDecoration: "none",
-    transition: "background 0.1s",
-    whiteSpace: "nowrap",
-  };
+function navButtonClass(active: boolean): string {
+  return active ? "navbar-nav-btn navbar-nav-btn--active" : "navbar-nav-btn";
 }
 
 function NavButton({
@@ -108,18 +71,13 @@ function NavButton({
   active: boolean;
   children: React.ReactNode;
 }) {
-  const [hovered, setHovered] = useState(false);
-
   return (
     <Link
       href={href}
       prefetch={prefetch}
-      className="navbar-nav-btn"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={navButtonStyle(active, hovered)}
+      className={navButtonClass(active)}
     >
-      <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>{children}</span>
+      <span className="skew-label">{children}</span>
     </Link>
   );
 }
@@ -146,23 +104,22 @@ function MobileNavMenu({ pathname }: { pathname: string }) {
   }, [open]);
 
   return (
-    <div ref={wrapRef} className="navbar-menu" style={{ position: "relative" }}>
+    <div ref={wrapRef} className="navbar-menu">
       <button
         type="button"
-        className="navbar-nav-btn"
+        className={navButtonClass(!!current)}
         aria-haspopup="true"
         aria-expanded={open}
         aria-controls="navbar-menu-panel"
         onClick={() => setOpen(o => !o)}
-        style={{ ...navButtonStyle(!!current, false), cursor: "pointer" }}
       >
-        <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", transform: "skewX(8deg)" }}>
+        <span className="navbar-menu-btn-label">
         {current?.label ?? "Menu"}
         <ChevronDown
           size={12}
           strokeWidth={3}
           aria-hidden
-          style={{ transition: "transform 0.15s", transform: open ? "rotate(180deg)" : "none" }}
+          className="navbar-menu-caret"
         />
         </span>
       </button>
@@ -172,18 +129,8 @@ function MobileNavMenu({ pathname }: { pathname: string }) {
           id="navbar-menu-panel"
           aria-label="Site"
           className="navbar-menu-panel"
-          style={{
-            position: "absolute",
-            top: "calc(100% + 10px)",
-            right: 0,
-            minWidth: "168px",
-            background: "var(--paper)",
-            border: "2px solid var(--ink)",
-            boxShadow: "4px 4px 0 var(--shadow)",
-            zIndex: 60,
-          }}
         >
-          {NAV_LINKS.map((l, i) => {
+          {NAV_LINKS.map(l => {
             const active = l === current;
             return (
               <Link
@@ -193,15 +140,6 @@ function MobileNavMenu({ pathname }: { pathname: string }) {
                 onClick={() => setOpen(false)}
                 aria-current={active ? "page" : undefined}
                 className={`navbar-menu-item${active ? " navbar-menu-item--active" : ""}`}
-                style={{
-                  display: "block",
-                  padding: "11px 14px",
-                  borderTop: i === 0 ? "none" : "1px solid var(--ink)",
-                  fontFamily: sansFont,
-                  fontSize: "0.88rem",
-                  fontWeight: 700,
-                  textDecoration: "none",
-                }}
               >
                 {l.label}
               </Link>

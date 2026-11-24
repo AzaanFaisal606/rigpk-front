@@ -1,4 +1,5 @@
 import { API_BASE } from "@/lib/api";
+import { CATALOG_FETCH } from "@/lib/catalog-cache";
 
 export interface TrendPoint {
   scrape_date: string;
@@ -38,9 +39,9 @@ export async function getTrendGroups(
   try {
     const res = await fetch(
       `${API_BASE}/api/trends/groups?category=${category}`,
-      // Daily: trend points only move on the weekly scrape. The homepage reads
-      // the same URL, so this sets its ISR window too.
-      { next: { revalidate: 86400 } }
+      // Trend points only move on the weekly scrape, which refreshes this tag.
+      // The homepage reads the same URL and shares the entry.
+      { next: CATALOG_FETCH }
     );
     if (!res.ok) return { ok: false, error: "http", status: res.status };
     const data = await res.json();

@@ -70,7 +70,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
   const meta = CATEGORY_META[category as Category];
 
   return (
-    <div className="flex flex-col flex-1" style={{ background: "var(--bg)" }}>
+    <div className="page-bg flex flex-col flex-1">
       {/* CollectionPage rather than ItemList: the listed parts link out to
           retailers, and an ItemList with no (or off-site) items is an empty claim. */}
       {meta && (
@@ -96,7 +96,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
       <main className="flex flex-col flex-1">
         <Suspense
           fallback={
-            <div className="py-20 text-center mono" style={{ color: "var(--text-dim)" }}>
+            <div className="market-loading py-20 text-center mono">
               Loading…
             </div>
           }

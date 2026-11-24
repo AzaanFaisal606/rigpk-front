@@ -1,5 +1,6 @@
 import type { SlotKey } from "@/lib/types";
 import type { SearchIndexPayload } from "@/lib/search-index";
+import { CATALOG_FETCH } from "@/lib/catalog-cache";
 export type { SlotKey };
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -28,11 +29,9 @@ export type StatsResult =
 
 export async function getStats(): Promise<StatsResult> {
   try {
-    // Stats change once a week, when the scrape runs. A 60s window meant any
-    // crawler hitting the homepage re-fetched it up to 1,440 times a day, each
-    // one a real query against a row-read-billed database. Daily is still far
-    // fresher than the data, and it is one of the homepage's ISR windows.
-    const res = await fetch(`${API_BASE}/api/stats`, { next: { revalidate: 86400 } });
+    // Stats change only when a scrape runs, which refreshes this tag; a timed
+    // window would rebuild the homepage (an ISR write) for nothing.
+    const res = await fetch(`${API_BASE}/api/stats`, { next: CATALOG_FETCH });
     if (!res.ok) return { ok: false, error: "http", status: res.status };
     const data = await res.json();
     return { ok: true, data };

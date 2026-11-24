@@ -6,7 +6,6 @@ import type { FilterOptions } from "@/lib/api";
 import { getFilterOptions } from "@/lib/api";
 import { ComicDropdown } from "@/components/ui/ComicDropdown";
 import { PriceRangeFilter } from "@/components/ui/PriceRangeFilter";
-import { sansFont } from "@/lib/tokens";
 import { CATEGORIES, DEFAULT_SORT, SOURCES, SPEC_KEYS } from "@/lib/constants";
 import { specDropdowns } from "@/lib/filter-options";
 import { useScrollHide, SCROLL_HIDE_TRANSITION } from "@/lib/hooks/useScrollHide";
@@ -198,35 +197,15 @@ export default function FilterBar({
 
   return (
     <div
-      className="sticky z-40"
-      style={{
-        top: "52px",
-        background: "var(--bg)",
-        borderBottom: "2px solid var(--ink)",
-        transform: barHidden ? "translateY(-100%)" : "translateY(0)",
-        transition: SCROLL_HIDE_TRANSITION,
-      }}
+      className={`filter-bar${barHidden ? " filter-bar--hidden" : ""} sticky z-40`}
+      style={{ transition: SCROLL_HIDE_TRANSITION }}
     >
       <div className="max-w-6xl mx-auto px-6 py-3 filter-bar-pad">
-        <div
-          className="filter-inner-scroll"
-          style={{
-            overflowX: "auto",
-            overflowY: "visible",
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "none",
-          }}
-        >
-        {/* paddingRight leaves room for the last chip's skew overhang + its
-            2px hard shadow, which the overflow:auto wrapper would otherwise
-            clip at the right edge. */}
-        <div className="flex items-center gap-2" style={{ minWidth: "max-content", paddingRight: "6px" }}>
+        <div className="filter-inner-scroll">
+        <div className="filter-bar-row flex items-center gap-2">
 
           {/* Parts count */}
-          <span
-            className="mono hidden sm:block"
-            style={{ color: "var(--text-dim)", fontSize: "0.65rem", whiteSpace: "nowrap", flexShrink: 0, marginRight: "4px" }}
-          >
+          <span className="mono hidden sm:block filter-bar-count">
             {total.toLocaleString()} parts
           </span>
 
@@ -234,16 +213,9 @@ export default function FilterBar({
               nothing, so there is no keystroke race to lose. */}
           <form
             onSubmit={e => { e.preventDefault(); submitSearch(searchInput); }}
-            style={{
-              flex: "1 1 180px",
-              minWidth: "150px",
-              maxWidth: "220px",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-            }}
+            className="filter-search"
           >
-            <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", alignItems: "center" }}>
+            <div className="filter-search-field">
               <input
                 type="search"
                 className="filter-search-input"
@@ -257,22 +229,6 @@ export default function FilterBar({
                 autoCapitalize="off"
                 spellCheck={false}
                 enterKeyHint="search"
-                style={{
-                  width: "100%",
-                  padding: "6px 26px 6px 10px",
-                  border: searchFocused ? "2px solid var(--purple)" : "2px solid var(--ink)",
-                  background: "var(--paper)",
-                  outline: "none",
-                  boxShadow: searchFocused ? "2px 2px 0 var(--purple)" : "2px 2px 0 var(--shadow)",
-                  fontFamily: sansFont,
-                  fontSize: "13px",
-                  color: "var(--text)",
-                  transition: "border-color 0.1s, box-shadow 0.1s",
-                  // Safari draws its own clear affordance on type=search and
-                  // it would sit on top of ours.
-                  WebkitAppearance: "none",
-                  appearance: "none",
-                }}
               />
               {searchInput && !isPending && (
                 <button
@@ -282,19 +238,7 @@ export default function FilterBar({
                   // shows the previous query's results is the same "stuck"
                   // state the debounce used to produce.
                   onClick={() => { setSearchInput(""); submitSearch(""); }}
-                  style={{
-                    position: "absolute",
-                    right: "8px",
-                    background: "none",
-                    border: "none",
-                    padding: 0,
-                    lineHeight: 1,
-                    cursor: "pointer",
-                    fontFamily: sansFont,
-                    fontSize: "13px",
-                    fontWeight: 700,
-                    color: "var(--text-muted)",
-                  }}
+                  className="filter-search-clear"
                 >
                   ✕
                 </button>
@@ -302,33 +246,16 @@ export default function FilterBar({
               {isPending && (
                 <span
                   aria-hidden
-                  className="filter-pending-dot"
-                  style={{ position: "absolute", right: "9px" }}
+                  className="filter-pending-dot filter-search-pending"
                 />
               )}
             </div>
             <button
               type="submit"
               aria-label="Search"
-              className="comic-btn"
-              style={{
-                flexShrink: 0,
-                padding: "5px 12px",
-                border: "2px solid var(--ink)",
-                background: "var(--purple)",
-                color: "white",
-                boxShadow: "var(--gloss), 2px 2px 0 var(--shadow)",
-                transform: "skewX(-8deg)",
-                fontFamily: sansFont,
-                fontSize: "12px",
-                fontWeight: 700,
-                letterSpacing: "-0.005em",
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-                lineHeight: 1.6,
-              }}
+              className="comic-btn filter-go-btn"
             >
-              <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>Go</span>
+              <span className="skew-label">Go</span>
             </button>
           </form>
 
@@ -372,7 +299,7 @@ export default function FilterBar({
           />
 
           {/* Sort — pushed to far right */}
-          <div style={{ marginLeft: "auto" }}>
+          <div className="filter-bar-end">
             <ComicDropdown
               label="Sort"
               // Always the resolved value, never "" — sort is never absent

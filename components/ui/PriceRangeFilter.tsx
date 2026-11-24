@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { monoFont, sansFont } from "@/lib/tokens";
 
 interface PriceRangeFilterProps {
   minPrice: string;
@@ -114,76 +113,38 @@ export function PriceRangeFilter({
   const panel = open && coords ? createPortal(
     <div
       ref={panelRef}
+      className="price-range-panel"
       style={{
-        position: "fixed",
         top: coords.top,
         left: Math.min(Math.max(coords.left, 8), window.innerWidth - 216),
-        background: "var(--paper)",
-        border: "2px solid var(--ink)",
-        boxShadow: "4px 4px 0 var(--shadow)",
-        zIndex: 9999,
-        padding: "12px 14px",
-        minWidth: "200px",
       }}
     >
-      <div style={{ marginBottom: "8px" }}>
-        <div className="section-label" style={{ marginBottom: "4px" }}>Min (PKR)</div>
+      <div className="price-range-field">
+        <div className="section-label price-range-label">Min (PKR)</div>
         <input
           type="number"
           placeholder="0"
           value={minValue}
           onChange={e => setMinValue(e.target.value)}
-          className="comic-input"
+          className="comic-input price-range-input"
           aria-label="Minimum price (PKR)"
-          style={{
-            width: "100%",
-            padding: "6px 8px",
-            border: "1.5px solid var(--ink)",
-            background: "var(--paper)",
-            fontFamily: monoFont,
-            fontSize: "11px",
-            outline: "none",
-            color: "var(--text)",
-          }}
         />
       </div>
-      <div style={{ marginBottom: "10px" }}>
-        <div className="section-label" style={{ marginBottom: "4px" }}>Max (PKR)</div>
+      <div className="price-range-field price-range-field--last">
+        <div className="section-label price-range-label">Max (PKR)</div>
         <input
           type="number"
           placeholder="Any"
           value={maxValue}
           onChange={e => setMaxValue(e.target.value)}
-          className="comic-input"
+          className="comic-input price-range-input"
           aria-label="Maximum price (PKR)"
-          style={{
-            width: "100%",
-            padding: "6px 8px",
-            border: "1.5px solid var(--ink)",
-            background: "var(--paper)",
-            fontFamily: monoFont,
-            fontSize: "11px",
-            outline: "none",
-            color: "var(--text)",
-          }}
         />
       </div>
       {isActive && (
         <button
           onClick={() => { onClear(); setOpen(false); }}
-          className="comic-btn"
-          style={{
-            width: "100%",
-            padding: "5px 8px",
-            background: "color-mix(in srgb, var(--purple) 6%, transparent)",
-            border: "1.5px solid var(--purple)",
-            fontFamily: sansFont,
-            fontSize: "12px",
-            fontWeight: 700,
-            color: "var(--purple-text)",
-            cursor: "pointer",
-            letterSpacing: "-0.005em",
-          }}
+          className="comic-btn price-range-clear"
         >
           ✕ Clear
         </button>
@@ -193,34 +154,17 @@ export function PriceRangeFilter({
   ) : null;
 
   return (
-    <div style={{ position: "relative", flexShrink: 0 }}>
+    <div className="filter-trigger-wrap">
       <button
         ref={btnRef}
         onClick={() => (open ? setOpen(false) : openPanel())}
-        className="comic-btn"
+        className={`comic-btn filter-trigger${isActive ? " filter-trigger--active" : ""}`}
         aria-haspopup="true"
         aria-expanded={open}
-        style={{
-          padding: "5px 14px",
-          border: isActive ? "2px solid var(--purple)" : "2px solid var(--ink)",
-          background: isActive ? "var(--purple)" : "var(--paper)",
-          color: isActive ? "white" : "var(--text)",
-          boxShadow: isActive ? "var(--gloss), 2px 2px 0 var(--purple)" : "2px 2px 0 var(--shadow)",
-          transform: "skewX(-8deg)",
-          fontFamily: sansFont,
-          fontSize: "12px",
-          fontWeight: 700,
-          letterSpacing: "-0.005em",
-          cursor: "pointer",
-          whiteSpace: "nowrap",
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-        }}
       >
         {/* Counter-skewed so the label reads upright, as in ComicDropdown. */}
-        <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>{label}</span>
-        <span style={{ display: "inline-block", transform: "skewX(8deg)", opacity: 0.6, fontSize: "8px" }}>{open ? "▲" : "▼"}</span>
+        <span className="skew-label">{label}</span>
+        <span className="skew-label filter-trigger-caret">{open ? "▲" : "▼"}</span>
       </button>
 
       {panel}

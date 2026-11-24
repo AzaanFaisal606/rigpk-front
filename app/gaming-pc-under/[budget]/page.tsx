@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PHASE_PRODUCTION_BUILD } from "next/constants";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PrebuiltCard from "@/components/PrebuiltCard";
@@ -22,13 +21,15 @@ import {
 } from "@/lib/budgets";
 import { getBudgetBuckets, getBudgetCatalogue } from "@/lib/budget-data";
 import { cleanPrebuiltName, SITE_URL } from "@/lib/seo";
-import { monoFont, sansFont } from "@/lib/tokens";
+import { failOrRender } from "@/lib/keep-stale";
 
-// Static per budget, refreshed daily (ISR, BUDGET_REVALIDATE) — prebuilts
-// only change on the weekly scrape, and the backend sits on a cold-starting
-// free tier, so these landing pages must not wait on it per request.
-// Kept literal: Next reads segment config statically.
-export const revalidate = 86400;
+// Static per budget, rebuilt after each scrape (ISR, lib/catalog-cache.ts):
+// prebuilts only change then, and the backend sits on a cold-starting free
+// tier, so these landing pages must not wait on it per request. The title's
+// month can lag into a new month until the first scrape (Friday) refreshes it.
+// The literal is CATALOG_REVALIDATE's backstop; Next reads segment config
+// statically.
+export const revalidate = 2592000;
 // Unknown budgets 404. proxy.ts does the same before rendering, which is what
 // guarantees a real 404 status (the root loading.tsx would otherwise stream
 // the not-found UI with a 200).
@@ -64,31 +65,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-/**
- * A failed catalogue fetch must not be cached as this page's content. At
- * runtime, throwing makes ISR keep serving the last good render and retry on
- * the next request. During `next build` (no previous render to fall back on)
- * and in dev, render the failure state instead of breaking the build.
- */
-function failOrRender(): boolean {
-  const canKeepStale =
-    process.env.NODE_ENV === "production" && process.env.NEXT_PHASE !== PHASE_PRODUCTION_BUILD;
-  if (canKeepStale) throw new Error("Budget page: prebuilt catalogue fetch failed");
-  return true;
-}
-
-const labelStyle = {
-  fontFamily: monoFont,
-  fontSize: "10px",
-  fontWeight: 800,
-  color: "var(--faint)",
-  letterSpacing: "2px",
-  textTransform: "uppercase" as const,
-};
-
 function SiblingLinks({ current }: { current: Budget }) {
   return (
-    <nav aria-label="Other budgets" style={{ display: "flex", flexWrap: "wrap", gap: "10px", margin: "20px 0 28px" }}>
+    <nav aria-label="Other budgets" className="landing-siblings">
       {BUDGETS.map(b => {
         const active = b.slug === current.slug;
         return (
@@ -96,22 +75,9 @@ function SiblingLinks({ current }: { current: Budget }) {
             key={b.slug}
             href={`/gaming-pc-under/${b.slug}`}
             aria-current={active ? "page" : undefined}
-            style={{
-              padding: "7px 14px",
-              border: "2px solid var(--ink)",
-              boxShadow: active ? "var(--gloss), 2px 2px 0 var(--shadow)" : "2px 2px 0 var(--shadow)",
-              background: active ? "var(--purple)" : "var(--paper)",
-              color: active ? "white" : "var(--text)",
-              fontFamily: sansFont,
-              fontSize: "12px",
-              fontWeight: 700,
-              letterSpacing: "-0.005em",
-              textDecoration: "none",
-              transform: "skewX(-8deg)",
-              display: "inline-block",
-            }}
+            className="landing-sibling"
           >
-            <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>
+            <span className="skew-label">
               Under {b.short} · {b.lakh}
             </span>
           </Link>
@@ -127,7 +93,7 @@ export default async function BudgetPage({ params }: PageProps) {
   if (!budget) notFound();
 
   const [res, buckets] = await Promise.all([getBudgetCatalogue(), getBudgetBuckets()]);
-  const failed = !res.ok && failOrRender();
+  const failed = !res.ok && failOrRender("Budget page: prebuilt catalogue fetch failed");
   const all = res.ok ? prebuiltsInBudget(res.items, budget.max) : [];
   const listed = all.slice(0, MAX_LISTED);
   const summary = summarizeBudget(all);
@@ -181,48 +147,33 @@ export default async function BudgetPage({ params }: PageProps) {
       <Navbar />
 
       {/* Header strip: breadcrumb, with the budget pulldown hanging off it. */}
-      <div style={{ position: "relative", zIndex: 30, background: "var(--bg)", borderBottom: "2px solid var(--ink)" }}>
-        <nav
-          aria-label="Breadcrumb"
-          style={{
-            maxWidth: "80rem",
-            margin: "0 auto",
-            padding: "12px 24px",
-            display: "flex",
-            gap: "6px",
-            fontFamily: monoFont,
-            fontSize: "10px",
-            fontWeight: 700,
-            color: "var(--faint)",
-            letterSpacing: "1px",
-            textTransform: "uppercase",
-          }}
-        >
-          <Link href="/" style={{ color: "var(--faint)", textDecoration: "none" }}>RIGPK</Link>
+      <div className="landing-strip">
+        <nav aria-label="Breadcrumb" className="crumb-bar landing-crumbs">
+          <Link href="/">RIGPK</Link>
           <span>›</span>
-          <Link prefetch={false} href="/prebuilts" style={{ color: "var(--faint)", textDecoration: "none" }}>PRE-BUILTS</Link>
+          <Link prefetch={false} href="/prebuilts">PRE-BUILTS</Link>
           <span>›</span>
-          <span style={{ color: "var(--text)" }}>UNDER {budget.short}</span>
+          <span className="crumb-here">UNDER {budget.short}</span>
         </nav>
         <PulldownTab label="PCs by budget" title="Gaming PCs by budget">
           <BudgetBoxes buckets={buckets} activeSlug={budget.slug} />
         </PulldownTab>
       </div>
 
-      <main className="pb-browser-wrapper" style={{ maxWidth: "80rem", margin: "0 auto", padding: "40px 24px 32px" }}>
-        <h1 style={{ fontFamily: sansFont, fontWeight: 700, fontSize: "clamp(1.9rem, 4vw, 2.5rem)", lineHeight: 1.05, letterSpacing: "-0.03em", color: "var(--text)", margin: 0 }}>
+      <main className="pb-browser-wrapper landing-main">
+        <h1 className="page-title">
           {heading}
         </h1>
-        <p style={{ ...labelStyle, color: "var(--purple-text)", marginTop: "8px" }}>
+        <p className="landing-kicker">
           {budget.lakh} · Prices for {monthYear(new Date())}
         </p>
 
         {failed ? (
-          <div style={{ padding: "80px 0", textAlign: "center" }}>
-            <p style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 900, color: "var(--purple-text)", letterSpacing: "1.5px" }}>
+          <div className="catalog-failed">
+            <p className="catalog-failed-title">
               {"// SEARCH FAILED"}
             </p>
-            <p style={{ fontFamily: sansFont, fontSize: "14px", color: "var(--text-muted)", letterSpacing: "-0.005em", marginTop: "8px" }}>
+            <p className="catalog-failed-text">
               Couldn&apos;t reach the server. Reload to try again.
             </p>
           </div>
@@ -231,7 +182,7 @@ export default async function BudgetPage({ params }: PageProps) {
             <SiblingLinks current={budget} />
 
             {listed.length === 0 ? (
-              <div style={{ padding: "80px 0", textAlign: "center", fontFamily: monoFont, fontSize: "13px", color: "var(--faint)", letterSpacing: "1.5px" }}>
+              <div className="pb-empty">
                 {"// NO PREBUILTS FOUND"}
               </div>
             ) : (
@@ -241,8 +192,8 @@ export default async function BudgetPage({ params }: PageProps) {
             )}
 
             {all.length > listed.length && (
-              <p style={{ marginTop: "24px", fontFamily: monoFont, fontSize: "11px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" }}>
-                <Link prefetch={false} href={`/prebuilts?max_price=${budget.max}`} style={{ color: "var(--purple-text)" }}>
+              <p className="landing-more">
+                <Link prefetch={false} href={`/prebuilts?max_price=${budget.max}`}>
                   See all {all.length} PCs under {budget.short} →
                 </Link>
               </p>
@@ -251,21 +202,21 @@ export default async function BudgetPage({ params }: PageProps) {
             {faqs.length > 0 && (
               <section
                 aria-labelledby="budget-faq"
-                style={{ marginTop: "48px", border: "2px solid var(--ink)", boxShadow: "10px 10px 0 var(--shadow)", background: "var(--paper)", overflow: "hidden" }}
+                className="landing-faq"
               >
                 <h2
                   id="budget-faq"
-                  style={{ margin: 0, background: "var(--bar)", color: "white", padding: "10px 16px", fontFamily: monoFont, fontSize: "11px", fontWeight: 800, letterSpacing: "2px", textTransform: "uppercase" }}
+                  className="landing-faq-title"
                 >
                   FAQ · Gaming PC under {budget.lakh}
                 </h2>
-                <div style={{ padding: "8px 16px 16px" }}>
+                <div className="landing-faq-list">
                   {faqs.map(f => (
-                    <div key={f.q} style={{ padding: "14px 0", borderBottom: "1.5px dashed var(--border)" }}>
-                      <h3 style={{ margin: 0, fontFamily: sansFont, fontSize: "14px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.005em" }}>
+                    <div key={f.q} className="landing-faq-item">
+                      <h3 className="landing-faq-q">
                         {f.q}
                       </h3>
-                      <p style={{ margin: "6px 0 0", fontSize: "14px", lineHeight: 1.6, color: "var(--text-muted)" }}>{f.a}</p>
+                      <p className="landing-faq-a">{f.a}</p>
                     </div>
                   ))}
                 </div>

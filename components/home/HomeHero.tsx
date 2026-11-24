@@ -29,7 +29,7 @@ function HeadlineText() {
 
 function Headline() {
   return (
-    <div className="hero-headline fade-up" style={{ animationDelay: "0.05s" }}>
+    <div className="hero-headline fade-up">
       <div className="hero-hl hero-hl--aura hero-hl--aura-blur" aria-hidden><HeadlineText /></div>
       <div className="hero-hl hero-hl--aura" aria-hidden><HeadlineText /></div>
       <h1 className="hero-hl">
@@ -46,7 +46,7 @@ function HeroStats({ stats }: { stats: Stats }) {
     { value: String(Object.keys(stats.by_category).length), label: "Categories" },
   ];
   return (
-    <dl className="hero-stats fade-up" style={{ animationDelay: "0.35s" }}>
+    <dl className="hero-stats fade-up">
       {items.map(s => (
         <div key={s.label} className="hero-stat">
           <dt className="hero-stat-label">{s.label}</dt>
@@ -64,7 +64,7 @@ export default function HomeHero({ stats }: { stats: Stats | null }) {
         <DiagLines />
         <Headline />
 
-        <div className="hero-meme-slot fade-up" style={{ animationDelay: "0.2s" }}>
+        <div className="hero-meme-slot fade-up">
           <div className="hero-meme-card">
             <div className="hero-meme-mat">
               <HeroMeme />
@@ -72,7 +72,7 @@ export default function HomeHero({ stats }: { stats: Stats | null }) {
           </div>
         </div>
 
-        <div className="hero-pitch fade-up" style={{ animationDelay: "0.25s" }}>
+        <div className="hero-pitch fade-up">
           <p className="hero-pitch-text">{SUB}</p>
           <div className="hero-pitch-ctas">
             <Link prefetch={false} href="/market" className="hero-cta hero-cta--primary">

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useLayoutEffect, useRef, useId, useCallback, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
-import { monoFont, sansFont } from "@/lib/tokens";
 
 export interface DropdownOption {
   value: string;
@@ -195,38 +194,13 @@ export function ComicDropdown({
       id={listId}
       role="listbox"
       aria-label={label}
-      style={{
-        position: "fixed",
-        top: coords.top,
-        left: coords.left,
-        zIndex: 9999,
-        background: "var(--paper)",
-        border: "2px solid var(--ink)",
-        boxShadow: "4px 4px 0 var(--shadow)",
-        minWidth: "140px",
-        maxWidth: "calc(100vw - 16px)",
-        maxHeight: "280px",
-        overflowY: "auto",
-      }}
+      className="comic-dropdown-panel"
+      style={{ top: coords.top, left: coords.left }}
     >
       {isActive && (
         <button
           onClick={() => { onClear(); setOpen(false); }}
-          style={{
-            display: "block",
-            width: "100%",
-            padding: "7px 12px",
-            textAlign: "left",
-            background: "color-mix(in srgb, var(--purple) 6%, transparent)",
-            border: "none",
-            borderBottom: "1px solid var(--ink)",
-            fontFamily: sansFont,
-            fontSize: "12px",
-            fontWeight: 700,
-            color: "var(--purple-text)",
-            cursor: "pointer",
-            letterSpacing: "-0.005em",
-          }}
+          className="comic-dropdown-clear"
         >
           ✕ Clear
         </button>
@@ -235,17 +209,7 @@ export function ComicDropdown({
         opt.separator ? (
           <div
             key={opt.value}
-            style={{
-              padding: "4px 12px 2px",
-              fontFamily: monoFont,
-              fontSize: "9px",
-              fontWeight: 800,
-              color: "var(--purple-text)",
-              letterSpacing: "1px",
-              textTransform: "uppercase",
-              background: "color-mix(in srgb, var(--purple) 5%, transparent)",
-              borderTop: "1px solid var(--line-soft)",
-            }}
+            className="comic-dropdown-sep"
           >
             {opt.label}
           </div>
@@ -258,23 +222,7 @@ export function ComicDropdown({
             tabIndex={-1}
             onMouseEnter={() => setActiveIndex(i)}
             onClick={() => selectAt(i)}
-            style={{
-              display: "block",
-              width: "100%",
-              padding: "6px 12px 6px 18px",
-              textAlign: "left",
-              background: active === opt.value ? "var(--purple-pale)" : "var(--paper)",
-              border: "none",
-              borderBottom: "1px solid var(--line-soft)",
-              outline: i === activeIndex ? "2px solid var(--purple)" : "none",
-              outlineOffset: "-2px",
-              fontFamily: sansFont,
-              fontSize: "12px",
-              fontWeight: active === opt.value ? 800 : 600,
-              color: active === opt.value ? "var(--purple-text)" : "var(--text)",
-              cursor: "pointer",
-              letterSpacing: "-0.005em",
-            }}
+            className={`comic-dropdown-option${i === activeIndex ? " comic-dropdown-option--active" : ""}`}
           >
             {opt.label}
           </button>
@@ -285,12 +233,12 @@ export function ComicDropdown({
   ) : null;
 
   return (
-    <div style={{ position: "relative", flexShrink: 0 }}>
+    <div className="filter-trigger-wrap">
       <button
         ref={btnRef}
         onClick={handleOpen}
         onKeyDown={handleTriggerKeyDown}
-        className="comic-btn"
+        className={`comic-btn filter-trigger comic-dropdown-trigger${isActive ? " filter-trigger--active" : ""}`}
         // role="combobox" (not the implicit button role) is what makes
         // aria-activedescendant legal here — this is the WAI-ARIA
         // select-only combobox pattern: a trigger that keeps focus while
@@ -300,35 +248,12 @@ export function ComicDropdown({
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
         aria-activedescendant={activeOptionId}
-        style={{
-          // Horizontal padding absorbs the shear the skew adds: a 24px-tall
-          // chip skewed 8deg pushes its top/bottom corners ~1.7px past the
-          // unskewed box on each side, and at 44px (the mobile min-height)
-          // that grows past 3px. 14px leaves room for it plus the 2px shadow
-          // so the last chip in the row isn't clipped by the scroll wrapper.
-          padding: "5px 14px",
-          border: isActive ? "2px solid var(--purple)" : "2px solid var(--ink)",
-          background: isActive ? "var(--purple)" : "var(--paper)",
-          color: isActive ? "white" : "var(--text)",
-          boxShadow: isActive ? "var(--gloss), 2px 2px 0 var(--purple)" : "2px 2px 0 var(--shadow)",
-          transform: "skewX(-8deg)",
-          fontFamily: sansFont,
-          fontSize: "12px",
-          fontWeight: 700,
-          letterSpacing: "-0.005em",
-          cursor: "pointer",
-          whiteSpace: "nowrap",
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          transition: "background 0.1s, border-color 0.1s",
-        }}
       >
         {/* Counter-skew the contents so the text reads upright inside the
             skewed chip — same idiom as ToggleChip. Without it the glyphs lean
             and the trailing caret drifts outside the border. */}
-        <span style={{ display: "inline-block", transform: "skewX(8deg)" }}>{displayLabel}</span>
-        <span style={{ display: "inline-block", transform: "skewX(8deg)", opacity: 0.6, fontSize: "8px" }}>
+        <span className="skew-label">{displayLabel}</span>
+        <span className="skew-label filter-trigger-caret">
           {open ? "▲" : "▼"}
         </span>
       </button>

@@ -5,7 +5,6 @@ import PartRow from "@/components/PartRow";
 import { getPartsByIds, getSearchIndex, type Part } from "@/lib/api";
 import { buildIndex, type SearchIndex } from "@/lib/search-index";
 import { publishSearch, publishTotal, setIndexReady, subscribeSearch } from "@/lib/search-bus";
-import { monoFont } from "@/lib/tokens";
 
 interface Props {
   category: string;
@@ -140,14 +139,11 @@ export default function MarketSearchResults({
   // would keep showing SEARCH FAILED over a perfectly good server render.
   if (clientPathActive && failed) {
     return (
-      <div style={{ padding: "64px 24px", textAlign: "center",
-                    background: "var(--bg-card)", borderTop: "1px solid var(--ink)" }}>
-        <p style={{ fontFamily: monoFont, fontSize: "0.9rem", fontWeight: 900,
-                    color: "var(--purple-text)", letterSpacing: "3px",
-                    textTransform: "uppercase" }}>
+      <div className="market-empty">
+        <p className="status-title status-title--error">
           {"// SEARCH FAILED"}
         </p>
-        <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "8px" }}>
+        <p className="status-text">
           Couldn&apos;t reach the server. Reload to try again.
         </p>
       </div>
@@ -156,14 +152,11 @@ export default function MarketSearchResults({
 
   if (displayedItems.length === 0) {
     return (
-      <div style={{ padding: "64px 24px", textAlign: "center",
-                    background: "var(--bg-card)", borderTop: "1px solid var(--ink)" }}>
-        <p style={{ fontFamily: monoFont, fontSize: "0.9rem", fontWeight: 900,
-                    color: "var(--text-dim)", letterSpacing: "3px",
-                    textTransform: "uppercase" }}>
+      <div className="market-empty">
+        <p className="status-title status-title--empty">
           {"// NO PARTS FOUND"}
         </p>
-        <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "8px" }}>
+        <p className="status-text">
           Try adjusting your filters
         </p>
       </div>

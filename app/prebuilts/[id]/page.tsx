@@ -6,7 +6,6 @@ import Footer from "@/components/Footer";
 import PrebuiltSpecPage from "@/components/PrebuiltSpecPage";
 import JsonLd from "@/components/JsonLd";
 import { getPrebuilt } from "@/lib/prebuilts-api";
-import { monoFont } from "@/lib/tokens";
 import { cleanPrebuiltName, prebuiltDescription, SITE_URL, storeName } from "@/lib/seo";
 import { isSafeHref } from "@/lib/safe-url";
 
@@ -87,13 +86,13 @@ export default async function PrebuiltDetailPage({ params }: PageProps) {
         }}
       />
       <Navbar />
-      <div className="pb-spec-page-breadcrumb" style={{ maxWidth: "1280px", margin: "0 auto", padding: "16px 48px 0", overflow: "hidden", width: "100%" }}>
-        <nav style={{ display: "flex", alignItems: "center", gap: "6px", fontFamily: monoFont, fontSize: "10px", fontWeight: 700, color: "var(--faint)", letterSpacing: "1px", textTransform: "uppercase", flexWrap: "nowrap", overflow: "hidden" }}>
-          <Link href="/" style={{ color: "var(--faint)", textDecoration: "none", flexShrink: 0 }}>RIGPK</Link>
-          <span style={{ flexShrink: 0 }}>›</span>
-          <Link prefetch={false} href="/prebuilts" style={{ color: "var(--faint)", textDecoration: "none", flexShrink: 0 }}>PRE-BUILTS</Link>
-          <span style={{ flexShrink: 0 }}>›</span>
-          <span className="pb-spec-breadcrumb-name" style={{ color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{prebuilt.name}</span>
+      <div className="pb-spec-page-breadcrumb">
+        <nav className="crumb-bar pb-spec-crumbs">
+          <Link href="/">RIGPK</Link>
+          <span>›</span>
+          <Link prefetch={false} href="/prebuilts">PRE-BUILTS</Link>
+          <span>›</span>
+          <span className="pb-spec-breadcrumb-name">{prebuilt.name}</span>
         </nav>
       </div>
 

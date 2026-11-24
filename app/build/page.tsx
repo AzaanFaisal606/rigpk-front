@@ -110,57 +110,30 @@ function BuildPage() {
   const issues = checkCompatibility(build);
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: "var(--bg)" }}>
+    <div className="page-bg flex flex-col min-h-screen">
       {/* A layout can't read searchParams and this page is client-rendered
           below its Suspense boundary, so shared-build noindex can only be
           added here — React hoists the tag into <head> once it renders. */}
       {shareCode && <meta name="robots" content="noindex, follow" />}
       <Navbar />
-      <main
-        className="build-main"
-        style={{
-          display: "flex",
-          flex: 1,
-          alignItems: "flex-start",
-        }}
-      >
+      <main className="build-main">
         {/* Left column — wireframe + cards + banner */}
-        <div className="build-left" style={{ flex: 1, minWidth: 0 }}>
+        <div className="build-left">
           <BuildWireframe build={build} onSlotClick={setActiveSlot} />
           <section className="build-section-list">
-            <div style={{ width: "100%" }}>
-              <h2
-                className="font-black mb-2"
-                style={{ fontSize: "clamp(1.2rem, 2.5vw, 1.5rem)", color: "var(--text)" }}
-              >
+            <div className="build-list-inner">
+              <h2 className="build-list-title font-black mb-2">
                 Component List
               </h2>
-              <p className="text-sm mb-9" style={{ color: "var(--text-muted)" }}>
+              <p className="build-list-sub text-sm mb-9">
                 Click any slot to browse and select parts from the marketplace.
               </p>
               {shareFailed && (
-                <div
-                  style={{
-                    border: "2px solid var(--ink)",
-                    boxShadow: "4px 4px 0 var(--shadow)",
-                    background: "var(--purple-pale)",
-                    padding: "14px 16px",
-                    marginBottom: "18px",
-                  }}
-                >
-                  <p
-                    className="mono"
-                    style={{
-                      fontSize: "0.78rem",
-                      fontWeight: 900,
-                      letterSpacing: "2px",
-                      textTransform: "uppercase",
-                      color: "var(--purple-text)",
-                    }}
-                  >
+                <div className="build-share-failed">
+                  <p className="mono build-share-failed-title">
                     {"// SHARED BUILD NOT FOUND"}
                   </p>
-                  <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "6px" }}>
+                  <p className="status-text status-text--tight">
                     That share link couldn&apos;t be resolved. It may have expired, or the
                     server is unreachable — the empty build below is not what was shared.
                   </p>

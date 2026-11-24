@@ -7,28 +7,12 @@ import PCThumb from "./PCThumb";
 import { derivePrebuiltTags } from "@/lib/prebuilt-tags";
 import type { Prebuilt } from "@/lib/prebuilts-api";
 import { GameBenchmarksPanel } from "@/components/ui/GameBenchmarksPanel";
-import { monoFont, sansFont } from "@/lib/tokens";
 import { isSafeHref } from "@/lib/safe-url";
 
 function PB_Chip({ label }: { label: string }) {
   return (
-    <span
-      style={{
-        display: "inline-block",
-        fontFamily: monoFont,
-        fontSize: "9px",
-        fontWeight: 800,
-        letterSpacing: "1px",
-        textTransform: "uppercase",
-        padding: "3px 10px",
-        border: "2px solid var(--ink)",
-        boxShadow: "3px 3px 0 var(--shadow)",
-        background: "var(--bg-card)",
-        color: "var(--text)",
-        transform: "skewX(-10deg)",
-      }}
-    >
-      <span style={{ display: "inline-block", transform: "skewX(10deg)" }}>{label}</span>
+    <span className="pbsp-chip">
+      <span className="skew-label-10">{label}</span>
     </span>
   );
 }
@@ -75,10 +59,10 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
   const restOfName = words.join(" ");
 
   return (
-    <div className="pb-spec-wrapper" style={{ maxWidth: "1280px", margin: "0 auto", padding: "32px 48px 60px", overflowX: "hidden" }}>
+    <div className="pb-spec-wrapper">
 
       {/* ── HERO ── */}
-      <div className="pb-spec-hero" style={{ display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: "28px", alignItems: "start", marginBottom: "40px" }}>
+      <div className="pb-spec-hero">
         {/* Left: ComicFrame thumbnail. ComicFrame's own `height` prop always
             renders as an inline pixel style, so a CSS class on this page
             can't win against it without `!important`. Bridging through a
@@ -88,18 +72,18 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
         <div className="pbsp-hero-frame">
           <ComicFrame height={"var(--pbsp-frame-h)" as unknown as number} sub={prebuilt.source}>
           {prebuilt.thumbnail_url ? (
-            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div className="pbsp-frame-fill">
               <img
                 src={prebuilt.thumbnail_url}
                 referrerPolicy="no-referrer"
                 alt={prebuilt.name}
                 width={400}
                 height={300}
-                style={{ maxWidth: "85%", maxHeight: "85%", width: "auto", height: "auto", aspectRatio: "4 / 3", objectFit: "contain", display: "block" }}
+                className="pbsp-frame-img"
               />
             </div>
           ) : (
-            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div className="pbsp-frame-fill">
               <PCThumb scale={1.6} />
             </div>
           )}
@@ -107,107 +91,57 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
         </div>
 
         {/* Right: info */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <div className="pbsp-info">
 
           {/* Source */}
-          <div style={{ fontFamily: monoFont, fontSize: "13px", fontWeight: 700, color: "var(--text-2)", marginBottom: "2px" }}>
+          <div className="pbsp-source">
             {prebuilt.source} {"//"}
           </div>
 
           {/* Title — max 2 lines */}
-          <h1
-            style={{
-              fontFamily: sansFont,
-              fontWeight: 700,
-              fontSize: "clamp(1.4rem, 2.8vw, 2.8rem)",
-              lineHeight: 0.95,
-              letterSpacing: "-0.03em",
-              color: "var(--text)",
-              margin: 0,
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
+          <h1 className="pbsp-title">
             {restOfName}{restOfName ? " " : ""}
-            <span style={{ fontStyle: "italic" }}>{lastWord}</span>
+            <span className="pbsp-title-last">{lastWord}</span>
           </h1>
 
           {/* Tags */}
           {tags.length > 0 && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "4px" }}>
+            <div className="pbsp-tags">
               {tags.map(t => <PB_Chip key={t} label={t} />)}
             </div>
           )}
 
           {/* Price + buy card */}
-          <div
-            style={{
-              marginTop: "12px",
-              border: "3px solid var(--ink)",
-              boxShadow: "6px 6px 0 var(--shadow)",
-              background: "var(--paper)",
-            }}
-          >
+          <div className="pbsp-card">
             {/* Header bar */}
-            <div
-              style={{
-                background: "var(--bar)",
-                padding: "8px 14px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <span style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "2px", textTransform: "uppercase" }}>
+            <div className="pbsp-card-bar">
+              <span className="pbsp-bar-label">
                 ◼ PRICE · LISTED ON {prebuilt.source.toUpperCase()}
               </span>
               {scrapedDate && (
-                <span style={{ fontFamily: monoFont, fontSize: "9px", color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>
+                <span className="pbsp-card-date">
                   {scrapedDate}
                 </span>
               )}
             </div>
 
             {/* Body */}
-            <div style={{ padding: "18px 20px 20px" }}>
-              <div
-                className="pbsp-price"
-                style={{
-                  fontFamily: monoFont,
-                  fontWeight: 900,
-                  color: "var(--purple-text)",
-                  letterSpacing: "-0.02em",
-                }}
-              >
+            <div className="pbsp-card-body">
+              <div className="pbsp-price">
                 {prebuilt.price_pkr
                   ? `Rs ${prebuilt.price_pkr.toLocaleString("en-PK")}`
                   : "—"}
               </div>
 
-              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <div className="pbsp-actions">
                 {/* Buy Now */}
                 <a
                   href={buyHref}
                   target={buyHref ? "_blank" : undefined}
                   rel={buyHref ? "noopener noreferrer" : undefined}
                   className="pbsp-buy-btn"
-                  style={{
-                    flex: 1,
-                    display: "block",
-                    background: "var(--purple)",
-                    color: "white",
-                    border: "2px solid var(--ink)",
-                    boxShadow: "var(--gloss), 4px 4px 0 var(--shadow)",
-                    fontFamily: sansFont,
-                    fontWeight: 700,
-                    textDecoration: "none",
-                    textAlign: "center",
-                    transform: "skewX(-6deg)",
-                  }}
                 >
-                  <span style={{ display: "inline-block", transform: "skewX(6deg)" }}>
+                  <span className="skew-label-6">
                     Buy at {prebuilt.source} ↗
                   </span>
                 </a>
@@ -215,13 +149,7 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                 {/* Like */}
                 <button
                   onClick={() => setLiked(l => !l)}
-                  className="pbsp-icon-btn"
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    border: "2px solid var(--ink)", boxShadow: "4px 4px 0 var(--shadow)",
-                    background: liked ? "var(--danger-pale)" : "var(--paper)", cursor: "pointer",
-                    fontFamily: monoFont, fontSize: "18px",
-                  }}
+                  className={liked ? "pbsp-icon-btn pbsp-icon-btn--like pbsp-icon-btn--on" : "pbsp-icon-btn pbsp-icon-btn--like"}
                   aria-label="Like"
                 >
                   <Heart size={18} color={liked ? "#dc2626" : "var(--text)"} fill={liked ? "#dc2626" : "none"} />
@@ -230,15 +158,7 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
                 {/* Share */}
                 <button
                   onClick={handleShare}
-                  className="pbsp-icon-btn"
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    border: "2px solid var(--ink)",
-                    boxShadow: "4px 4px 0 var(--shadow)",
-                    background: shareStatus === "copied" ? "#16a34a" : "var(--paper)",
-                    cursor: "pointer",
-                    transition: "background 0.15s",
-                  }}
+                  className={shareStatus === "copied" ? "pbsp-icon-btn pbsp-icon-btn--share pbsp-icon-btn--copied" : "pbsp-icon-btn pbsp-icon-btn--share"}
                   aria-label="Share"
                 >
                   <Share2 size={18} color={shareStatus === "copied" ? "white" : "var(--text)"} />
@@ -250,43 +170,23 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
       </div>
 
       {/* ── SPECS + SIDEBAR ── */}
-      <div className="pb-spec-bottom" style={{ display: "grid", gridTemplateColumns: "1.6fr 0.9fr", gap: "28px", alignItems: "start" }}>
+      <div className="pb-spec-bottom">
         {/* Left: spec table */}
         <div>
-          <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "var(--purple-text)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "8px" }}>
+          <div className="pbsp-kicker">
             — FULL SPEC SHEET
           </div>
-          <h2
-            style={{
-              fontFamily: "var(--sans)",
-              fontWeight: 900,
-              fontSize: "1.875rem",
-              letterSpacing: "-0.04em",
-              color: "var(--text)",
-              margin: "0 0 16px",
-            }}
-          >
-            What&apos;s <span style={{ color: "var(--purple-text)", fontStyle: "italic" }}>inside.</span>
+          <h2 className="pbsp-sub">
+            What&apos;s <span className="pbsp-sub-accent">inside.</span>
           </h2>
 
-          <div style={{ border: "2px solid var(--ink)", boxShadow: "6px 6px 0 var(--shadow)", background: "var(--paper)" }}>
-            {specRows.map((key, i) => (
-              <div
-                key={key}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "130px 1fr",
-                  padding: "14px 18px",
-                  gap: "18px",
-                  alignItems: "baseline",
-                  borderBottom: i < specRows.length - 1 ? "1.5px dashed var(--border)" : "none",
-                  background: i % 2 === 0 ? "var(--paper)" : "var(--paper-alt)",
-                }}
-              >
-                <div style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "var(--purple-text)", letterSpacing: "1.5px", textTransform: "uppercase" }}>
+          <div className="pbsp-specs">
+            {specRows.map(key => (
+              <div key={key} className="pbsp-spec-row">
+                <div className="pbsp-spec-key">
                   {SPEC_LABELS[key]}
                 </div>
-                <div style={{ fontFamily: "var(--sans)", fontSize: "14px", fontWeight: 700, color: "var(--text)" }}>
+                <div className="pbsp-spec-val">
                   {c[key]}
                 </div>
               </div>
@@ -295,27 +195,20 @@ export default function PrebuiltSpecPage({ prebuilt }: Props) {
         </div>
 
         {/* Right: sidebar */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+        <div className="pbsp-side">
           {/* Benchmarks */}
           <GameBenchmarksPanel />
 
           {/* What's included */}
-          <div style={{ border: "2px solid var(--ink)", boxShadow: "5px 5px 0 var(--shadow)", background: "var(--paper)" }}>
-            <div style={{ background: "var(--bar)", padding: "8px 12px" }}>
-              <span style={{ fontFamily: monoFont, fontSize: "10px", fontWeight: 800, color: "white", letterSpacing: "2px", textTransform: "uppercase" }}>◼ WHAT&apos;S INCLUDED</span>
+          <div className="pbsp-included">
+            <div className="pbsp-included-bar">
+              <span className="pbsp-bar-label">◼ WHAT&apos;S INCLUDED</span>
             </div>
-            <div style={{ padding: "14px" }}>
-              {["Free assembly + cable management", "Delivery across Pakistan", "Retailer warranty applies"].map((item, i, arr) => (
-                <div
-                  key={item}
-                  style={{
-                    display: "flex", alignItems: "flex-start", gap: "10px",
-                    padding: "6px 0",
-                    borderBottom: i < arr.length - 1 ? "1px dashed var(--border)" : "none",
-                  }}
-                >
-                  <span style={{ color: "var(--purple-text)", fontFamily: monoFont, fontWeight: 900, fontSize: "12px", flexShrink: 0 }}>+</span>
-                  <span style={{ fontFamily: "var(--sans)", fontSize: "12px", color: "var(--text-2)", lineHeight: 1.4 }}>{item}</span>
+            <div className="pbsp-included-list">
+              {["Free assembly + cable management", "Delivery across Pakistan", "Retailer warranty applies"].map(item => (
+                <div key={item} className="pbsp-included-item">
+                  <span className="pbsp-included-plus">+</span>
+                  <span className="pbsp-included-text">{item}</span>
                 </div>
               ))}
             </div>

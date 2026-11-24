@@ -59,33 +59,14 @@ export default function BuildSummary({ build }: Props) {
   }
 
   return (
-    <div
-      style={{
-        width: "100%",
-        flexShrink: 0,
-        border: "2px solid var(--ink)",
-        background: "var(--bg-card)",
-        boxShadow: "5px 5px 0 var(--shadow)",
-      }}
-    >
+    <div className="build-summary">
       {/* Header */}
-      <div
-        style={{
-          background: "var(--bar)",
-          color: "white",
-          padding: "12px 16px",
-          fontSize: "10px",
-          fontWeight: 800,
-          letterSpacing: "2px",
-          textTransform: "uppercase",
-          fontFamily: "var(--mono)",
-        }}
-      >
+      <div className="build-summary-head">
         Build Summary
       </div>
 
       {/* Rows */}
-      <div style={{ padding: "16px" }}>
+      <div className="build-summary-body">
         {ALL_SLOTS.map((slot) => {
           const entry = build[slot];
           const part = entry?.part;
@@ -102,53 +83,23 @@ export default function BuildSummary({ build }: Props) {
           return (
             <div
               key={slot}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-                padding: "7px 0",
-                borderBottom: "1px solid var(--border)",
-                gap: "8px",
-              }}
+              className="build-summary-row"
             >
-              <span
-                className="mono"
-                style={{ fontSize: "9px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px", flexShrink: 0 }}
-              >
+              <span className="mono build-summary-slot">
                 {SLOT_LABELS[slot]}{entry && qty > 1 ? ` x${qty}` : ""}
               </span>
-              <span style={{ textAlign: "right" }}>
+              <span className="build-summary-values">
                 {isDelisted && (
-                  <span
-                    className="mono"
-                    style={{
-                      display: "block",
-                      fontSize: "8px",
-                      fontWeight: 800,
-                      color: "#dc2626",
-                      letterSpacing: "0.5px",
-                      textTransform: "uppercase",
-                    }}
-                  >
+                  <span className="mono build-summary-unavailable">
                     Unavailable
                   </span>
                 )}
                 {priceChanged ? (
-                  <span
-                    className="mono"
-                    style={{ fontSize: "10px", fontWeight: 600, color: "var(--text-muted)" }}
-                  >
+                  <span className="mono build-summary-price build-summary-price--changed">
                     {`shared at Rs ${(priceAtShare! * qty).toLocaleString("en-PK")} · now Rs ${(part!.price_pkr! * qty).toLocaleString("en-PK")}`}
                   </span>
                 ) : (
-                  <span
-                    className="mono"
-                    style={{
-                      fontSize: "10px",
-                      fontWeight: 600,
-                      color: part?.price_pkr != null ? "var(--text-2)" : "var(--text-dim)",
-                    }}
-                  >
+                  <span className={`mono build-summary-price${part?.price_pkr != null ? "" : " build-summary-price--none"}`}>
                     {part?.price_pkr != null
                       ? "Rs " + (part.price_pkr * qty).toLocaleString("en-PK")
                       : "—"}
@@ -160,26 +111,11 @@ export default function BuildSummary({ build }: Props) {
         })}
 
         {/* Total */}
-        <div
-          style={{
-            marginTop: "14px",
-            paddingTop: "14px",
-            borderTop: "2px solid var(--ink)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <span
-            className="mono"
-            style={{ fontSize: "10px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "1px" }}
-          >
+        <div className="build-summary-total">
+          <span className="mono build-summary-total-label">
             Total
           </span>
-          <span
-            className="mono"
-            style={{ fontSize: "18px", fontWeight: 900, color: "var(--purple-text)" }}
-          >
+          <span className="mono build-summary-total-value">
             Rs&nbsp;{total.toLocaleString("en-PK")}
           </span>
         </div>
@@ -187,55 +123,18 @@ export default function BuildSummary({ build }: Props) {
         {/* Copy button */}
         <button
           onClick={copyBuild}
-          style={{
-            width: "100%",
-            marginTop: "16px",
-            padding: "10px",
-            background: "var(--purple)",
-            color: "white",
-            border: "2px solid var(--ink)",
-            boxShadow: "var(--gloss), 3px 3px 0 var(--shadow)",
-            fontSize: "14px",
-            fontWeight: 700,
-            letterSpacing: "-0.005em",
-            cursor: "pointer",
-            transform: "skewX(-6deg)",
-            fontFamily: "var(--sans)",
-          }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--purple-hover)"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--purple)"; }}
+          className="build-summary-btn build-summary-copy"
         >
-          <span style={{ display: "inline-block", transform: "skewX(6deg)" }}>Copy build list</span>
+          <span className="skew-label-6">Copy build list</span>
         </button>
 
         {/* Share button */}
         <button
           onClick={handleShare}
           disabled={shareStatus === "loading"}
-          style={{
-            width: "100%",
-            marginTop: "10px",
-            padding: "10px",
-            background: shareStatus === "copied" ? "#16a34a" : shareStatus === "error" ? "#dc2626" : "var(--paper)",
-            color: shareStatus === "idle" ? "var(--text)" : "white",
-            border: "2px solid var(--ink)",
-            boxShadow: "3px 3px 0 var(--shadow)",
-            fontSize: "14px",
-            fontWeight: 700,
-            letterSpacing: "-0.005em",
-            cursor: shareStatus === "loading" ? "not-allowed" : "pointer",
-            transform: "skewX(-6deg)",
-            fontFamily: "var(--sans)",
-            opacity: shareStatus === "loading" ? 0.7 : 1,
-          }}
-          onMouseEnter={(e) => {
-            if (shareStatus === "idle") (e.currentTarget as HTMLButtonElement).style.background = "color-mix(in srgb, var(--purple) 6%, transparent)";
-          }}
-          onMouseLeave={(e) => {
-            if (shareStatus === "idle") (e.currentTarget as HTMLButtonElement).style.background = "var(--paper)";
-          }}
+          className={`build-summary-btn build-summary-share build-summary-share--${shareStatus}`}
         >
-          <span style={{ display: "inline-block", transform: "skewX(6deg)" }}>
+          <span className="skew-label-6">
             {shareStatus === "idle" && "Share build"}
             {shareStatus === "loading" && "Sharing…"}
             {shareStatus === "copied" && "Link copied!"}

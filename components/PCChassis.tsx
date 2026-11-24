@@ -13,7 +13,7 @@ export function PCChassisSVG({ viewBox = "0 0 960 540" }: { viewBox?: string }) 
   return (
     <svg
       viewBox={viewBox}
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }}
+      className="wireframe-layer pc-chassis-svg"
     >
       {/* Vertical rail guide lines */}
       <line x1="300" y1="50" x2="300" y2="490" stroke={INK} strokeWidth="0.8" strokeDasharray="2 3" opacity="0.3" />

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { sansFont } from "@/lib/tokens";
 
 interface Props {
   /** Text on the lip. */
@@ -65,21 +64,12 @@ export default function PulldownTab({
   // page below the host bar, so none of them may take pointer events; only
   // the drawer (lip and menu) opts back in.
   return (
-    <div style={{ position: "absolute", top: "100%", left: 0, right: 0, height: 0, pointerEvents: "none" }}>
-      <div style={{ maxWidth: rowMaxWidth, margin: "0 auto", padding: rowPadding, pointerEvents: "none" }}>
+    <div className="pulldown-anchor">
+      <div className="pulldown-row" style={{ maxWidth: rowMaxWidth, padding: rowPadding }}>
         {/* Clip box starting at the host's bottom edge: whatever of the drawer
             is above it is hidden, so the drawer reads as sliding out from
             behind the bar. Extra right room keeps the shadow unclipped. */}
-        <div
-          className="pulldown-clip"
-          style={{
-            position: "relative",
-            height: "100vh",
-            paddingRight: "10px",
-            overflow: "hidden",
-            pointerEvents: "none",
-          }}
-        >
+        <div className="pulldown-clip">
           {/* The drawer's own box is just the menu body, so closed it is pulled
               up by exactly its height; the lip hangs off its bottom edge
               (absolutely, so it isn't part of that height) and is all that
@@ -88,7 +78,6 @@ export default function PulldownTab({
             ref={drawerRef}
             className="pulldown-drawer"
             data-open={open ? "true" : "false"}
-            style={{ position: "relative", pointerEvents: "auto" }}
           >
             <div
               id={panelId}
@@ -96,14 +85,6 @@ export default function PulldownTab({
               aria-label={title ?? label}
               inert={!open}
               className="pulldown-body"
-              style={{
-                background: "var(--purple)",
-                border: "2px solid var(--ink)",
-                borderTop: "none",
-                padding: "18px",
-                maxHeight: "calc(100vh - 220px)",
-                overflowY: "auto",
-              }}
             >
               {children}
             </div>
@@ -115,36 +96,10 @@ export default function PulldownTab({
               aria-expanded={open}
               aria-controls={panelId}
               onClick={() => setOpen(o => !o)}
-              style={{
-                position: "absolute",
-                top: "calc(100% - 2px)", // overlap the body's bottom border so they merge
-                left: 0,
-                width: lipWidth,
-                // Taller than what shows: the top slice stays tucked behind the
-                // bar (or the body) and is what slides into view on hover.
-                height: "32px",
-                paddingTop: "6px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "6px",
-                background: "var(--purple)",
-                color: "white",
-                border: "2px solid var(--ink)",
-                borderTop: "none",
-                // No --gloss: its top highlight would draw a light line right
-                // where the lip joins the body. The body has no gloss either,
-                // so the two read as one shape.
-                boxShadow: "3px 3px 0 var(--shadow)",
-                fontFamily: sansFont,
-                fontSize: "11px",
-                fontWeight: 700,
-                letterSpacing: "-0.005em",
-                cursor: "pointer",
-              }}
+              style={{ width: lipWidth }}
             >
               {label}
-              <span aria-hidden className="pulldown-caret" style={{ display: "inline-block", fontSize: "8px" }}>
+              <span aria-hidden className="pulldown-caret">
                 ▼
               </span>
             </button>

@@ -29,55 +29,26 @@ function QtyStepper({
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      style={{ display: "flex", alignItems: "center", gap: "6px", padding: "0 24px 16px" }}
+      className="qty-stepper"
     >
       <button
         type="button"
-        className="comic-btn qty-step"
+        className="comic-btn qty-step qty-step-btn"
         aria-label={`Decrease ${SLOT_LABELS[slot]} quantity`}
         disabled={qty <= MIN_QTY}
         onClick={() => onChange(Math.max(MIN_QTY, qty - 1))}
-        style={{
-          width: "22px",
-          height: "22px",
-          border: "2px solid var(--ink)",
-          boxShadow: "2px 2px 0 var(--shadow)",
-          background: "var(--paper)",
-          fontFamily: "var(--sans)",
-          fontWeight: 700,
-          fontSize: "14px",
-          lineHeight: 1,
-          cursor: qty <= MIN_QTY ? "not-allowed" : "pointer",
-          opacity: qty <= MIN_QTY ? 0.4 : 1,
-        }}
       >
         −
       </button>
-      <span
-        className="mono"
-        style={{ minWidth: "16px", textAlign: "center", fontSize: "11px", fontWeight: 800 }}
-      >
+      <span className="mono qty-value">
         {qty}
       </span>
       <button
         type="button"
-        className="comic-btn qty-step"
+        className="comic-btn qty-step qty-step-btn"
         aria-label={`Increase ${SLOT_LABELS[slot]} quantity`}
         disabled={qty >= MAX_QTY}
         onClick={() => onChange(Math.min(MAX_QTY, qty + 1))}
-        style={{
-          width: "22px",
-          height: "22px",
-          border: "2px solid var(--ink)",
-          boxShadow: "2px 2px 0 var(--shadow)",
-          background: "var(--paper)",
-          fontFamily: "var(--sans)",
-          fontWeight: 700,
-          fontSize: "14px",
-          lineHeight: 1,
-          cursor: qty >= MAX_QTY ? "not-allowed" : "pointer",
-          opacity: qty >= MAX_QTY ? 0.4 : 1,
-        }}
       >
         +
       </button>
@@ -87,14 +58,7 @@ function QtyStepper({
 
 export default function BuildCards({ build, onSlotClick, onRemove, onQtyChange }: Props) {
   return (
-    <div
-      className="build-cards-grid"
-      style={{
-        flex: 1,
-        display: "grid",
-        gap: "14px",
-      }}
-    >
+    <div className="build-cards-grid">
       {ALL_SLOTS.map((slot) => {
         const entry = build[slot];
         const part = entry?.part;
@@ -110,74 +74,38 @@ export default function BuildCards({ build, onSlotClick, onRemove, onQtyChange }
         return (
           <div
             key={slot}
-            style={{
-              border: selected ? "2px solid var(--purple)" : "2px dashed var(--border)",
-              boxShadow: selected ? "3px 3px 0 var(--purple)" : "3px 3px 0 var(--border)",
-              background: selected ? "var(--bg-card)" : "var(--paper-alt)",
-              position: "relative",
-            }}
+            className={`build-card${selected ? " build-card--selected" : ""}`}
           >
             <button
               onClick={() => onSlotClick(slot)}
-              style={{
-                width: "100%",
-                padding: "20px 24px",
-                textAlign: "left",
-                cursor: "pointer",
-                background: "transparent",
-                border: "none",
-                transition: "background 0.12s",
-                display: "block",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = "var(--purple-pale)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = "transparent";
-              }}
+              className="build-card-btn"
             >
-              <p
-                className="mono"
-                style={{
-                  fontSize: "9px",
-                  fontWeight: 800,
-                  letterSpacing: "1.5px",
-                  textTransform: "uppercase",
-                  color: selected ? "var(--purple-text)" : "var(--text-dim)",
-                  marginBottom: "7px",
-                }}
-              >
+              <p className="mono build-card-label">
                 {SLOT_LABELS[slot]}
               </p>
               {selected && part ? (
                 <>
-                  <p
-                    className="font-semibold"
-                    style={{ fontSize: "13px", color: "var(--text)", marginBottom: "4px", lineHeight: 1.3, paddingRight: "28px" }}
-                  >
+                  <p className="font-semibold build-card-name">
                     {part.name}{qty > 1 ? ` \u00d7${qty}` : ""}
                   </p>
                   {isDelisted && (
-                    <p
-                      className="mono"
-                      style={{ fontSize: "9px", fontWeight: 800, color: "#dc2626", letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: "2px" }}
-                    >
+                    <p className="mono build-card-unavailable">
                       Unavailable
                     </p>
                   )}
-                  <p style={{ fontSize: "12px", color: "var(--text-2)", fontWeight: 600 }}>
+                  <p className="build-card-price">
                     {priceChanged
                       ? `shared at Rs\u00a0${priceAtShare!.toLocaleString("en-PK")} \u00b7 now Rs\u00a0${part.price_pkr!.toLocaleString("en-PK")}`
                       : part.price_pkr != null
                         ? "Rs\u00a0" + part.price_pkr.toLocaleString("en-PK")
                         : "Out of stock"}
                   </p>
-                  <p style={{ fontSize: "9px", color: "var(--text-dim)", marginTop: "3px" }}>
+                  <p className="build-card-source">
                     {part.source}
                   </p>
                 </>
               ) : (
-                <p style={{ fontSize: "13px", color: "var(--text-dim)", fontStyle: "italic" }}>
+                <p className="build-card-empty">
                   + Select {SLOT_LABELS[slot]}
                 </p>
               )}
@@ -195,14 +123,7 @@ export default function BuildCards({ build, onSlotClick, onRemove, onQtyChange }
               <button
                 onClick={(e) => { e.stopPropagation(); onRemove(slot); }}
                 title="Remove"
-                style={{
-                  position: "absolute", top: "10px", right: "10px",
-                  background: "none", border: "none",
-                  color: "var(--text-dim)", fontSize: "13px",
-                  cursor: "pointer", lineHeight: 1, padding: "2px 4px",
-                }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#ef4444"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--text-dim)"; }}
+                className="build-card-remove"
               >
                 ✕
               </button>

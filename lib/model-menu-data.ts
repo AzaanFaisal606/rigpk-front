@@ -1,7 +1,8 @@
 // Server-only: pulls in thumb-check (sharp).
 import { unstable_cache } from "next/cache";
+import { CATALOG_REVALIDATE, CATALOG_TAG } from "./catalog-cache";
 import { MODELS, MODEL_SERIES, partsForModel, summarizeModel, thumbCandidates } from "./models";
-import { getCategoryCatalogue, MODEL_REVALIDATE, type ModelCount } from "./model-data";
+import { getCategoryCatalogue, type ModelCount } from "./model-data";
 import { isBackgroundless, pickBackgroundlessThumb } from "./thumb-check";
 
 export interface MenuThumb {
@@ -67,11 +68,14 @@ async function build(): Promise<ModelMenuData> {
 
 // unstable_cache doesn't merge concurrent misses: during `next build` every
 // page rendering at once in a worker would run its own build(). One shared
-// promise per process, kept as long as the cache entry, makes that one run.
+// promise per process makes that one run. It is kept for minutes, not as long
+// as the cache entry: a refresh after a scrape must not get this process's old
+// result back.
+const SHARE_BUILD_MS = 10 * 60 * 1000;
 let inFlight: { at: number; promise: Promise<ModelMenuData> } | null = null;
 
 function buildOnce(): Promise<ModelMenuData> {
-  if (!inFlight || Date.now() - inFlight.at > MODEL_REVALIDATE * 1000) {
+  if (!inFlight || Date.now() - inFlight.at > SHARE_BUILD_MS) {
     const promise = build();
     inFlight = { at: Date.now(), promise };
     // A failure must not stick: the next caller retries.
@@ -84,10 +88,13 @@ function buildOnce(): Promise<ModelMenuData> {
 
 /**
  * Everything the model pulldown shows beyond the static catalog. Cached as one
- * entry for an hour across requests and pages: every market page carries the
- * menu, and the thumbnail checks are too slow to repeat per render.
+ * entry across requests and pages until the next scrape: every market page
+ * carries the menu, and the thumbnail checks are too slow to repeat per render.
  */
-const getCachedMenuData = unstable_cache(buildOnce, ["model-menu-data-v5"], { revalidate: MODEL_REVALIDATE });
+const getCachedMenuData = unstable_cache(buildOnce, ["model-menu-data-v5"], {
+  revalidate: CATALOG_REVALIDATE,
+  tags: [CATALOG_TAG],
+});
 
 /** Null when the catalogue fetch failed; the menu then renders without counts or thumbnails. */
 export async function getModelMenuData(): Promise<ModelMenuData | null> {
